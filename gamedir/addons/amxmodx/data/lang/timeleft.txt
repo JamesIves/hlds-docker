@@ -1,0 +1,179 @@
+[en]
+THE_TIME = The time
+TIME_LEFT = Time Left
+NO_T_LIMIT = No Time Limit
+MINUTE = minute
+MINUTES = minutes
+SECOND = second
+SECONDS = seconds
+
+[de]
+THE_TIME = Es ist
+TIME_LEFT = Zeit uebrig
+NO_T_LIMIT = Kein Zeitlimit
+MINUTE = Minute
+MINUTES = Minuten
+SECOND = Sekunde
+SECONDS = Sekunden
+
+[sr]
+THE_TIME = Vreme
+TIME_LEFT = Preostalo Vreme
+NO_T_LIMIT = Nema Ogranicenja Vremena
+MINUTE = minut
+MINUTES = minute
+SECOND = sekund
+SECONDS = sekundi
+
+[tr]
+THE_TIME = Saat
+TIME_LEFT = Kalan zaman
+NO_T_LIMIT = Suresiz zaman
+MINUTE = dakika
+MINUTES = dakikalar
+SECOND = saniye
+SECONDS = saniyeler
+
+[fr]
+THE_TIME = Il est
+TIME_LEFT = Temps Restant
+NO_T_LIMIT = Aucun Temps Limite
+MINUTE = minute
+MINUTES = minutes
+SECOND = seconde
+SECONDS = secondes
+
+[sv]
+THE_TIME = Tid
+TIME_LEFT = Tid kvar
+NO_T_LIMIT = Ingen tidsbegr'a'nsning
+MINUTE = minut
+MINUTES = minuter
+SECOND = sekund
+SECONDS = sekunder
+
+[da]
+THE_TIME = Tiden
+TIME_LEFT = Tid tilbage
+NO_T_LIMIT = Ingen tidsbegraensning
+MINUTE = minut
+MINUTES = minutter
+SECOND = sekund
+SECONDs = sekunder
+
+[pl]
+THE_TIME = Czas
+TIME_LEFT = Pozostalo czasu
+NO_T_LIMIT = Bez limitu czasu
+MINUTE = minuta
+MINUTES = minut
+SECOND = sekunda
+SECONDS = sekund
+
+[nl]
+THE_TIME = Het is nu
+TIME_LEFT = Restende Tijd
+NO_T_LIMIT = Geen Tijdlimiet
+MINUTE = minuut
+MINUTES = minuten
+SECOND = seconde
+SECONDS = seconden
+
+[es]
+THE_TIME = Hora y fecha
+TIME_LEFT = Tiempo Restante
+NO_T_LIMIT = Tiempo Ilimitado
+MINUTE = minuto
+MINUTES = minutos
+SECOND = segundo
+SECONDS = segundos
+
+[bp]
+THE_TIME = Hora certa
+TIME_LEFT = Tempo Restante
+NO_T_LIMIT = Sem Tempo Limite
+MINUTE = minuto
+MINUTES = minutos
+SECOND = segundo
+SECONDS = segundos
+
+[cz]
+THE_TIME = Cas
+TIME_LEFT = Zbyva jeste
+NO_T_LIMIT = Neni casovy limit
+MINUTE = minuta
+MINUTES = minut
+SECOND = sekunda
+SECONDS = second
+
+[fi]
+THE_TIME = Aika
+TIME_LEFT = Aikaa jaljella
+NO_T_LIMIT = Ei aikarajaa
+MINUTE = minuutti
+MINUTES = minuuttia
+SECOND = sekunti
+SECONDS = sekuntia
+
+[ls]
+THE_TIME = T3h t!m3
+TIME_LEFT = T!m3 L3ft
+NO_T_LIMIT = N0 T!m3 L!m!t
+MINUTE = m!nut3
+MINUTES = m!nut3z
+SECOND = s3c0nd
+SECONDS = s3c0ndz
+
+[bg]
+THE_TIME = 4asa
+TIME_LEFT = Ostanalo Vreme
+NO_T_LIMIT = Nqma limit na vremeto
+MINUTE = minuta
+MINUTES = minuti
+SECOND = secunda
+SECONDS = secundi
+
+[ro]
+THE_TIME = Ora
+TIME_LEFT = Timp Ramas
+NO_T_LIMIT = Nici o Limita a Timpului
+MINUTE = minut ramas
+MINUTES = minute ramase
+SECOND = secunda
+SECONDS = secunde
+
+[hu]
+THE_TIME = Az ido
+TIME_LEFT = Hatralevo ido
+NO_T_LIMIT = NIncs idohatar
+MINUTE = perc
+MINUTES = perc
+SECOND = masodperc
+SECONDS = masodperc
+
+[lt]
+THE_TIME = Laikas
+TIME_LEFT = Liko laiko
+NO_T_LIMIT = Nera laiko limito
+MINUTE = minute
+MINUTES = minutes
+SECOND = sekunde
+SECONDS = sekundes
+
+[sk]
+THE_TIME = Cas
+TIME_LEFT = Ostava este
+NO_T_LIMIT = Neni casovy limit
+MINUTE = minuta
+MINUTES = minut
+SECOND = sekunda
+SECONDS = sekund
+
+[mk]
+THE_TIME = Vreme
+TIME_LEFT = Preostanato Vreme
+NO_T_LIMIT = Nema Ogranicuvanje Na Vremeto
+MINUTE = minuta
+MINUTES = minuti
+SECOND = sekunda
+SECONDS = sekundi
