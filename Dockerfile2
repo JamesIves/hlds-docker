@@ -1,14 +1,15 @@
-FROM ubuntu:latest
+FROM debian:bullseye-slim
 
 # Update base image and install dependencies.
-RUN apt-get update && apt-get install -y --no-install-recommends curl file
-RUN rm -rf /var/lib/apt/lists/*
-
-# Create steam user and group
-RUN groupadd -r steam && useradd -r -g steam -m -d /opt/steam steam
-
-# Create game directory
-RUN mkdir /gamedir
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    file \
+    rsync \
+    libc6:i386 \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r steam && useradd -r -g steam -m -d /opt/steam steam \
+    && mkdir /gamedir
 
 USER steam
 WORKDIR /opt/steam
@@ -16,8 +17,14 @@ COPY ./hldm.install /opt/steam
 
 # Download SteamCMD and install HLDM.
 # Download SteamCMD and install HLDM.
-RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf -
-RUN ./steamcmd.sh +runscript hldm.install
+RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - \
+    && ls -l /opt/steam/linux32 \
+    && file /opt/steam/linux32/steamcmd \
+    && ls -l /opt/steam \
+    && ./steamcmd.sh +runscript hldm.install \
+    && rm -fr /opt/steam/hldm/cstrike \
+    && rm -fr /opt/steam/hldm/siteserverui \
+    && rm -fr /opt/steam/hldm/linux64
 
 # Fix error that steamclient.so is missing.
 RUN mkdir -p $HOME/.steam \
