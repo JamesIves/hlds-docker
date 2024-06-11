@@ -1,21 +1,10 @@
 FROM debian:bullseye-slim
 
-ENV VERSION 2021.9
-ENV RELEASE_DATE 2021-09-05
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV DEBIAN_FRONTEND noninteractive
-
 # Update base image and install dependencies.
-RUN dpkg --add-architecture i386 \
-    && apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    rsync \
-    libc6:i386 \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd -r steam && useradd -r -g steam -m -d /opt/steam steam \
-    && mkdir /gamedir
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl rsync libc6:i386
+
+# Create steam user and group
+RUN groupadd -r steam && useradd -r -g steam -m -d /opt/steam steam
 
 USER steam
 WORKDIR /opt/steam
