@@ -49,5 +49,5 @@ EXPOSE 27015/udp
 ENTRYPOINT ["./entrypoint.sh", "-timeout 3"]
 
 # Default start parameters.
-CMD ["+maxplayers 12", "+map crossfire"]
+CMD ["+maxplayers 12", "+map cs_italy"]
 
