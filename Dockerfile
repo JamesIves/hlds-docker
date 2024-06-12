@@ -5,6 +5,7 @@ FROM ubuntu:latest
 ENV USERNAME=steam
 ENV VOLUME_DIR=src
 ENV INSTALL_DIR=hlds
+ENV MOD=valve
 
 # Update the package list and install the necessary packages
 RUN dpkg --add-architecture i386 && \
@@ -27,7 +28,7 @@ COPY ./hlds.txt /opt/$USERNAME
 # Download and install SteamCMD
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/$USERNAME/linux32/steamcmd && \
-    ./steamcmd.sh +force_install_dir ./$INSTALL_DIR +runscript hlds.txt
+    ./steamcmd.sh +force_install_dir ./$INSTALL_DIR +app_set_config 90 mod $MOD +runscript hlds.txt
 
 # Create a symbolic link to the Steam SDK
 RUN mkdir -p $HOME/.steam && \
@@ -39,7 +40,7 @@ WORKDIR /opt/$USERNAME/$INSTALL_DIR
 
 
 # Copy configs, Metamod, Stripper2 and AMX.
-COPY --chown=steam:steam $VOLUME_DIR valve
+COPY --chown=steam:steam $VOLUME_DIR $MOD
 COPY --chown=steam:steam ./entrypoint.sh ./entrypoint.sh
 
 EXPOSE 27015
@@ -51,5 +52,5 @@ ENTRYPOINT ["./entrypoint.sh", "-timeout 3"]
 # Default start parameters.
 CMD ["+maxplayers 12", "+map cs_italy"]
 
-RUN ls valve -la
+RUN ls $MOD -la
 
