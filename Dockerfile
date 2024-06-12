@@ -6,37 +6,48 @@ ENV USERNAME=steam
 ENV VOLUME_DIR=src
 ENV GAME=cstrike
 
-# Update the base image and install dependencies
+# Update the package list and install the necessary packages
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync && \
     rm -rf /var/lib/apt/lists/*
 
-# Create a user and group for Steam
+# Create a user for the SteamCMD and game
 RUN groupadd -r $USERNAME && \
     useradd -r -g $USERNAME -m -d /opt/$USERNAME $USERNAME
 
 # Create a directory for the game using the VOLUME_DIR variable
 RUN mkdir /$VOLUME_DIR
-
-# Switch to the Steam user
 USER $USERNAME
-
-# Set the working directory
 WORKDIR /opt/$USERNAME
 
-# Copy the installation script for the game
+# Copy the hlds.txt file to the container
 COPY ./hlds.txt /opt/$USERNAME
 
-# Download SteamCMD and install the game
+# Download and install SteamCMD
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/$USERNAME/linux32/steamcmd && \
     ./steamcmd.sh +force_install_dir ./$GAME +runscript hlds.txt
 
-# Fix the error that steamclient.so is missing
+# Create a symbolic link to the Steam SDK
 RUN mkdir -p $HOME/.steam && \
     ln -s /opt/$USERNAME/linux32 $HOME/.steam/sdk32 && \
     echo 70 > /opt/$USERNAME/$GAME/steam_appid.txt
 
-# Set the working directory for the game
+# Expose the necessary ports for the game
 WORKDIR /opt/$USERNAME/$GAME
+
+
+# Copy configs, Metamod, Stripper2 and AMX.
+COPY --chown=steam:steam $VOLUME_DIR valve
+COPY --chown=steam:steam ./entrypoint.sh ./entrypoint.sh
+
+EXPOSE 27015
+EXPOSE 27015/udp
+
+# Start server.
+ENTRYPOINT ["./entrypoint.sh", "-timeout 3"]
+
+# Default start parameters.
+CMD ["+maxplayers 12", "+map crossfire"]
+
