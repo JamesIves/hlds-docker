@@ -4,7 +4,7 @@ FROM ubuntu:latest
 # Define variables for the username, volume directory, and game
 ENV USERNAME=steam
 ENV VOLUME_DIR=src
-ENV GAME=cstrike
+ENV INSTALL_DIR=hlds
 
 # Update the package list and install the necessary packages
 RUN dpkg --add-architecture i386 && \
@@ -27,15 +27,15 @@ COPY ./hlds.txt /opt/$USERNAME
 # Download and install SteamCMD
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/$USERNAME/linux32/steamcmd && \
-    ./steamcmd.sh +force_install_dir ./$GAME +runscript hlds.txt
+    ./steamcmd.sh +force_install_dir ./$INSTALL_DIR +runscript hlds.txt
 
 # Create a symbolic link to the Steam SDK
 RUN mkdir -p $HOME/.steam && \
     ln -s /opt/$USERNAME/linux32 $HOME/.steam/sdk32 && \
-    echo 70 > /opt/$USERNAME/$GAME/steam_appid.txt
+    echo 70 > /opt/$USERNAME/$INSTALL_DIR/steam_appid.txt
 
 # Expose the necessary ports for the game
-WORKDIR /opt/$USERNAME/$GAME
+WORKDIR /opt/$USERNAME/$INSTALL_DIR
 
 
 # Copy configs, Metamod, Stripper2 and AMX.

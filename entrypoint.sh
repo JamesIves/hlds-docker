@@ -2,11 +2,10 @@
 
 if [ -d /tmp/$VOLUME_DIR ]
 then
-  rsync --chown=steam:steam /tmp/src/* /opt/steam/$GAME/valve
+  rsync --chown=steam:steam /tmp/$VOLUME_DIR/* /opt/steam/$INSTALL_DIR/valve
 fi
 
 export LD_LIBRARY_PATH=".:$LD_LIBRARY_PATH"
 
-echo Starting Half-Life Dedicated Server
-
+echo Starting HLDS...
 ./hlds_linux "$@"
