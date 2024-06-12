@@ -51,3 +51,5 @@ ENTRYPOINT ["./entrypoint.sh", "-timeout 3"]
 # Default start parameters.
 CMD ["+maxplayers 12", "+map cs_italy"]
 
+RUN ls -la
+
