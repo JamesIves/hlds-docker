@@ -7,5 +7,6 @@ fi
 
 export LD_LIBRARY_PATH=".:$LD_LIBRARY_PATH"
 
-echo Starting HLDS...
+echo Starting server...
+
 ./hlds_linux "$@"
