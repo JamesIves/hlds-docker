@@ -1,5 +1,5 @@
-# Use the latest version of Ubuntu as the base image
-FROM ubuntu:latest
+# Use the 32-bit version of Ubuntu as the base image
+FROM i386/ubuntu:latest
 
 # Define variables for the username, volume directory, and game
 ENV USERNAME=steam
@@ -8,9 +8,8 @@ ENV INSTALL_DIR=hlds
 ENV MOD=cstrike
 
 # Update the package list and install the necessary packages
-RUN dpkg --add-architecture i386 && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 lib32gcc-s1 ca-certificates rsync && \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl file libc6 libstdc++6 ca-certificates rsync && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a user for the SteamCMD and game
@@ -37,7 +36,6 @@ RUN mkdir -p $HOME/.steam && \
 
 # Expose the necessary ports for the game
 WORKDIR /opt/$USERNAME/$INSTALL_DIR
-
 
 # Copy configs, Metamod, Stripper2 and AMX.
 COPY --chown=steam:steam $CONFIG_DIR $MOD
