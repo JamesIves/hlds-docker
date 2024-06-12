@@ -1,4 +1,5 @@
-FROM i386/ubuntu:latest
+# Use the latest version of Ubuntu as the base image
+FROM debian:bullseye-slim
 
 # Define variables for the username, volume directory, and game
 ENV USERNAME=steam
@@ -7,8 +8,9 @@ ENV INSTALL_DIR=hlds
 ENV MOD=cstrike
 
 # Update the package list and install the necessary packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl file libc6 libstdc++6 ca-certificates rsync && \
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a user for the SteamCMD and game
@@ -46,4 +48,9 @@ EXPOSE 27015/udp
 
 # Start server.
 ENTRYPOINT ["./entrypoint.sh", "-timeout 3"]
+
+# Default start parameters.
+CMD ["+maxplayers 12", "+map cs_italy"]
+
+RUN ls $MOD -la
 
