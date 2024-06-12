@@ -1,45 +1,60 @@
+# Use the latest version of Ubuntu as the base image
 FROM ubuntu:latest
 
-# Update base image and install dependencies.
-RUN dpkg --add-architecture i386
-RUN apt-get update && apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates
-RUN rm -rf /var/lib/apt/lists/*
+# Define variables for the username and volume directory
+ENV USERNAME=steam
+ENV VOLUME_DIR=src
 
-# Create steam user and group
-RUN groupadd -r steam && useradd -r -g steam -m -d /opt/steam steam
+# Update the base image and install dependencies
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create game directory
-RUN mkdir /gamedir
+# Create a user and group for Steam
+RUN groupadd -r $USERNAME && \
+    useradd -r -g $USERNAME -m -d /opt/$USERNAME $USERNAME
 
-USER steam
-WORKDIR /opt/steam
-COPY ./hldm.install /opt/steam
+# Create a directory for the game using the VOLUME_DIR variable
+RUN mkdir /$VOLUME_DIR
 
-# Download SteamCMD and install HLDM.
-RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf -
-RUN file /opt/steam/linux32/steamcmd && ./steamcmd.sh +runscript hldm.install
+# Switch to the Steam user
+USER $USERNAME
 
-# Fix error that steamclient.so is missing.
-RUN mkdir -p $HOME/.steam \
-    && ln -s /opt/steam/linux32 $HOME/.steam/sdk32 \
-    && echo 70 > /opt/steam/hldm/steam_appid.txt
+# Set the working directory
+WORKDIR /opt/$USERNAME
 
-WORKDIR /opt/steam/hldm
+# Copy the installation script for HLDM
+COPY ./hldm.install /opt/$USERNAME
 
-# Copy configs, Metamod, Stripper2 and AMX.
-COPY --chown=steam:steam gamedir valve
-COPY --chown=steam:steam ./entrypoint.sh ./entrypoint.sh
+# Download SteamCMD and install HLDM
+RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
+    file /opt/$USERNAME/linux32/steamcmd && \
+    ./steamcmd.sh +runscript hldm.install
 
+# Fix the error that steamclient.so is missing
+RUN mkdir -p $HOME/.steam && \
+    ln -s /opt/$USERNAME/linux32 $HOME/.steam/sdk32 && \
+    echo 70 > /opt/$USERNAME/hldm/steam_appid.txt
+
+# Set the working directory for HLDM
+WORKDIR /opt/$USERNAME/hldm
+
+# Copy configs, Metamod, Stripper2, and AMX
+COPY --chown=$USERNAME:$USERNAME $VOLUME_DIR valve
+COPY --chown=$USERNAME:$USERNAME ./entrypoint.sh ./entrypoint.sh
+
+# Expose the necessary ports
 EXPOSE 27015
 EXPOSE 27015/udp
 
-# Start server.
+# Set the entrypoint for the server
 ENTRYPOINT ["./entrypoint.sh", "-timeout 3"]
 
-# Default start parameters.
+# Set the default start parameters
 CMD ["+maxplayers 12", "+map crossfire"]
 
-# Labels
+# Set labels for the image
 LABEL vendor=steamcalculator.com \
     hldm.docker.version="$VERSION" \
     hldm.docker.release-date="$RELEASE_DATE"
