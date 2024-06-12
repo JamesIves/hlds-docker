@@ -3,9 +3,9 @@ FROM ubuntu:latest
 
 # Define variables for the username, volume directory, and game
 ENV USERNAME=steam
-ENV VOLUME_DIR=src
+ENV CONFIG_DIR=src
 ENV INSTALL_DIR=hlds
-ENV MOD=valve
+ENV MOD=cstrike
 
 # Update the package list and install the necessary packages
 RUN dpkg --add-architecture i386 && \
@@ -17,8 +17,8 @@ RUN dpkg --add-architecture i386 && \
 RUN groupadd -r $USERNAME && \
     useradd -r -g $USERNAME -m -d /opt/$USERNAME $USERNAME
 
-# Create a directory for the game using the VOLUME_DIR variable
-RUN mkdir /$VOLUME_DIR
+# Create a directory for the game using the CONFIG_DIR variable
+RUN mkdir /$CONFIG_DIR
 USER $USERNAME
 WORKDIR /opt/$USERNAME
 
@@ -40,7 +40,7 @@ WORKDIR /opt/$USERNAME/$INSTALL_DIR
 
 
 # Copy configs, Metamod, Stripper2 and AMX.
-COPY --chown=steam:steam $VOLUME_DIR $MOD
+COPY --chown=steam:steam $CONFIG_DIR $MOD
 COPY --chown=steam:steam ./entrypoint.sh ./entrypoint.sh
 
 EXPOSE 27015
