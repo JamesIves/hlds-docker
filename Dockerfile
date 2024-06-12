@@ -45,6 +45,9 @@ WORKDIR /opt/$USERNAME/$INSTALL_DIR
 COPY --chown=steam:steam $CONFIG_DIR $MOD
 COPY --chown=steam:steam ./entrypoint.sh ./entrypoint.sh
 
+# Add execute permissions to the entrypoint.sh script
+RUN chmod +x ./entrypoint.sh
+
 EXPOSE 27015
 EXPOSE 27015/udp
 
