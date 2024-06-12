@@ -31,7 +31,7 @@ COPY ./hlds.txt /opt/$USERNAME
 # Download SteamCMD and install the game
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/$USERNAME/linux32/steamcmd && \
-    ./steamcmd.sh +runscript hlds.txt
+    ./steamcmd.sh +force_install_dir ./$GAME +runscript hlds.txt
 
 # Fix the error that steamclient.so is missing
 RUN mkdir -p $HOME/.steam && \
