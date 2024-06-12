@@ -5,8 +5,6 @@ then
   rsync --chown=steam:steam /tmp/$CONFIG_DIR/* /opt/steam/$INSTALL_DIR/$MOD
 fi
 
-export LD_LIBRARY_PATH=".:$LD_LIBRARY_PATH"
-
 echo Starting server...
 
 ./hlds_linux "$@"

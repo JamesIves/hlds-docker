@@ -1,12 +1,2 @@
-Welcome to HLDM Docker
-
-
-This server uses Docker.
-For more information visit
-https://github.com/spezifanta/hldm-docker
-
-
-
-
-Love old-school Half-Life?
-Join us on Discord: discord.steamcalculator.com
+Test MOTD 
+https://jives.dev
