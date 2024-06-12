@@ -1,6 +1,7 @@
 FROM ubuntu:latest
 
 # Update base image and install dependencies.
+RUN dpkg --add-architecture i386
 RUN apt-get update && apt-get install -y --no-install-recommends curl file
 RUN rm -rf /var/lib/apt/lists/*
 
