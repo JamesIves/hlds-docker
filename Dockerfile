@@ -1,5 +1,7 @@
+# Docs: https://developer.valvesoftware.com/wiki/SteamCMD
+
 # Use the latest version of Ubuntu as the base image
-FROM debian:bullseye-slim
+FROM ubuntu:latest
 
 # Define variables for the username, volume directory, and game
 ENV USERNAME=steam

@@ -1,0 +1,10 @@
+version: "3.7"
+
+services:
+  hlds:
+    build: docker
+    image: jives/hlds:cstrike
+    volumes:
+      - "./src:/tmp/src"
+    command: +maxplayers 12 +map cs_italy +rcon_password "supersecret" +log on +logaddress 0.0.0.0 27500
+    network_mode: "host"
