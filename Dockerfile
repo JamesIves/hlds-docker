@@ -17,7 +17,7 @@ COPY ./hldm.install /opt/steam
 # Download SteamCMD and install HLDM.
 # Download SteamCMD and install HLDM.
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf -
-RUN ./steamcmd.sh +runscript hldm.install
+RUN file /opt/steam/linux32/steamcmd && ./steamcmd.sh +runscript hldm.install
 
 # Fix error that steamclient.so is missing.
 RUN mkdir -p $HOME/.steam \
