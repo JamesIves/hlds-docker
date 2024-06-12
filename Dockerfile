@@ -4,7 +4,7 @@ FROM ubuntu:latest
 # Define variables for the username, volume directory, and game
 ENV USERNAME=steam
 ENV VOLUME_DIR=src
-ENV GAME=hlds
+ENV GAME=cstrike
 
 # Update the base image and install dependencies
 RUN dpkg --add-architecture i386 && \
