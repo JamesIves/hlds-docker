@@ -10,7 +10,7 @@ ENV MOD=cstrike
 # Update the package list and install the necessary packages
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync && \
+    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 lib32gcc1 ca-certificates rsync && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a user for the SteamCMD and game
