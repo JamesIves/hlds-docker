@@ -2,7 +2,7 @@ FROM ubuntu:latest
 
 # Update base image and install dependencies.
 RUN dpkg --add-architecture i386
-RUN apt-get update && apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6
+RUN apt-get update && apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates
 RUN rm -rf /var/lib/apt/lists/*
 
 # Create steam user and group
