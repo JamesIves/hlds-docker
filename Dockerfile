@@ -1,4 +1,3 @@
-# Use the 32-bit version of Ubuntu as the base image
 FROM i386/ubuntu:latest
 
 # Define variables for the username, volume directory, and game
@@ -36,6 +35,7 @@ RUN mkdir -p $HOME/.steam && \
 
 # Expose the necessary ports for the game
 WORKDIR /opt/$USERNAME/$INSTALL_DIR
+
 
 # Copy configs, Metamod, Stripper2 and AMX.
 COPY --chown=steam:steam $CONFIG_DIR $MOD
