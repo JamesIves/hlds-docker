@@ -2,7 +2,7 @@ FROM ubuntu:latest
 
 # Update base image and install dependencies.
 RUN dpkg --add-architecture i386
-RUN apt-get update && apt-get install -y --no-install-recommends curl file
+RUN apt-get update && apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6
 RUN rm -rf /var/lib/apt/lists/*
 
 # Create steam user and group
@@ -15,7 +15,6 @@ USER steam
 WORKDIR /opt/steam
 COPY ./hldm.install /opt/steam
 
-# Download SteamCMD and install HLDM.
 # Download SteamCMD and install HLDM.
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf -
 RUN file /opt/steam/linux32/steamcmd && ./steamcmd.sh +runscript hldm.install
