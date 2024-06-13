@@ -2,6 +2,8 @@ FROM ubuntu:18.04
 
 ARG GAME
 
+RUN if [ -z "$GAME" ]; then echo "The GAME environment variable is not set. Please specify one and try again." && exit 1; fi
+
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync && \
