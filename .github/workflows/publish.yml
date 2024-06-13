@@ -5,6 +5,7 @@ on:
       - main
 jobs:
   build:
+    concurrency: docker_image_publish
     runs-on: ubuntu-latest
     permissions:
       contents: write
