@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 ARG GAME
 
-RUN if [ -z "$GAME" ]; then echo "Error: The GAME environment variable is not set, specify one and try again. Please refer to the README for instructions: https://github.com/JamesIves/hlds-docker" && exit 1; fi
+RUN if [ -z "$GAME" ]; then printf "\033[31mError: The GAME environment variable is not set, specify one and try again. Please refer to the README for instructions: https://github.com/JamesIves/hlds-docker\033[0m\n" && exit 1; fi
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
