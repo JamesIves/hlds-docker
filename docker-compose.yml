@@ -12,4 +12,4 @@ services:
       - "./config:/config"
     ports:
       - "27015:27015/udp"
-    command: +maxplayers 12 +map cs_italy +log on
+    command: +maxplayers 12 +log on
