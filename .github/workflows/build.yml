@@ -1,4 +1,4 @@
-name: Validate Docker Image
+name: Validate Docker Image 🐳
 on:
   push:
     branches-ignore:
