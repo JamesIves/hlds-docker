@@ -11,7 +11,7 @@ Ensure you have the [Docker daemon installed and running](https://www.docker.com
 > [!IMPORTANT]  
 > The following steps will not work if you're using a system running on ARM or Mac Silicone architecture. Running via a Linux distribution is recommended.
 
-1. Define the game you want to start to run. You can do this by setting an environment variable on your command line.
+1. Define the game you want the server to run. You can do this by setting an environment variable on your command line.
 
 ```bash
 export GAME=cstrike
