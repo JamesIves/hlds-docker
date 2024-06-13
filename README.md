@@ -42,6 +42,8 @@ services:
 docker compose up
 ```
 
+5. Connect to your server snd start playing. ⌨️
+
 ## Server Configuration 🔧
 
 If you wish to define server configurations, such as addons, plugins, map rotations, etc, you can add them to the `config` directory. These will be copied into the container on build.
