@@ -24,14 +24,15 @@ Before continuing to the next steps, verify that the environment variable is set
 
 > [!TIP]
 > Available options include:
-> * `valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
-> * `cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
-> * `czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
-> * `dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
-> * `gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
-> * `ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
-> * `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
-> * `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
+>
+> - `valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
+> - `cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
+> - `czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
+> - `dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
+> - `gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
+> - `ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
+> - `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
+> - `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 
 3. Build the image.
 
@@ -57,8 +58,7 @@ docker compose up
 
 ### Pre-Built Images
 
-If you prefer not to build the image, follow the steps below to use a pre-built image on [Docker Hub](https://hub.docker.com/). 
-
+If you prefer not to build the image, follow the steps below to use a pre-built image on [Docker Hub](https://hub.docker.com/).
 
 1. Define an environment variable for the game you want your server to run.
 
@@ -86,14 +86,15 @@ services:
 
 > [!TIP]  
 > Available images include:
-> * `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
-> * `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
-> * `jives/hlds:czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
-> * `jives/hlds:dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
-> * `jives/hlds:gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
-> * `jives/hlds:ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
-> * `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
-> * `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
+>
+> - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
+> - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
+> - `jives/hlds:czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
+> - `jives/hlds:dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
+> - `jives/hlds:gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
+> - `jives/hlds:ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
+> - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
+> - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 
 3. Start the image. Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors.
 
@@ -108,3 +109,7 @@ docker compose up
 If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. Any configuration files will be copied into the container on build and placed within the folder for the specified game. For example, if you set the game as `cstrike`, the contents of the config folder will be placed within the `cstrike` directory on the server.
 
 Additionally, you can customize the server by manually building the images and making adjustments to the `Dockerfile`. This may be useful if you're trying to run a custom mod.
+
+## Ownership 🧰
+
+The Half-Life Dedicated Server client, Steam, SteamCMD and the titles themselves are property and ownership of [Valve Software](https://valvesoftware.com). All this tool does is make it easier to interface with their provided tooling.
