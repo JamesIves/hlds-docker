@@ -54,7 +54,7 @@ services:
 docker compose up
 ```
 
-6. Connect to your server and start playing. ⌨️
+6. Connect to your server via the IP address by loading the game on [Steam](https://store.steampowered.com/) and start playing. You must own a copy of the game on Steam in order to play. ⌨️
 
 ### Pre-Built Images
 
@@ -102,7 +102,7 @@ services:
 docker compose up
 ```
 
-4. Connect to your server snd start playing. ⌨️
+4. Connect to your server via the IP address by loading the game on [Steam](https://store.steampowered.com/) and start playing. You must own a copy of the game on Steam in order to play. ⌨️
 
 ## Server Configuration 🔧
 
