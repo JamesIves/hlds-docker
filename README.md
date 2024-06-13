@@ -106,9 +106,32 @@ docker compose up
 
 ## Server Configuration 🔧
 
+### Configs and Plugins
+
 If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. Any configuration files will be copied into the container on build and placed within the folder for the specified game. For example, if you set the game as `cstrike`, the contents of the config folder will be placed within the `cstrike` directory on the server.
 
-Additionally, you can customize the server by manually building the images and making adjustments to the `Dockerfile`. This may be useful if you're trying to run a custom mod.
+### Custom Mods
+
+If you want to run a custom mod, you can do so with the `mods` directory. Similar to the `config` directory, this folder will be copied into your container on build alongside the other game folders.
+
+1. Add your mod files as a sub-directory of `config`. For example if the mod name is `decay`, you'd place it in `mods/decay`.
+2. Define the `game` environment variable so it points to your mod name.
+
+```bash
+export GAME=decay
+```
+
+3. Build the image.
+
+```bash
+docker compose build
+```
+
+4. Start the image. Most Half-Life mods require _specific_ startup arguments, refer to the [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server) and the instructions for the mod you're trying to run for more details. You can find details about how to add these above.
+
+```bash
+docker compose up
+```
 
 ## Ownership 🧰
 
