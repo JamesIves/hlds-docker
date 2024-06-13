@@ -127,7 +127,7 @@ If you want to run a custom mod, you can do so with the `mods` directory. Simila
 export GAME=decay
 ```
 
-3. Build the image.
+3. Build the image. If you don't want to build the image, I suggest using the `jives/hlds:valve` image.
 
 ```bash
 docker compose build

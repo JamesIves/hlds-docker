@@ -9,8 +9,10 @@ services:
       args:
         GAME: ${GAME}
     volumes:
-      - "./config:/config"
-      - "./mods:/mods"
+      - "./config:/temp/config"
+      - "./mods:/temp/mods"
     ports:
       - "27015:27015/udp"
+      - "27015:27015"
+      - "26900:2690/udp"
     command: +maxplayers 12 +log on
