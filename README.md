@@ -66,7 +66,7 @@ If you prefer not to build the image, follow the steps below to use a pre-built 
 export GAME=cstrike
 ```
 
-2. Create a `docker-compose.yml` file. Adjust the image property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
+2. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
 
 ```yml
 version: "3.7"
