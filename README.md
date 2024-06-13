@@ -11,16 +11,16 @@ Ensure you have the [Docker daemon installed and running](https://www.docker.com
 > [!IMPORTANT]  
 > The following steps will not work if you're using a system running on ARM or Mac Silicone architecture. Running via a Linux distribution is recommended.
 
-1. Define the game you want to start the server for. You can do this by setting an environment variable on your command line.
+1. Define the game you want to start to run. You can do this by setting an environment variable on your command line.
 
 ```bash
 export GAME=cstrike
 ```
 
-Before continuing to the next steps verify that the environment variable is set by running `echo $GAME` in your terminal.
+Before continuing to the next steps verify that the environment variable is set by running `echo $GAME` in your terminal, it should send back the variable you just set.
 
 > [!TIP]  
-> Possible options include Half-Life Deathmatch (`valve`), Counter-Strike (`cstrike`), Counter-Strike Condition Zero (`czero`), Deathmatch Classic (`dmc`), Opposing Force (`gearbox`), Ricochet (`ricochet`), Day of Defeat (`dod`), and Team Fortress Classic (`tfc`).
+> Possible options include Half-Life Deathmatch (`valve`), Counter-Strike (`cstrike`), Counter-Strike Condition Zero (`czero`), Deathmatch Classic (`dmc`), Half-Life Opposing Force (`gearbox`), Ricochet (`ricochet`), Day of Defeat (`dod`), and Team Fortress Classic (`tfc`).
 
 2. Build the image.
 
@@ -28,7 +28,7 @@ Before continuing to the next steps verify that the environment variable is set 
 docker compose build
 ```
 
-3. If you want to modify the server startup arguments, you can provide a `command` property. [For a list of available arguments visit the Valve Developer Wiki](https://developer.valvesoftware.com/).
+3. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.yml`. [For a list of available arguments visit the Valve Developer Wiki](https://developer.valvesoftware.com/).
 
 ```yml
 services:
@@ -36,7 +36,7 @@ services:
     command: +maxplayers 16 +map cs_italy
 ```
 
-4. Start the image. Once HLDS starts you'll get logging messages about the public ip etc.
+4. Start the image. Once the Half-Life Dedicated Server client starts you'll begin to get a stream of messages from it.
 
 ```bash
 docker compose up
@@ -44,4 +44,4 @@ docker compose up
 
 ## Server Configuration 🔧
 
-If you wish to define server configurations, such as addons, plugins, custom message of the days, map rotations, etc, you can add them to the `config` directory. These will be copied into the container on startup of your server.
+If you wish to define server configurations, such as addons, plugins, map rotations, etc, you can add them to the `config` directory. These will be copied into the container on build.
