@@ -40,7 +40,10 @@ Before continuing to the next steps, verify that the environment variable is set
 docker compose build
 ```
 
-4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server). In the majority of cases you'll need to specify `+map` for the server to start and be joinable.
+4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
+
+> [!NOTE]  
+> In the majority of cases you'll need to specify `+map` for the server to be joinable.
 
 ```yml
 services:
@@ -66,7 +69,10 @@ If you prefer not to build the image, follow the steps below to use a pre-built 
 export GAME=cstrike
 ```
 
-2. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property. In the majority of cases you'll need to specify `+map` for the server to start and be joinable.
+2. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
+
+> [!NOTE]  
+> In the majority of cases you'll need to specify `+map` for the server to be joinable.
 
 ```yml
 version: "3.7"
