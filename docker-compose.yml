@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  hlds:
+    environment:
+      GAME: ${GAME}
+    build:
+      context: .
+      args:
+        GAME: ${GAME}
+    volumes:
+      - "./config:/config"
+    ports:
+      - "27015:27015/udp"
+    command: +maxplayers 12 +map cs_italy +log on
