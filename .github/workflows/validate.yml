@@ -21,3 +21,4 @@ jobs:
           GAME: cstrike
         with:
           context: .
+          build-args: GAME=cstrike
