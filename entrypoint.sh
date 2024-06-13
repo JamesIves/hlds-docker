@@ -5,6 +5,10 @@ if [ -z "$GAME" ]; then
   exit 1
 fi
 
+if [[ "$@" != *"+map"* ]]; then
+  echo "Warning: No +map specified in the command. Server will start but may not be joinable."
+fi
+
 if [ -d /temp/hlds ]
 then
   rsync --chown=steam:steam /temp/hlds/* /opt/steam/hlds/$GAME
