@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 if [ -z "$GAME" ]; then 
-  echo "The GAME environment variable is not set, please refer to the README for instructions: https://github.com/JamesIves/hlds-docker"
+  echo "Error: The GAME environment variable is not set, please refer to the README for instructions: https://github.com/JamesIves/hlds-docker"
   exit 1
 fi
 
