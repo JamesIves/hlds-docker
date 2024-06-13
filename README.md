@@ -22,7 +22,7 @@ Before continuing to the next steps verify that the environment variable is set 
 > [!TIP]  
 > Possible options include Half-Life Deathmatch (`valve`), Counter-Strike (`cstrike`), Counter-Strike Condition Zero (`czero`), Deathmatch Classic (`dmc`), Half-Life Opposing Force (`gearbox`), Ricochet (`ricochet`), Day of Defeat (`dod`), and Team Fortress Classic (`tfc`).
 
-2. Build the image.
+2. Clone the repository locally and build the image.
 
 ```sh
 docker compose build
@@ -43,6 +43,37 @@ docker compose up
 ```
 
 5. Connect to your server snd start playing. ⌨️
+
+### Pre-Built Images
+
+If you prefer not to build the image yourself, you can follow the steps below to use a pre-built image on [Docker Hub](https://hub.docker.com/).
+
+> [!NOTE]  
+> For these steps you don't need to clone this project locally.
+
+1. Similar to the build step, define an environment variable for the game you want your server to run.
+
+```bash
+export GAME=cstrike
+```
+
+2. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. For example, `jives/hlds:cstrike` for Counter-Strike, and `jives/hlds:valve` for Half-Life.
+
+```yml
+version: "3.7"
+
+services:
+  hlds:
+    environment:
+      GAME: ${GAME}
+    build: docker
+    image: jives/hlds:cstrike
+    volumes:
+      - "./config:/config"
+    ports:
+      - "27015:27015/udp"
+    command: +maxplayers 12 +map cs_italy +log on
+```
 
 ## Server Configuration 🔧
 

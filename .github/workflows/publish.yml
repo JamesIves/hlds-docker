@@ -1,0 +1,91 @@
+name: Publish Docker Images
+on:
+  release:
+    types: [created]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx  🛠️
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub 🐳
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build Docker Image for Counter-Strike 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: cstrike
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:cstrike
+
+      - name: Build Docker Image for Half-Life 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: valve
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:valve
+
+      - name: Build Docker Image for Counter-Strike Condition Zero 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: czero
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:czero
+
+      - name: Build Docker Image for Death Match Classic 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: dmc
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:dmc
+
+      - name: Build Docker Image for Half-Life Opposing Force 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: gearbox
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:gearbox
+
+      - name: Build Docker Image for Ricochet 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: ricochet
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:ricochet
+
+      - name: Build Docker Image for Day of Defeat 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: dod
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:dod
+
+      - name: Build Docker Image for Team Fortress Classic 🐳
+        uses: docker/build-push-action@v2
+        env:
+          GAME: tfc
+        with:
+          context: .
+          push: true
+          tags: jives/hlds:tfc
