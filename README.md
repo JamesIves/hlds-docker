@@ -114,11 +114,11 @@ docker compose up
 
 ### Configs and Plugins
 
-If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. Any configuration files will be copied into the container on build and placed within the folder for the specified game. For example, if you set the game as `cstrike`, the contents of the config folder will be placed within the `cstrike` directory on the server.
+If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. Any configuration files will be copied into the container on start and placed within the folder for the specified game. For example, if you set the game as `cstrike`, the contents of the config folder will be placed within the `cstrike` directory on the server.
 
 ### Custom Mods
 
-If you want to run a custom mod, you can do so with the `mods` directory. Similar to the `config` directory, this folder will be copied into your container on build alongside the other game folders.
+If you want to run a custom mod, you can do so with the `mods` directory. Similar to the `config` directory, this folder will be copied into your container on start alongside the other game folders.
 
 1. Add your mod files as a sub-directory of `config`. For example if the mod name is `decay`, you'd place it in `mods/decay`.
 2. Define the `game` environment variable so it points to your mod name.
