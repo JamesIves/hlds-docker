@@ -1,36 +1,45 @@
-# Half-Life Dedicated Server With Docker
+# Half-Life Dedicated Server With Docker 🐋
 
 <img align="right" width="120" height="auto"  src="./.github/docs/crowbar.png" alt="Crowbar">
 
-Creates a [Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) instance using [Docker](https://www.docker.com). You can configure the server client however you'd like, and for any official games that are supported by the Half-Life Dedicated Server client.
+Creates a [Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) instance using [Docker](https://www.docker.com). You can run any games the Half-Life Dedicated Server client supports out of the box, including the ability to add custom configurations and plugins.
 
 ## Setup ⚙️
 
-Ensure you have the [Docker daemon installed and running](https://www.docker.com/), along with the [Docker CLI tool](https://docs.docker.com/engine/reference/commandline/cli/).
+Before starting, ensure you have the [Docker daemon](https://www.docker.com/) and the [Docker CLI tool](https://docs.docker.com/engine/reference/commandline/cli/) installed and available.
 
 > [!IMPORTANT]  
-> The following steps will not work if you're using a system running on ARM or Mac Silicone architecture. Running via a Linux distribution is recommended.
+> The following steps will not work if you use an ARM architecture system. For best results, use a system running x86-64.
 
 ### Building an Image
 
-1. Define the game you want the server to run. You can do this by setting an environment variable on your command line.
+1. Clone this project.
+2. Define the game you want the server to run. You can do this by setting an environment variable on your command line.
 
 ```bash
 export GAME=cstrike
 ```
 
-Before continuing to the next steps verify that the environment variable is set by running `echo $GAME` in your terminal, it should send back the variable you just set.
+Before continuing to the next steps, verify that the environment variable is set by running `echo $GAME` in your terminal. It should send back the variable you just set.
 
-> [!TIP]  
-> Possible options include Half-Life Deathmatch (`valve`), Counter-Strike (`cstrike`), Counter-Strike Condition Zero (`czero`), Deathmatch Classic (`dmc`), Half-Life Opposing Force (`gearbox`), Ricochet (`ricochet`), Day of Defeat (`dod`), and Team Fortress Classic (`tfc`).
+> [!TIP]
+> Available options include:
+> * `valve` (Half-Life Deathmatch)
+> * `cstrike` (Counter-Strike)
+> * `czero` (Counter-Strike Condition Zero)
+> * `dmc` (Deathmatch Classic)
+> * `gearbox` (Half-Life Opposing Force)
+> * `ricohet` (Ricochet)
+> * `dod` (Day of Defeat)
+> * `tfc` (Team Fortress Classic)
 
-2. Clone the repository locally and build the image.
+3. Build the image.
 
 ```sh
 docker compose build
 ```
 
-3. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.yml`. [For a list of available arguments visit the Valve Developer Wiki](https://developer.valvesoftware.com/).
+4. If you want to modify the server startup arguments, you can provide a command property within `docker-compose.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 ```yml
 services:
@@ -38,28 +47,26 @@ services:
     command: +maxplayers 16 +map cs_italy
 ```
 
-4. Start the image. Once the Half-Life Dedicated Server client starts you'll begin to get a stream of messages from it.
+5. Start the image. Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors.
 
 ```bash
 docker compose up
 ```
 
-5. Connect to your server snd start playing. ⌨️
+6. Connect to your server and start playing. ⌨️
 
 ### Pre-Built Images
 
-If you prefer not to build the image yourself, you can follow the steps below to use a pre-built image on [Docker Hub](https://hub.docker.com/).
+If you prefer not to build the image, follow the steps below to use a pre-built image on [Docker Hub](https://hub.docker.com/). 
 
-> [!NOTE]  
-> For these steps you don't need to clone this project locally.
 
-1. Similar to the build step, define an environment variable for the game you want your server to run.
+1. Define an environment variable for the game you want your server to run.
 
 ```bash
 export GAME=cstrike
 ```
 
-2. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. For example, `jives/hlds:cstrike` for Counter-Strike, and `jives/hlds:valve` for Half-Life.
+2. Create a `docker-compose.yml` file. Adjust the image property so the tag name corresponds with the game you want to use.
 
 ```yml
 version: "3.7"
@@ -69,7 +76,7 @@ services:
     environment:
       GAME: ${GAME}
     build: docker
-    image: jives/hlds:cstrike
+    image: jives/hlds:cstrike # Adjust the image here with the desired game.
     volumes:
       - "./config:/config"
     ports:
@@ -77,11 +84,27 @@ services:
     command: +maxplayers 12 +map cs_italy +log on
 ```
 
-3. Run `docker compose up`
+> [!TIP]  
+> Available images include:
+> * `jives/hlds:valve` (Half-Life Deathmatch)
+> * `jives/hlds:cstrike` (Counter-Strike)
+> * `jives/hlds:czero` (Counter-Strike Condition Zero)
+> * `jives/hlds:dmc` (Deathmatch Classic)
+> * `jives/hlds:gearbox` (Half-Life Opposing Force)
+> * `jives/hlds:ricohet` (Ricochet)
+> * `jives/hlds:dod` (Day of Defeat)
+> * `jives/hlds:tfc` (Team Fortress Classic)
+
+3. Start the image.
+
+```bash
+docker compose up
+```
+
 4. Connect to your server snd start playing. ⌨️
 
 ## Server Configuration 🔧
 
-If you wish to define server configurations, such as addons, plugins, map rotations, etc, you can add them to the `config` directory. These will be copied into the container on build and placed within the folder for the specified game. For example if you set the game as cstrike, the contents of config will be placed within the cstrike directory on the server.
+If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. Any configuration files will be copied into the container on build and placed within the folder for the specified game. For example, if you set the game as `cstrike`, the contents of the config folder will be placed within the `cstrike` directory on the server.
 
-Additionally you can make any server customizations by building the images manually and making adjustments directly to the `Dockerfile`. This may be useful if you're trying to run a custom mod such as Sven Coop, Natural Selection, etc.
+Additionally, you can customize the server by manually building the images and making adjustments to the `Dockerfile`. This may be useful if you're trying to run a custom mod.
