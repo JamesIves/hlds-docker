@@ -24,14 +24,14 @@ Before continuing to the next steps, verify that the environment variable is set
 
 > [!TIP]
 > Available options include:
-> * `valve` (Half-Life Deathmatch)
-> * `cstrike` (Counter-Strike)
-> * `czero` (Counter-Strike Condition Zero)
-> * `dmc` (Deathmatch Classic)
-> * `gearbox` (Half-Life Opposing Force)
-> * `ricohet` (Ricochet)
-> * `dod` (Day of Defeat)
-> * `tfc` (Team Fortress Classic)
+> * `valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
+> * `cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
+> * `czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
+> * `dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
+> * `gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
+> * `ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
+> * `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
+> * `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 
 3. Build the image.
 
@@ -86,14 +86,14 @@ services:
 
 > [!TIP]  
 > Available images include:
-> * `jives/hlds:valve` (Half-Life Deathmatch)
-> * `jives/hlds:cstrike` (Counter-Strike)
-> * `jives/hlds:czero` (Counter-Strike Condition Zero)
-> * `jives/hlds:dmc` (Deathmatch Classic)
-> * `jives/hlds:gearbox` (Half-Life Opposing Force)
-> * `jives/hlds:ricohet` (Ricochet)
-> * `jives/hlds:dod` (Day of Defeat)
-> * `jives/hlds:tfc` (Team Fortress Classic)
+> * `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
+> * `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
+> * `jives/hlds:czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
+> * `jives/hlds:dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
+> * `jives/hlds:gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
+> * `jives/hlds:ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
+> * `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
+> * `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 
 3. Start the image.
 
