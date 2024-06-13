@@ -81,3 +81,5 @@ services:
 ## Server Configuration 🔧
 
 If you wish to define server configurations, such as addons, plugins, map rotations, etc, you can add them to the `config` directory. These will be copied into the container on build and placed within the folder for the specified game. For example if you set the game as cstrike, the contents of config will be placed within the cstrike directory on the server.
+
+Additionally you can make any server customizations by building the images manually and making adjustments directly to the `Dockerfile`. This may be useful if you're trying to run a custom mod such as Sven Coop, Natural Selection, etc.
