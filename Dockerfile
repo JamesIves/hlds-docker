@@ -13,6 +13,7 @@ RUN groupadd -r steam && \
     useradd -r -g steam -m -d /opt/steam steam
 
 RUN mkdir /config
+RUN mkdir /mods
 
 USER steam
 WORKDIR /opt/steam
@@ -31,6 +32,7 @@ WORKDIR /opt/steam/hlds
 
 COPY --chown=steam:steam ./entrypoint.sh ./entrypoint.sh
 COPY --chown=steam:steam config $GAME
+COPY --chown=steam:steam mods .
 
 RUN chmod +x ./entrypoint.sh
 
