@@ -6,7 +6,7 @@ Creates a [Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/vie
 
 ## Setup ⚙️
 
-Ensure you have the [Docker daemon installed and running](https://www.docker.com/).
+Ensure you have the [Docker daemon installed and running](https://www.docker.com/), along with the [Docker CLI tool](https://docs.docker.com/engine/reference/commandline/cli/).
 
 > [!IMPORTANT]  
 > The following steps will not work if you're using a system running on ARM or Mac Silicone architecture. Running via a Linux distribution is recommended.
