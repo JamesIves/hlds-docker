@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-if [ -d /tmp/hlds ]
+if [ -d /temp/hlds ]
 then
   rsync --chown=steam:steam /temp/hlds/* /opt/steam/hlds/$GAME
 fi
