@@ -112,4 +112,4 @@ Additionally, you can customize the server by manually building the images and m
 
 ## Ownership 🧰
 
-The Half-Life Dedicated Server client, Steam, SteamCMD and the titles themselves are property and ownership of [Valve Software](https://valvesoftware.com). All this tool does is make it easier to interface with their provided tooling.
+The Half-Life Dedicated Server client, Steam, SteamCMD and the titles themselves are property and ownership of [Valve Software](https://valvesoftware.com). All this software does is make it easier to interface with their provided tooling.
