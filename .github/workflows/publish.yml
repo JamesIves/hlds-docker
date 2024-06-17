@@ -44,6 +44,11 @@ jobs:
           tags: jives/hlds:${{ matrix.game }}
           build-args: GAME=${{ matrix.game }}
 
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
       - name: Bump Version and Create Tag 🏷️
         id: create_tag
         uses: anothrNick/github-tag-action@1.69.0
