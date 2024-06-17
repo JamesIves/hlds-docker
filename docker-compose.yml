@@ -1,13 +1,7 @@
-version: "3.7"
-
 services:
   hlds:
-    environment:
-      GAME: ${GAME}
     build:
       context: .
-      args:
-        GAME: ${GAME}
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"
@@ -15,4 +9,6 @@ services:
       - "27015:27015/udp"
       - "27015:27015"
       - "26900:2690/udp"
+    environment:
+      - GAME=${GAME}
     command: +maxplayers 12 +log on
