@@ -58,6 +58,7 @@ jobs:
 
       - name: Bump Version and Create Tag 🏷️
         id: create_tag
+        if: github.ref == 'refs/heads/main'
         uses: anothrNick/github-tag-action@1.69.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,6 +67,7 @@ jobs:
 
       - name: Create Release 🚀
         id: create_release
+        if: github.ref == 'refs/heads/main'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

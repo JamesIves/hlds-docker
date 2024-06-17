@@ -7,7 +7,7 @@ ENV GAME ${GAME:-valve}
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync && \
+    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync wget && \
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r steam && \
@@ -23,6 +23,12 @@ COPY ./hlds.txt /opt/steam
 
 # Replace $GAME with the requested mod to install.
 RUN sed -i "s/\$GAME/${GAME}/g" /opt/steam/hlds.txt
+
+RUN if [ "$GAME" = "gearbox" ]; then \
+    for i in 10 50 70 90; do \
+    wget -q https://raw.githubusercontent.com/dgibbs64/HLDS-appmanifest/main/OpposingForce/appmanifest_$i.acf -O appmanifest_$i.acf; \
+    done; \
+    fi
 
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/steam/linux32/steamcmd && \
