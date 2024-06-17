@@ -11,6 +11,47 @@ Before starting, ensure you have the [Docker daemon](https://www.docker.com/) a
 > [!IMPORTANT]  
 > The following steps will not work if you use an ARM architecture system. For best results, use a system running x86-64.
 
+### Pre-Built Images
+
+If you're just looking to start a server as quickly as possible you can follow these steps to use a pre-built image on [Docker Hub](https://hub.docker.com/).
+
+1. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
+
+> [!NOTE]  
+> In the majority of cases you'll need to specify `+map` for the server to be joinable. If you are trying to start a custom mod you can override the game the server starts with by specifying an environment variable called `$GAME`.
+
+```yml
+services:
+  hlds:
+    build: docker
+    image: jives/hlds:cstrike # Adjust the image here with the desired game.
+    volumes:
+      - "./config:/config"
+    ports:
+      - "27015:27015/udp"
+    command: +maxplayers 12 +map cs_italy
+```
+
+> [!TIP]  
+> Available images include:
+>
+> - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
+> - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
+> - `jives/hlds:czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
+> - `jives/hlds:dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
+> - `jives/hlds:gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
+> - `jives/hlds:ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
+> - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
+> - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
+
+2. Start the image. Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors.
+
+```bash
+docker compose up
+```
+
+3. Connect to your server via the IP address by loading the game on [Steam](https://store.steampowered.com/) and start playing. You must own a copy of the game on Steam in order to play. ⌨️
+
 ### Building an Image
 
 1. Clone this project.
@@ -33,6 +74,8 @@ Before continuing to the next steps, verify that the environment variable is set
 > - `ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
 > - `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
+>
+> This can also be a custom game name if you want to use a custom mod. See the section below regarding how to set this up.
 
 3. Build the image.
 
@@ -59,57 +102,6 @@ docker compose up
 
 6. Connect to your server via the IP address by loading the game on [Steam](https://store.steampowered.com/) and start playing. You must own a copy of the game on Steam in order to play. ⌨️
 
-### Pre-Built Images
-
-If you prefer not to build the image, follow the steps below to use a pre-built image on [Docker Hub](https://hub.docker.com/).
-
-1. Define an environment variable for the game you want your server to run.
-
-```bash
-export GAME=cstrike
-```
-
-2. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
-
-> [!NOTE]  
-> In the majority of cases you'll need to specify `+map` for the server to be joinable.
-
-```yml
-version: "3.7"
-
-services:
-  hlds:
-    environment:
-      GAME: ${GAME}
-    build: docker
-    image: jives/hlds:cstrike # Adjust the image here with the desired game.
-    volumes:
-      - "./config:/config"
-    ports:
-      - "27015:27015/udp"
-    command: +maxplayers 12 +map cs_italy
-```
-
-> [!TIP]  
-> Available images include:
->
-> - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
-> - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
-> - `jives/hlds:czero` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/))
-> - `jives/hlds:dmc` ([Deathmatch Classic](https://store.steampowered.com/app/40/Deathmatch_Classic/))
-> - `jives/hlds:gearbox` ([Half-Life Opposing Force](https://store.steampowered.com/app/50/HalfLife_Opposing_Force/))
-> - `jives/hlds:ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
-> - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
-> - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
-
-3. Start the image. Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors.
-
-```bash
-docker compose up
-```
-
-4. Connect to your server via the IP address by loading the game on [Steam](https://store.steampowered.com/) and start playing. You must own a copy of the game on Steam in order to play. ⌨️
-
 ## Server Configuration 🔧
 
 ### Configs and Plugins
@@ -121,13 +113,13 @@ If you wish to add server configurations, such as add-ons, plugins, map rotation
 If you want to run a custom mod, you can do so with the `mods` directory. Similar to the `config` directory, this folder will be copied into your container on start alongside the other game folders.
 
 1. Add your mod files as a sub-directory of `mods`. For example if the mod name is `decay`, you'd place it in `mods/decay`.
-2. Define the `game` environment variable so it points to your mod name.
+2. Define the `game` environment variable so it points to your mod name. This works if you're using a pre-built image or building one yourself.
 
 ```bash
 export GAME=decay
 ```
 
-3. Build the image. If you don't want to build the image, I suggest using the pre-built `jives/hlds:valve` image.
+3. Build the image. If you don't want to build the image, I suggest using the pre-built `jives/hlds:valve` image as most Half-Life mods require the base Half-Life game to be installed.
 
 ```bash
 docker compose build

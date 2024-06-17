@@ -3,7 +3,7 @@ services:
     build:
       context: .
       args:
-        - cstrike
+        - valve
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"
