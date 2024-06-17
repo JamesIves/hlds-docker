@@ -23,7 +23,7 @@ COPY ./hlds.txt /opt/steam
 
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/steam/linux32/steamcmd && \
-    ./steamcmd.sh +force_install_dir ./hlds +runscript hlds.txt +app_set_config 90 mod $GAME validate +app_update 90 validate +app_update 90 validate
+    ./steamcmd.sh +force_install_dir ./hlds +runscript hlds.txt +app_set_config "90 mod $GAME" validate +app_update 90 validate +app_update 90 validate
 
 RUN mkdir -p $HOME/.steam \
     && ln -s /opt/steam/linux32 $HOME/.steam/sdk32 \
