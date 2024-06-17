@@ -19,8 +19,6 @@ RUN mkdir /mods
 USER steam
 WORKDIR /opt/steam
 
-COPY ./hlds.txt /opt/steam
-
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/steam/linux32/steamcmd && \
     ./steamcmd.sh +login anonymous +force_install_dir ./hlds +app_set_config 90 mod $GAME +app_update 90 +app_update 90 validate +app_update 90 validate +quit
