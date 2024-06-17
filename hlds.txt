@@ -1,7 +1,0 @@
-@ShutdownOnFailedCommand 0
-@NoPromptForPassword 1
-login anonymous
-app_update 90
-app_update 90 validate
-app_update 90 validate
-quit
