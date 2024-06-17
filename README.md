@@ -15,7 +15,7 @@ Before starting, ensure you have the [Docker daemon](https://www.docker.com/) a
 
 If you're just looking to start a server as quickly as possible you can follow these steps to use a pre-built image on [Docker Hub](https://hub.docker.com/).
 
-1. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
+1. Create a `docker-compose.yml` file by copying and pasting the example below. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
 
 > [!NOTE]  
 > In the majority of cases you'll need to specify `+map` for the server to be joinable.
@@ -24,7 +24,7 @@ If you're just looking to start a server as quickly as possible you can follow t
 services:
   hlds:
     build: docker
-    image: jives/hlds:cstrike # Adjust the image here with the desired game.
+    image: jives/hlds:cstrike # Adjust the image here with the desired game. There is no need to change anything else.
     volumes:
       - "./config:/config"
     ports:
