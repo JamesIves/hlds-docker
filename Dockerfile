@@ -22,7 +22,10 @@ WORKDIR /opt/steam
 COPY ./hlds.txt /opt/steam
 
 # Replace $GAME with the requested mod to install.
-RUN sed -i "s/\$GAME/${GAME}/g" /opt/steam/hlds.txt
+RUN sed -i "s/\$GAME/${GAME}/g" /opt/steam/hlds.txt && \
+    cat /opt/steam/hlds.txt
+
+
 
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/steam/linux32/steamcmd && \
