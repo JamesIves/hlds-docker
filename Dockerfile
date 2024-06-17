@@ -7,7 +7,7 @@ ENV GAME ${GAME:-valve}
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync && \
+    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync wget && \
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r steam && \
