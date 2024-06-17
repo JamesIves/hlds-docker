@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         game: [cstrike, valve, czero, dmc, gearbox, ricochet, dod, tfc]
-      max-parallel: 1
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4

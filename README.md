@@ -34,6 +34,8 @@ services:
       - "26900:2690/udp"
     environment:
       - GAME=${GAME}
+    # 📣 Modify your server startup commands here.
+    # 📣 Remember: Stating map is based on the game, and will likely be different between images.
     command: +maxplayers 12 +map cs_italy
 ```
 
