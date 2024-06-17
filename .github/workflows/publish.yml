@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    strategy:
+      matrix:
+        game: [cstrike, valve, czero, dmc, gearbox, ricochet, dod, tfc]
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -26,85 +29,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build Docker Image for Counter-Strike 🐳
-        uses: docker/build-push-action@v5
-        env:
-          GAME: cstrike
-        with:
-          context: .
-          push: true
-          tags: jives/hlds:cstrike
-          build-args: GAME=cstrike
+      - name: Replace fallback value in Dockerfile and entrypoint.sh
+        run: |
+          sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" Dockerfile
+          sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" entrypoint.sh
 
-      - name: Build Docker Image for Half-Life 🐳
+      - name: Build Docker Image 🐳
         uses: docker/build-push-action@v5
         env:
-          GAME: valve
+          GAME: ${{ matrix.game }}
         with:
           context: .
           push: true
-          tags: jives/hlds:valve
-          build-args: GAME=valve
-
-      - name: Build Docker Image for Counter-Strike Condition Zero 🐳
-        uses: docker/build-push-action@v5
-        env:
-          GAME: czero
-        with:
-          context: .
-          push: true
-          tags: jives/hlds:czero
-          build-args: GAME=czero
-
-      - name: Build Docker Image for Death Match Classic 🐳
-        uses: docker/build-push-action@v5
-        env:
-          GAME: dmc
-        with:
-          context: .
-          push: true
-          tags: jives/hlds:dmc
-          build-args: GAME=dmc
-
-      - name: Build Docker Image for Half-Life Opposing Force 🐳
-        uses: docker/build-push-action@v5
-        env:
-          GAME: gearbox
-        with:
-          context: .
-          push: true
-          tags: jives/hlds:gearbox
-          build-args: GAME=gearbox
-
-      - name: Build Docker Image for Ricochet 🐳
-        uses: docker/build-push-action@v5
-        env:
-          GAME: ricochet
-        with:
-          context: .
-          push: true
-          tags: jives/hlds:ricochet
-          build-args: GAME=richochet
-
-      - name: Build Docker Image for Day of Defeat 🐳
-        uses: docker/build-push-action@v5
-        env:
-          GAME: dod
-        with:
-          context: .
-          push: true
-          tags: jives/hlds:dod
-          build-args: GAME=dod
-
-      - name: Build Docker Image for Team Fortress Classic 🐳
-        uses: docker/build-push-action@v5
-        env:
-          GAME: tfc
-        with:
-          context: .
-          push: true
-          tags: jives/hlds:tfc
-          build-args: GAME=tfc
+          tags: jives/hlds:${{ matrix.game }}
+          build-args: GAME=${{ matrix.game }}
 
       - name: Bump Version and Create Tag 🏷️
         id: create_tag
