@@ -24,15 +24,9 @@ COPY ./hlds.txt /opt/steam
 # Replace $GAME with the requested mod to install.
 RUN sed -i "s/\$GAME/${GAME}/g" /opt/steam/hlds.txt
 
-RUN if [ "$GAME" = "gearbox" ]; then \
-    for i in 10 50 70 90; do \
-    wget -q https://raw.githubusercontent.com/dgibbs64/HLDS-appmanifest/main/OpposingForce/appmanifest_$i.acf -O appmanifest_$i.acf; \
-    done; \
-    fi
-
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/steam/linux32/steamcmd && \
-    ./steamcmd.sh +runscript hlds.txt
+    ./steamcmd.sh +runscript /opt/steam/hlds.txt
 
 RUN mkdir -p $HOME/.steam \
     && ln -s /opt/steam/linux32 $HOME/.steam/sdk32 \
