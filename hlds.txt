@@ -2,9 +2,9 @@
 @NoPromptForPassword 1
 login anonymous
 force_install_dir ./hlds
-app_update 90
-app_set_config 90 mod $GAME validate
-app_set_config 90 mod $GAME validate
-app_set_config 90 mod $GAME validate
-app_set_config 90 mod $GAME validate
+app_set_config 90 mod $GAME
+app_update 90 validate
+app_update 90 validate
+app_update 90 validate
+app_update 90 validate
 quit
