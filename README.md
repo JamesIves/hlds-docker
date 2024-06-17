@@ -18,7 +18,7 @@ If you're just looking to start a server as quickly as possible you can follow t
 1. Create a `docker-compose.yml` file. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
 
 > [!NOTE]  
-> In the majority of cases you'll need to specify `+map` for the server to be joinable. If you are trying to start a custom mod you can override the game the server starts with by specifying an environment variable called `$GAME`.
+> In the majority of cases you'll need to specify `+map` for the server to be joinable.
 
 ```yml
 services:
@@ -29,6 +29,10 @@ services:
       - "./config:/config"
     ports:
       - "27015:27015/udp"
+      - "27015:27015"
+      - "26900:2690/udp"
+    environment:
+      - GAME=${GAME}
     command: +maxplayers 12 +map cs_italy
 ```
 
@@ -74,8 +78,6 @@ Before continuing to the next steps, verify that the environment variable is set
 > - `ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
 > - `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
->
-> This can also be a custom game name if you want to use a custom mod. See the section below regarding how to set this up.
 
 3. Build the image.
 
@@ -113,13 +115,13 @@ If you wish to add server configurations, such as add-ons, plugins, map rotation
 If you want to run a custom mod, you can do so with the `mods` directory. Similar to the `config` directory, this folder will be copied into your container on start alongside the other game folders.
 
 1. Add your mod files as a sub-directory of `mods`. For example if the mod name is `decay`, you'd place it in `mods/decay`.
-2. Define the `game` environment variable so it points to your mod name. This works if you're using a pre-built image or building one yourself.
+2. Define the `GAME` environment variable so it points to your mod name. This works if you're using a pre-built image `docker-compose.yml` or by building one yourself.
 
 ```bash
 export GAME=decay
 ```
 
-3. Build the image. If you don't want to build the image, I suggest using the pre-built `jives/hlds:valve` image as most Half-Life mods require the base Half-Life game to be installed.
+3. Build the image. If you don't want to build the image, I suggest using the pre-built `jives/hlds:valve` image.
 
 ```bash
 docker compose build
