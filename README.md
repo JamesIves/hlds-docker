@@ -24,7 +24,8 @@ If you're just looking to start a server as quickly as possible you can follow t
 services:
   hlds:
     build: docker
-    image: jives/hlds:cstrike # Adjust the image here with the desired game. There is no need to change anything else.
+    # 📣 Adjust the image value here with the desired game you want the server to use.
+    image: jives/hlds:cstrike
     volumes:
       - "./config:/config"
     ports:
