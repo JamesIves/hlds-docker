@@ -1,8 +1,9 @@
 FROM ubuntu:18.04
 
+# Set environment variable for the game to install.
+# Supported games: valve, cstrike, czero, dod, dmc, gearbox, ricochet, tfc
+# Default is valve. This get replaced when building the image with --build-arg GAME=<game>
 ENV GAME ${GAME:-valve}
-
-RUN if [ -z "$GAME" ]; then printf "\033[31mError: The GAME environment variable is not set, specify one and try again. Please refer to the README for instructions: https://github.com/JamesIves/hlds-docker\033[0m\n" && exit 1; fi
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
