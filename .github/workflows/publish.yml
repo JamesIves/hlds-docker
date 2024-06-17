@@ -29,6 +29,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      # Replace fallback value in Dockerfile and entrypoint.sh
+      # So that the correct game is used in the Docker image without
+      # needing to specify a build-arg on start.
       - name: Replace fallback value in Dockerfile and entrypoint.sh
         run: |
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" Dockerfile
