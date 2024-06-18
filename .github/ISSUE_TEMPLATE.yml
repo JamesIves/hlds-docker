@@ -1,7 +1,7 @@
 name: Bug Report
 description: Found an issue? Report it here!
 title: "[Bug]: "
-labels: ["bug 🐛", "triage"]
+labels: ["bug 🐛", "triage ⚠️"]
 assignees:
   - JamesIves
 body:
@@ -15,7 +15,6 @@ body:
     attributes:
       label: What happened?
       description: Tell us what you see and what you expected to see.
-      value: ""
     validations:
       required: true
   - type: dropdown

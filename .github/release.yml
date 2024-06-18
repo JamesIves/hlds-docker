@@ -11,12 +11,13 @@ changelog:
     - title: Bug Fixes 🐛
       labels:
         - fix 🐛
+        - bug 🐛
         - fix
-    - title: Performance Improvements ⚡
+    - title: Performance ⚡
       labels:
         - performance ⚡
         - perf
-    - title: Testing Improvements 🧪
+    - title: Testing 🧪
       labels:
         - test 🧪
         - test
