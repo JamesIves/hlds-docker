@@ -13,7 +13,7 @@ Before starting, ensure you have the [Docker daemon](https://www.docker.com/) a
 
 ### Pre-Built Images
 
-If you're just looking to start a server as quickly as possible you can follow these steps to use a pre-built image on [Docker Hub](https://hub.docker.com/).
+If you're just looking to start a server as quickly as possible you can follow these steps to use a pre-built image on [Docker Hub](https://hub.docker.com/repository/docker/jives/hlds) or the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
 1. Create a `docker-compose.yml` file by copying and pasting the example below. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
