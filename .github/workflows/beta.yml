@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    concurrency: 
+      group: build-${{ github.ref }}
+    runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: write
