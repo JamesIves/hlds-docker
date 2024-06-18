@@ -45,6 +45,7 @@ jobs:
           build-args: GAME=${{ matrix.game }}
 
   publish:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
