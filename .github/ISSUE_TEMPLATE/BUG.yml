@@ -11,9 +11,7 @@ body:
         Thanks for taking the time to fill out this bug report.
         Please provide as much detail as possible to help us fix the issue.
 
-        Please consider checking [the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server)
-        for additional information on server startup commands configuration files before submitting a bug report
-        as your issue may be related to a misconfiguration as opposed to a bug with the Docker script.
+        Please consider checking [the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server) for additional information on server startup commands and configuration files before submitting a bug report as your issue may be related to a misconfiguration as opposed to a bug with the Docker script.
   - type: textarea
     id: what-happened
     attributes:
