@@ -48,6 +48,10 @@ jobs:
           tags: jives/hlds:${{ matrix.game }}
           build-args: GAME=${{ matrix.game }}
 
+      - name: Set repo owner to lowercase
+        id: repo_owner
+        run: echo "::set-output name=repo_owner::$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')"
+
       - name: Build and Push Docker Image to GitHub Container Registry 🐳
         uses: docker/build-push-action@v5
         env:
@@ -55,7 +59,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/hlds:${{ matrix.game }}
+          tags: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}
           build-args: GAME=${{ matrix.game }}
 
   publish:
