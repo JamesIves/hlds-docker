@@ -17,6 +17,10 @@ changelog:
       labels:
         - performance ⚡
         - perf
+    - title: Build 🔧
+      labels:
+        - build 🔧
+        - build
     - title: Testing 🧪
       labels:
         - test 🧪
