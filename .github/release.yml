@@ -8,10 +8,10 @@ changelog:
       labels:
         - feature ✨
         - feat
-    - title: Bug Fixes 🐛
+    - title: Bug Fixes 🐝
       labels:
-        - fix 🐛
-        - bug 🐛
+        - fix 🐝
+        - bug 🐝
         - fix
     - title: Performance ⚡
       labels:

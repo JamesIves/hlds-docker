@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ideas and Feature Requests 🚀
+    url: https://github.com/JamesIves/hlds-docker/discussions/categories/ideas-and-feature-requests
+    about: If you have an idea or would like to make a feature request please open a discussion thread.
+
+  - name: Support and Questions ❓
+    url: https://github.com/JamesIves/hlds-docker/discussions/categories/q-a
+    about: Need help or just have a general question? Please open a discussion thread.

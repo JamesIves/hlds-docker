@@ -1,7 +1,7 @@
-name: Bug Report
+name: Bug Report 🐝
 description: Found an issue? Report it here!
-title: "[Bug]: "
-labels: ["bug 🐛", "triage ⚠️"]
+title: "bug 🐝: "
+labels: ["bug 🐝", "triage ⚠️"]
 assignees:
   - JamesIves
 body:
@@ -10,6 +10,10 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report.
         Please provide as much detail as possible to help us fix the issue.
+
+        Please consider checking [the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server)
+        for additional information on server startup commands configuration files before submitting a bug report
+        as your issue may be related to a misconfiguration as opposed to a bug with the Docker script.
   - type: textarea
     id: what-happened
     attributes:
@@ -35,17 +39,23 @@ body:
       multiple: true
       options:
         - Half-Life Deathmatch (valve)
+        - Half-Life Opposing Force (gearbox)
         - Counter-Strike (cstrike)
         - Counter-Strike Condition Zero (czero)
         - Day of Defeat (dod)
         - Team Fortress Classic (tfc)
         - Deathmatch Classic (dmc)
         - Ricochet (ricochet)
-        - Opposing Force (gearbox)
         - Custom Mod
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      label: Docker Logs
+      description: Please copy and paste your Docker logs. This will be automatically formatted into code, so no need for backticks.
       render: shell
+  - type: textarea
+    id: compose
+    attributes:
+      label: Startup Setup
+      description: Please copy and paste the command you are using to start the container, or your docker-compose file.
+      render: yml
