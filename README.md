@@ -26,6 +26,8 @@ services:
     build: docker
     # 📣 Adjust the image value here with the desired game you want the server to use.
     image: jives/hlds:cstrike
+    args:
+      - GAME=${GAME}
     volumes:
       - "./config:/config"
     ports:
