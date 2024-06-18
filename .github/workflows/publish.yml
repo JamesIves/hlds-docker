@@ -26,15 +26,19 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      # Replace fallback value in Dockerfile and entrypoint.sh
-      # So that the correct game is used in the Docker image without
-      # needing to specify a build-arg on start.
+      - name: Login to GitHub Container Registry 🐳
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Replace fallback value in Dockerfile and entrypoint.sh
         run: |
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" Dockerfile
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" entrypoint.sh
 
-      - name: Build Docker Image 🐳
+      - name: Build and Push Docker Image to DockerHub 🐳
         uses: docker/build-push-action@v5
         env:
           GAME: ${{ matrix.game }}
@@ -42,6 +46,16 @@ jobs:
           context: .
           push: true
           tags: jives/hlds:${{ matrix.game }}
+          build-args: GAME=${{ matrix.game }}
+
+      - name: Build and Push Docker Image to GitHub Container Registry 🐳
+        uses: docker/build-push-action@v5
+        env:
+          GAME: ${{ matrix.game }}
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/hlds:${{ matrix.game }}
           build-args: GAME=${{ matrix.game }}
 
   publish:
