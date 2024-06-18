@@ -1,0 +1,52 @@
+name: Bug Report
+description: Found an issue? Report it here!
+title: "[Bug]: "
+labels: ["bug 🐛", "triage"]
+assignees:
+  - JamesIves
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report.
+        Please provide as much detail as possible to help us fix the issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Tell us what you see and what you expected to see.
+      value: ""
+    validations:
+      required: true
+  - type: dropdown
+    id: approach
+    attributes:
+      label: Approach
+      description: How are you running the container image?
+      options:
+        - I am using a pre-built image on Dockerhub
+        - I built the image myself
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: game
+    attributes:
+      label: What game are you trying to run?
+      multiple: true
+      options:
+        - Half-Life Deathmatch (valve)
+        - Counter-Strike (cstrike)
+        - Counter-Strike Condition Zero (czero)
+        - Day of Defeat (dod)
+        - Team Fortress Classic (tfc)
+        - Deathmatch Classic (dmc)
+        - Ricochet (ricochet)
+        - Opposing Force (gearbox)
+        - Custom Mod
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
