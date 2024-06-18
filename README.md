@@ -27,7 +27,8 @@ services:
     # 📣 Adjust the image value here with the desired game you want the server to use.
     image: jives/hlds:cstrike
     volumes:
-      - "./config:/config"
+      - "./config:/temp/config"
+      - "./mods:/temp/mods
     ports:
       - "27015:27015/udp"
       - "27015:27015"
