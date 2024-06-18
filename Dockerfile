@@ -1,9 +1,10 @@
 FROM ubuntu:18.04
 
-# Set environment variable for the game to install.
+# Sets an environment variable for the game to install.
 # Supported games: valve, cstrike, czero, dod, dmc, gearbox, ricochet, tfc
 # Default is valve. This get replaced when building the image with --build-arg GAME=<game>
-ENV GAME ${GAME:-valve}
+ARG GAME=valve
+ENV GAME ${GAME}
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
@@ -21,7 +22,7 @@ WORKDIR /opt/steam
 
 COPY ./hlds.txt /opt/steam
 
-# Replace $GAME with the requested mod to install.
+# Replace $GAME with the requested mod to install in hlds.txt.
 RUN sed -i "s/\$GAME/${GAME}/g" /opt/steam/hlds.txt
 
 RUN if [ "$GAME" = "gearbox" ]; then \
@@ -32,7 +33,7 @@ RUN if [ "$GAME" = "gearbox" ]; then \
 
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/steam/linux32/steamcmd && \
-    ./steamcmd.sh +runscript hlds.txt
+    ./steamcmd.sh +runscript /opt/steam/hlds.txt
 
 RUN mkdir -p $HOME/.steam \
     && ln -s /opt/steam/linux32 $HOME/.steam/sdk32 \

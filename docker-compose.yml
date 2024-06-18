@@ -2,6 +2,8 @@ services:
   hlds:
     build:
       context: .
+      args:
+        - GAME=${GAME}
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"

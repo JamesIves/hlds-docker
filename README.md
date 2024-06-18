@@ -2,7 +2,7 @@
 
 <img align="right" width="120" height="auto"  src="./.github/docs/crowbar.png" alt="Crowbar">
 
-Creates a [Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) instance using [Docker](https://www.docker.com). You can run any games the Half-Life Dedicated Server client supports out of the box, including the ability to add custom configurations and plugins.
+Creates a [Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) instance using [Docker](https://www.docker.com). You can run any games the Half-Life Dedicated Server client supports out of the box, including the ability to add custom configurations, mods and plugins.
 
 ## Setup ⚙️
 
@@ -13,9 +13,9 @@ Before starting, ensure you have the [Docker daemon](https://www.docker.com/) a
 
 ### Pre-Built Images
 
-If you're just looking to start a server as quickly as possible you can follow these steps to use a pre-built image on [Docker Hub](https://hub.docker.com/).
+If you're just looking to start a server as quickly as possible you can follow these steps to use a pre-built image on [Docker Hub](https://hub.docker.com/repository/docker/jives/hlds) or the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
-1. Create a `docker-compose.yml` file by copying and pasting the example below. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property.
+1. Create a `docker-compose.yml` file by copying and pasting the example below. Adjust the `image` property so the tag name corresponds with the game you want to use. Additionally you can adjust the server startup arguments by modifying the `command` property; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 > [!NOTE]  
 > In the majority of cases you'll need to specify `+map` for the server to be joinable.
@@ -27,7 +27,8 @@ services:
     # 📣 Adjust the image value here with the desired game you want the server to use.
     image: jives/hlds:cstrike
     volumes:
-      - "./config:/config"
+      - "./config:/temp/config"
+      - "./mods:/temp/mods
     ports:
       - "27015:27015/udp"
       - "27015:27015"
