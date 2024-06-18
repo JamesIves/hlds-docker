@@ -1,29 +1,10 @@
-name: Publish Docker Images 🐋 📦
+name: Publish Beta Docker Images 🐋 📦
 on:
   push:
     branches:
-      - main
+      - beta
 jobs:
-  version:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.create_tag.outputs.new_tag }}
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: "0"
-
-      - name: Bump Version and Create Tag 🏷️
-        id: create_tag
-        uses: anothrNick/github-tag-action@1.69.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
-          DRY_RUN: true
   build:
-    needs: version
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -67,9 +48,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            jives/hlds:${{ matrix.game }}
-            jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          tags: jives/hlds:${{ matrix.game }}-beta
           build-args: GAME=${{ matrix.game }}
 
       - name: Set repo owner to lowercase
@@ -83,39 +62,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}
-            ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          tags: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta
           build-args: GAME=${{ matrix.game }}
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: "0"
-
-      - name: Bump Version and Create Tag 🏷️
-        id: create_tag
-        if: github.ref == 'refs/heads/main'
-        uses: anothrNick/github-tag-action@1.69.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
-
-      - name: Create Release 🚀
-        id: create_release
-        if: github.ref == 'refs/heads/main'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.create_tag.outputs.new_tag }}
-          release_name: ${{ steps.create_tag.outputs.new_tag }}
-          draft: false
-          prerelease: false
