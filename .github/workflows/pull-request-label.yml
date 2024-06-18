@@ -6,7 +6,8 @@ jobs:
   label:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pull_requests: write
     steps:
       - name: Label Commit
         uses: bcoe/conventional-release-labels@v1
