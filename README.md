@@ -28,7 +28,7 @@ services:
     image: jives/hlds:cstrike
     volumes:
       - "./config:/temp/config"
-      - "./mods:/temp/mods
+      - "./mods:/temp/mods"
     ports:
       - "27015:27015/udp"
       - "27015:27015"
