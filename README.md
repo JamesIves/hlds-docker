@@ -62,6 +62,8 @@ docker compose up
 
 ### Building an Image
 
+If you want to build an image yourself, you can follow the steps below. This can be useful in cases where you want to make changes to `Dockerfile`.
+
 1. Clone this project.
 2. Define the game you want the server to run. You can do this by setting an environment variable on your command line.
 
