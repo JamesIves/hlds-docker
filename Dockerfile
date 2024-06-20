@@ -45,4 +45,4 @@ COPY --chown=steam:steam mods .
 
 RUN chmod +x ./entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh", "-timeout 6"]
+ENTRYPOINT ["./entrypoint.sh"]
