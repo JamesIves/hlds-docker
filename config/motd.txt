@@ -1,1 +1,38 @@
-Welcome! Server built with hlds-docker: https://github.com/JamesIves/hlds-docker
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Message of the Day</title>
+    <style type="text/css">
+      p {
+        font-family: Verdana, Tahoma;
+        color: #ffb000;
+      }
+      body {
+        background: #000000;
+        margin-left: 8px;
+        margin-top: 0px;
+      }
+      a {
+        text-decoration: underline;
+      }
+      a:link {
+        color: #ffffff;
+      }
+      a:visited {
+        color: #ffffff;
+      }
+      a:active {
+        color: #ffffff;
+      }
+      a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Welcome to the server!</p>
+
+    <p>This server was built <a href="">hlds-docker on GitHub</a></p>
+  </body>
+</html>
