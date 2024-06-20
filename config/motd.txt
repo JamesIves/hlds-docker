@@ -32,7 +32,6 @@
   </head>
   <body>
     <p>Welcome to the server!</p>
-
-    <p>This server was built <a href="">hlds-docker on GitHub</a></p>
+    <p>This server was built with <a href="https://github.com/JamesIves/hlds-docker">hlds-docker on GitHub</a></p>
   </body>
 </html>
