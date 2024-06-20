@@ -61,7 +61,7 @@ jobs:
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" entrypoint.sh
 
       - name: Build and Push Docker Image to DockerHub 🐳
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         env:
           GAME: ${{ matrix.game }}
         with:
@@ -77,7 +77,7 @@ jobs:
         run: echo "::set-output name=repo_owner::$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')"
 
       - name: Build and Push Docker Image to GitHub Container Registry 🐳
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         env:
           GAME: ${{ matrix.game }}
         with:
