@@ -12,6 +12,9 @@
         margin-left: 8px;
         margin-top: 0px;
       }
+      img {
+        margin-top: 8px;
+      }
       a {
         text-decoration: underline;
       }
@@ -33,5 +36,6 @@
   <body>
     <p>Welcome to the server!</p>
     <p>This server was built with <a href="https://github.com/JamesIves/hlds-docker">hlds-docker on GitHub</a></p>
+    <img src="http://jives.dev/icon.png" alt="Jives" />
   </body>
 </html>
