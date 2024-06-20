@@ -32,6 +32,7 @@ RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | 
     file /opt/steam/linux32/steamcmd && \
     ./steamcmd.sh +runscript /opt/steam/hlds.txt
 
+# Writes the steam_appid.txt file to the hlds directory with the title id for Half-Life.
 RUN mkdir -p $HOME/.steam \
     && ln -s /opt/steam/linux32 $HOME/.steam/sdk32 \
     && echo 70 > /opt/steam/hlds/steam_appid.txt
