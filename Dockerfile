@@ -11,7 +11,7 @@ LABEL vendor="jives.dev" \
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends curl file libc6:i386 lib32stdc++6 ca-certificates rsync wget && \
+    apt-get install -y --no-install-recommends curl rsync file libc6:i386 lib32stdc++6 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r steam && \
