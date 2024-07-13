@@ -41,15 +41,17 @@ docker run -d \
 > - `jives/hlds:ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
 > - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
+>
+> Images are also available on the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
-Connect to your server via the public IP address by loading the game on Steam and start playing. **You must own a copy of the game on Steam in order to play**.
+Once the command finishes its process you can connect to your server via the public IP address by loading the game on [Steam](https://steampowered.com). **You must own a copy of the game on Steam in order to play**.
 
 > [!NOTE]  
-> If you're unable to join the server you can view the server logs by running `docker ps` to get the container id followed by `docker logs <container id>`.
+> If you're unable to join the server you can check for errors in the server logs by running `docker ps` to get the container id followed by `docker logs <container id>`.
 
 ### Docker Compose
 
-If you'd prefer to configure your server using docker compose, you can simply pull down the project repository to your system and run `docker compose up` from the root. Be sure to make any modifications you need such as changing the game image and server startup commands before running `docker compose up`.
+If you'd prefer to configure your server using [Docker Compose](https://docs.docker.com/compose/), you can simply pull down the project repository to your system and run `docker compose up` from the root. Be sure to make any modifications you need such as changing the game image and server startup commands in [docker-compose.yml](docker-compose.yml) before running `docker compose up`.
 
 ## Advanced Setup ⚙️
 
