@@ -18,16 +18,16 @@ Before starting, ensure you have the [Docker daemon](https://www.docker.com/) a
 To get started as quickly as possible you can run the following in your terminal. Be sure to adjust the image name (`jives/hlds`) so the tag corresponds with the game you want to start the server for. Additionally you can adjust the server startup arguments by modifying the `command` property; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 ```bash
-$ docker run -d \
+docker run -d \
   --name hlds \
-  -v "$(pwd)/config:/temp/config" \ # 📣 See the "Server Configs and Plugins" advanced setup guide below.
-  -v "$(pwd)/mods:/temp/mods" \ # 📣 See the "Custom Mods" advanced setup guide below.
+  -v "$(pwd)/config:/temp/config" \
+  -v "$(pwd)/mods:/temp/mods" \
   -p 27015:27015/udp \
   -p 27015:27015 \
-  -p 26900:2690/udp \
+  -p 26900:26900/udp \
   -e GAME=${GAME} \
-  ghcr.io/jamesives/hlds:cstrike \ # 📣 Adjust the image here with the desired game you want the server to use.
-  +maxplayers 12 +map cs_italy # 📣 Modify your server startup commands here.
+  jives/hlds:cstrike  \
+  "+maxplayers 12 +map cs_italy" # 📣 Modify your server startup commands here. You can specify the image with the desired game you want the server to run in the line above.
 ```
 
 > [!TIP]  
@@ -42,7 +42,10 @@ $ docker run -d \
 > - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 
-Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors. Connect to your server via the IP address by loading the game on Steam and start playing. **You must own a copy of the game on Steam in order to play**.
+Connect to your server via the public IP address by loading the game on Steam and start playing. **You must own a copy of the game on Steam in order to play**.
+
+> [!NOTE]  
+> If you're unable to join the server you can view the server logs by running `docker ps` to get the container id followed by `docker logs <container id>`.
 
 ### Docker Compose
 
