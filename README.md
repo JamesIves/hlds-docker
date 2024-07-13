@@ -26,12 +26,12 @@ $ docker run -d \
   -p 27015:27015 \
   -p 26900:2690/udp \
   -e GAME=${GAME} \
-  jives/hlds:cstrike \
-  +maxplayers 12 +map cs_italy
+  ghcr.io/jamesives/hlds:cstrike \ # 📣 Adjust the image here with the desired game you want the server to use.
+  +maxplayers 12 +map cs_italy # 📣 Modify your server startup commands here.
 ```
 
 > [!TIP]  
-> You can find the available images below. Be sure to adjust the `+map` parameter when changing the game as it may cause the server to not start properly if the starting map is not available.
+> You can find the available images below. Be sure to adjust the `+map` parameter when changing the game as it may cause the server to not start properly if unavailable.
 >
 > - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
 > - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
@@ -44,14 +44,14 @@ $ docker run -d \
 
 Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors. Connect to your server via the IP address by loading the game on Steam and start playing. **You must own a copy of the game on Steam in order to play**.
 
-### Compose
+### Docker Compose
 
-If you'd like to save the configuration for your server you can do so using docker compose. To do this simply clone the project locally and run `docker compose up` in the terminal. Alternatively you can copy and paste the contents of the docker-compose.yml` file to your local file system and run it from there.
+If you'd prefer to configure your server using docker compose, you can simply pull down the project repository to your system and run `docker compose up` from the root. Be sure to make any modifications you need such as changing the game image and server startup commands before running `docker compose up`.
 
 ## Advanced Setup ⚙️
 
-If you'd like to customize the server, the following guides outline some common setups.
+If you'd like to customize your server further please check out the following guides.
 
-- Building a Custom Image
-- Custom Configs and Plugins
-- Custom Mods
+- [Server Configs and Plugins](docs/SERVER_CONFIGS_AND_PLUGINS.md)
+- [Custom Mods](docs/CUSTOM_MODS.md)
+- [Building a Custom Image](docs/BUILDING_AN_IMAGE.md)
