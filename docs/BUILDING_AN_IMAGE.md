@@ -1,6 +1,6 @@
 # Building an Image
 
-If you want to build an image yourself, you can follow the steps below. This can be useful in cases where you want to make changes to the build scripts, or add custom functionality. This is also useful for testing changes before submitting a contribution to the project.
+If you want to build an image yourself, follow the steps below. This can be useful in cases where you want to make changes to the build scripts or add custom functionality. It is also useful for testing changes before submitting a contribution to the project.
 
 1. Clone this project locally.
 2. Define the game you want the server to run. You can do this by setting an environment variable on your command line.
@@ -9,7 +9,7 @@ If you want to build an image yourself, you can follow the steps below. This can
 export GAME=cstrike
 ```
 
-Before continuing to the next steps, verify that the environment variable is set by running `echo $GAME` in your terminal. It should send back the variable you just set.
+Before continuing to the following steps, verify that the environment variable is set by running `echo $GAME` in your terminal. It should send back the variable you just set.
 
 > [!TIP]
 > Available options include the following, these names are recognized by the `app_set_config 90 mod` command in `hlds.txt`.
@@ -32,7 +32,7 @@ docker compose -f docker-compose.local.yml build
 4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.local.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 > [!NOTE]  
-> In the majority of cases you'll need to specify `+map` for the server to be joinable.
+> In most cases, you'll need to specify `+map` for the server to be joinable.
 
 ```yml
 services:
@@ -46,5 +46,5 @@ services:
 docker compose -f docker-compose.local.yml up
 ```
 
-6. Connect to your server via the public IP address by loading the game on [Steam](https://store.steampowered.com/). You must own a copy of the game on Steam in order to play.
-7. _Optional_: If you want to start a custom mod, you can modify your `$GAME` environment variable once the image is built prior to running `docker compose -f docker-compose.local.yml up`. This allows you to add custom scripts to the server image while also telling the dedicated server client what mod to use.
+6. Connect to your server via the public IP address by loading the game on [Steam](https://store.steampowered.com/). To play, you must own a copy of the game on Steam.
+7. _Optional_: If you want to start a custom mod, you can modify your `$GAME` environment variable once the image is built before running `docker compose -f docker-compose.local.yml up`. This allows you to add custom scripts to the server image while telling the dedicated server client what mod to use.

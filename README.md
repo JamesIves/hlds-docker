@@ -1,8 +1,8 @@
 <img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
 
-# Half-Life Dedicated Server With Docker
+# hlds-docker
 
-[Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) powered by [Docker](https://www.docker.com). Supports all the classic [GoldSrc](https://developer.valvesoftware.com/wiki/GoldSrc) Half-Life games and mods, including the ability to add custom configurations and plugins.
+[Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) powered by [Docker](https://www.docker.com). It supports all the classic [GoldSrc](https://developer.valvesoftware.com/wiki/GoldSrc) Half-Life games and mods, including the ability to add custom configurations and plugins.
 
 Special thank you to all the past and present [GitHub Sponsors](https://github.com/sponsors/JamesIves) 💖.
 
@@ -15,7 +15,7 @@ Before starting, ensure you have the [Docker daemon](https://www.docker.com/) a
 > [!IMPORTANT]  
 > The following steps will not work if you use an ARM architecture system. For best results, use a system running x86-64.
 
-To get started as quickly as possible you can run the following in your terminal. Be sure to adjust the image name (`jives/hlds`) so the tag corresponds with the game you want to start the server for. Additionally you can adjust the server startup arguments by modifying the `command` property; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
+You can run the following in your terminal to get started as quickly as possible. Adjust the image name (`jives/hlds`) so the tag corresponds with the game you want to use. Additionally, you can adjust the server startup arguments by modifying the `command` property; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 ```bash
 docker run -d \
@@ -31,7 +31,7 @@ docker run -d \
 ```
 
 > [!TIP]  
-> You can find the available images below. Be sure to adjust the `+map` parameter when changing the game as it may cause the server to not start properly if unavailable.
+> The available images are below. When changing the game, be sure to adjust the `+map` parameter, as it may cause the server not to start if the map is unavailable.
 >
 > - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
 > - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
@@ -42,20 +42,20 @@ docker run -d \
 > - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 >
-> Images are also available on the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
+> Container images are alternatively available on the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
-Once the command finishes its process you can connect to your server via the public IP address by loading the game on [Steam](https://steampowered.com). **You must own a copy of the game on Steam in order to play**.
+Once the command finishes, you can connect to your server via the public IP address by loading the game on [Steam](https://steampowered.com). \*\*You must own a copy of the game on Steam to play.
 
 > [!NOTE]  
-> If you're unable to join the server you can check for errors in the server logs by running `docker ps` to get the container id followed by `docker logs <container id>`.
+> If you cannot join the server, you can check for errors in the server logs by running `docker ps` to get the container id followed by `docker logs <container id>`.
 
 ### Docker Compose
 
-If you'd prefer to configure your server using [Docker Compose](https://docs.docker.com/compose/), you can simply pull down the project repository to your system and run `docker compose up` from the root. Be sure to make any modifications you need such as changing the game image and server startup commands in [docker-compose.yml](docker-compose.yml) before running `docker compose up`.
+If you'd prefer to configure your server using [Docker Compose](https://docs.docker.com/compose/), you can pull down the project repository to your system and run `docker compose up` from the root. Make any modifications you need, such as changing the game image and server startup commands in [docker-compose.yml](docker-compose.yml) before running `docker compose up`.
 
 ## Advanced Setup ⚙️
 
-If you'd like to customize the server client further please check out the following advanced setup guides.
+To customize the server client further, please check out the following advanced setup guides.
 
 - [Server Configs and Plugins](docs/SERVER_CONFIGS_AND_PLUGINS.md)
 - [Custom Mods](docs/CUSTOM_MODS.md)
