@@ -20,8 +20,8 @@ To get started as quickly as possible you can run the following in your terminal
 ```bash
 $ docker run -d \
   --name hlds \
-  -v "$(pwd)/config:/temp/config" \
-  -v "$(pwd)/mods:/temp/mods" \
+  -v "$(pwd)/config:/temp/config" \ # 📣 See the "Server Configs and Plugins" advanced setup guide below.
+  -v "$(pwd)/mods:/temp/mods" \ # 📣 See the "Custom Mods" advanced setup guide below.
   -p 27015:27015/udp \
   -p 27015:27015 \
   -p 26900:2690/udp \

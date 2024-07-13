@@ -3,6 +3,7 @@ services:
     build: docker
     # 📣 Adjust the image value here with the desired game you want the server to use.
     image: jives/hlds:cstrike
+    # 📣 Learn more about these volumes in the advanced setup guides.
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"
