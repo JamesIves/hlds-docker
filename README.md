@@ -8,7 +8,7 @@ Special thank you to all the past and present [GitHub Sponsors](https://github.c
 
 <!-- sponsors --><a href="https://github.com/Chooksta69"><img src="https://github.com/Chooksta69.png" width="25px" alt="Chooksta69" /></a>&nbsp;&nbsp;<a href="https://github.com/MattWillFlood"><img src="https://github.com/MattWillFlood.png" width="25px" alt="MattWillFlood" /></a>&nbsp;&nbsp;<a href="https://github.com/jonathan-milan-pollock"><img src="https://github.com/jonathan-milan-pollock.png" width="25px" alt="jonathan-milan-pollock" /></a>&nbsp;&nbsp;<a href="https://github.com/raoulvdberge"><img src="https://github.com/raoulvdberge.png" width="25px" alt="raoulvdberge" /></a>&nbsp;&nbsp;<a href="https://github.com/robjtede"><img src="https://github.com/robjtede.png" width="25px" alt="robjtede" /></a>&nbsp;&nbsp;<a href="https://github.com/hadley"><img src="https://github.com/hadley.png" width="25px" alt="hadley" /></a>&nbsp;&nbsp;<a href="https://github.com/kevinchalet"><img src="https://github.com/kevinchalet.png" width="25px" alt="kevinchalet" /></a>&nbsp;&nbsp;<a href="https://github.com/Yousazoe"><img src="https://github.com/Yousazoe.png" width="25px" alt="Yousazoe" /></a>&nbsp;&nbsp;<a href="https://github.com/github"><img src="https://github.com/github.png" width="25px" alt="github" /></a>&nbsp;&nbsp;<a href="https://github.com/annegentle"><img src="https://github.com/annegentle.png" width="25px" alt="annegentle" /></a>&nbsp;&nbsp;<a href="https://github.com/planetoftheweb"><img src="https://github.com/planetoftheweb.png" width="25px" alt="planetoftheweb" /></a>&nbsp;&nbsp;<a href="https://github.com/melton1968"><img src="https://github.com/melton1968.png" width="25px" alt="melton1968" /></a>&nbsp;&nbsp;<a href="https://github.com/szepeviktor"><img src="https://github.com/szepeviktor.png" width="25px" alt="szepeviktor" /></a>&nbsp;&nbsp;<a href="https://github.com/sckott"><img src="https://github.com/sckott.png" width="25px" alt="sckott" /></a>&nbsp;&nbsp;<a href="https://github.com/provinzkraut"><img src="https://github.com/provinzkraut.png" width="25px" alt="provinzkraut" /></a>&nbsp;&nbsp;<a href="https://github.com/electrovir"><img src="https://github.com/electrovir.png" width="25px" alt="electrovir" /></a>&nbsp;&nbsp;<a href="https://github.com/Griefed"><img src="https://github.com/Griefed.png" width="25px" alt="Griefed" /></a>&nbsp;&nbsp;<!-- sponsors -->
 
-## Setup ⚙️
+## Getting Started 🚀
 
 Before starting, ensure you have the [Docker daemon](https://www.docker.com/) and the [Docker CLI tool](https://docs.docker.com/engine/reference/commandline/cli/) installed and available.
 
@@ -25,12 +25,13 @@ $ docker run -d \
   -p 27015:27015/udp \
   -p 27015:27015 \
   -p 26900:2690/udp \
+  -e GAME=${GAME} \
   jives/hlds:cstrike \
   +maxplayers 12 +map cs_italy
 ```
 
 > [!TIP]  
-> You can find the available images below. Be sure to adjust the `+map` parameter when changing the game as it may cause the server to not start properly.
+> You can find the available images below. Be sure to adjust the `+map` parameter when changing the game as it may cause the server to not start properly if the starting map is not available.
 >
 > - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
 > - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
@@ -41,33 +42,15 @@ $ docker run -d \
 > - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 
-If you'd prefer to use docker compose you can create a `docker-compose.yml` file with the following and run `docker compose up`.
+Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors. Connect to your server via the IP address by loading the game on Steam and start playing. **You must own a copy of the game on Steam in order to play**.
 
-```yml
-services:
-  hlds:
-    build: docker
-    # 📣 Adjust the image value here with the desired game you want the server to use.
-    image: jives/hlds:cstrike
-    volumes:
-      - "./config:/temp/config"
-      - "./mods:/temp/mods"
-    ports:
-      - "27015:27015/udp"
-      - "27015:27015"
-      - "26900:2690/udp"
-    environment:
-      - GAME=${GAME}
-    # 📣 Modify your server startup commands here.
-    # 📣 Remember: Stating map is based on the game, and will likely be different between images.
-    command: +maxplayers 12 +map cs_italy
-```
+### Compose
 
-Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors. Connect to your server via the IP address by loading the game on Steam and start playing. You must own a copy of the game on Steam in order to play.
+If you'd like to save the configuration for your server you can do so using docker compose. To do this simply clone the project locally and run `docker compose up` in the terminal. Alternatively you can copy and paste the contents of the docker-compose.yml` file to your local file system and run it from there.
 
-## Advanced Setup
+## Advanced Setup ⚙️
 
-The following guides show some common setup guides.
+If you'd like to customize the server, the following guides outline some common setups.
 
 - Building a Custom Image
 - Custom Configs and Plugins
