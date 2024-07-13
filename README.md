@@ -44,7 +44,7 @@ docker run -d \
 >
 > Container images are alternatively available on the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
-Once the command finishes, you can connect to your server via the public IP address by loading the game on [Steam](https://steampowered.com). \*\*You must own a copy of the game on Steam to play.
+Once the command finishes, you can connect to your server via the public IP address by loading the game on [Steam](https://steampowered.com). **You must own a copy of the game on Steam to play**.
 
 > [!NOTE]  
 > If you cannot join the server, you can check for errors in the server logs by running `docker ps` to get the container id followed by `docker logs <container id>`.
