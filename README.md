@@ -55,7 +55,7 @@ If you'd prefer to configure your server using [Docker Compose](https://docs.doc
 
 ## Advanced Setup ⚙️
 
-If you'd like to customize your server further please check out the following guides.
+If you'd like to customize the server client further please check out the following advanced setup guides.
 
 - [Server Configs and Plugins](docs/SERVER_CONFIGS_AND_PLUGINS.md)
 - [Custom Mods](docs/CUSTOM_MODS.md)
