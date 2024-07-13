@@ -46,5 +46,5 @@ services:
 docker compose -f docker-compose.local.yml up
 ```
 
-6. Connect to your server via the IP address by loading the game on [Steam](https://store.steampowered.com/) and start playing. You must own a copy of the game on Steam in order to play. ⌨️
+6. Connect to your server via the public IP address by loading the game on [Steam](https://store.steampowered.com/). You must own a copy of the game on Steam in order to play.
 7. _Optional_: If you want to start a custom mod, you can modify your `$GAME` environment variable once the image is built prior to running `docker compose -f docker-compose.local.yml up`. This allows you to add custom scripts to the server image while also telling the dedicated server client what mod to use.
