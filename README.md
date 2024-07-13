@@ -2,7 +2,7 @@
 
 # Half-Life Dedicated Server With Docker
 
-[Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) powered by [Docker](https://www.docker.com). Supports all the classic Half-Life games and mods, including the ability to add custom configurations and plugins.
+[Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) powered by [Docker](https://www.docker.com). Supports all the classic [GoldSrc](https://developer.valvesoftware.com/wiki/GoldSrc) Half-Life games and mods, including the ability to add custom configurations and plugins.
 
 Special thank you to all the past and present [GitHub Sponsors](https://github.com/sponsors/JamesIves) 💖.
 
