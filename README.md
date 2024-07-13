@@ -1,6 +1,6 @@
-# Half-Life Dedicated Server With Docker 🐋 📦
+<img align="right" width="220" height="auto"  src="./.github/docs/docker.svg" alt="Crowbar">
 
-<img align="right" width="120" height="auto"  src="./.github/docs/crowbar.png" alt="Crowbar">
+# Half-Life Dedicated Server With Docker 🐋 📦
 
 Creates a [Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) instance using [Docker](https://www.docker.com). You can run any games the Half-Life Dedicated Server client supports out of the box, including the ability to add custom configurations, mods and plugins.
 
