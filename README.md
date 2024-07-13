@@ -1,4 +1,4 @@
-<img align="right" width="280" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
 
 # hlds-docker
 
