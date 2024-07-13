@@ -3,7 +3,7 @@
 If you want to run a custom mod, you can do so with the `mods` directory.
 
 > [!NOTE]  
-> The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, please refer back to it to get started.
+> The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, [please refer back to it to get started](../README.md).
 
 1. Create a folder called `mods` that lives alongside where you would normally start the server process.
 2. Add your mod files as a sub-directory of `mods`. For example if the mod name is `decay`, you'd place it in `mods/decay`.
