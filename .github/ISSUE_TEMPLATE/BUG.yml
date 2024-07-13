@@ -25,7 +25,8 @@ body:
       label: Approach
       description: How are you running the container image?
       options:
-        - I am using a pre-built image on Dockerhub
+        - I am using a pre-built image on Dockerhub (jives/hlds)
+        - I am using a pre-built image on the GitHub Container Registry (ghcr.io/jamesives/hlds)
         - I built the image myself
       default: 0
     validations:
