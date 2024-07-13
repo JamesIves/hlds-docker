@@ -30,7 +30,7 @@ $ docker run -d \
 ```
 
 > [!TIP]  
-> You can find the available images below. You'll need to customize
+> You can find the available images below. Be sure to adjust the `+map` parameter when changing the game as it may cause the server to not start properly.
 >
 > - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
 > - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
