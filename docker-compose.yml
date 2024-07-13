@@ -1,9 +1,8 @@
 services:
   hlds:
-    build:
-      context: .
-      args:
-        - GAME=${GAME}
+    build: docker
+    # 📣 Adjust the image value here with the desired game you want the server to use.
+    image: jives/hlds:cstrike
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"
@@ -13,4 +12,6 @@ services:
       - "26900:2690/udp"
     environment:
       - GAME=${GAME}
-    command: +maxplayers 12 +log on
+    # 📣 Modify your server startup commands here.
+    # 📣 Remember: Stating map is based on the game, and will likely be different between images.
+    command: +maxplayers 12 +map cs_italy
