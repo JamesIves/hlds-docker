@@ -26,3 +26,4 @@ jobs:
         with:
           branch: beta
           folder: "."
+          commit-message: "chore: Update sponsors 💖 [skip ci]"
