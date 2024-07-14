@@ -3,6 +3,4 @@
 force_install_dir ./hlds
 login anonymous
 app_update 232250 validate
-app_update 232250 validate
-app_update 232250 validate
 quit
