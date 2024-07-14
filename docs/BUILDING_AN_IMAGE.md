@@ -26,10 +26,10 @@ Before continuing to the following steps, verify that the environment variable i
 3. Build the image.
 
 ```sh
-docker compose -f docker-compose.local.yml build
+docker compose -f docker-compose.build.yml build
 ```
 
-4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.local.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
+4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.build.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 > [!NOTE]  
 > In most cases, you'll need to specify `+map` for the server to be joinable.
@@ -43,8 +43,8 @@ services:
 5. Start the image. Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors.
 
 ```bash
-docker compose -f docker-compose.local.yml up
+docker compose -f docker-compose.build.yml up
 ```
 
 6. Connect to your server via the public IP address by loading the game on [Steam](https://store.steampowered.com/). To play, you must own a copy of the game on Steam.
-7. _Optional_: If you want to start a custom mod, you can modify your `$GAME` environment variable once the image is built before running `docker compose -f docker-compose.local.yml up`. This allows you to add custom scripts to the server image while telling the dedicated server client what mod to use.
+7. _Optional_: If you want to start a custom mod, you can modify your `$GAME` environment variable once the image is built before running `docker compose -f docker-compose.build.yml up`. This allows you to add custom scripts to the server image while telling the dedicated server client what mod to use.
