@@ -19,4 +19,4 @@ fi
 
 echo -e "\e[32mStarting Half-Life Dedicated Server for $GAME...\e[0m"
 
-./srcds_run "-game $GAME $@"
+./srcds_run "-autoupdate -steam_dir /opt/steam -game $GAME $@"
