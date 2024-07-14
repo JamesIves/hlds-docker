@@ -13,4 +13,4 @@ services:
       - "26900:2690/udp"
     environment:
       - GAME=${GAME}
-    command: +map ctf_2fort +maxplayers 12 +log on
+    command: +maxplayers 12 +log on

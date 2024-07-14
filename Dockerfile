@@ -9,16 +9,15 @@ ENV GAME ${GAME}
 ARG APP_ID=70
 ENV APP_ID ${APP_ID}
 
-# # Use a RUN command with shell scripting to conditionally set APP_ID based on the value of GAME
-# RUN if [ "$GAME" = "tf2" ]; then \
-#     echo "ENV APP_ID=28804" > /etc/environment; \
-#     elif [ "$GAME" = "dods" ]; then \
-#     echo "ENV APP_ID=2222" > /etc/environment; \
-#     else \
-#     echo "ENV APP_ID=default_value" > /etc/environment; \
-#     fi
+# Use a RUN command with a shell case statement to conditionally set APP_ID based on the value of GAME
+RUN case "$GAME" in \
+    tf) echo "APP_ID=232250" >> /etc/environment ;; \
+    dods) echo "APP_ID=232290" >> /etc/environment ;; \
+    *) echo "APP_ID=90" >> /etc/environment ;; \
+    esac
 
-# RUN echo 'source /etc/environment' >> $HOME/.bashrc
+# Apply the /etc/environment file to set the APP_ID environment variable
+RUN echo 'source /etc/environment' >> $HOME/.bashrc
 
 LABEL vendor="jives.dev" \
     maintainer="James Ives"
