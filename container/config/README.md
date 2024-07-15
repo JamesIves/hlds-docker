@@ -1,5 +1,8 @@
 # Configs and Plugins
 
+> [!WARNING]  
+> Configs added here will be included in the distributed image. This means users must override them on startup when using a distributed version.
+
 If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. The `config` directory is volume-mapped within the directory for the game for which you're starting the container. For example, if you're starting a container for `cstrike`, you can add things like `mapcycle.txt` or `motd.txt` here, and it would appear within the corresponding `cstrike` directory on the server.
 
 > [!NOTE]  

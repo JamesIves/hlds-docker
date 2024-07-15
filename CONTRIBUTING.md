@@ -14,7 +14,7 @@ The four main requirements for this project are:
 ## Process
 
 1. File an issue on the [Issues board](https://github.com/JamesIves/hlds-docker/issues), or create a discussion on the [Discussions board](https://github.com/JamesIves/hlds-docker/discussions).
-2. Once discussed and agreed upon, clone the project.
+2. Once discussed and agreed upon, clone the project and base your changes on the `beta` branch.
 3. Make your changes.
 4. Validate your changes; at the very least, please build the image and start a server. [You can learn how to build the images using the guide located here](docs/BUILDING_AN_IMAGE.md).
 5. Submit a pull request to the `beta` branch.

@@ -1,9 +1,17 @@
 services:
   hlds:
     build: docker
-    # 📣 Adjust the image value here with the desired game you want the server to use.
+    # 📣 Adjust the image value here with the desired game you want the server to use. Options include:
+    # 🔧 jives/hlds:valve (Half-Life Deathmatch)
+    # 🔧 jives/hlds:cstrike (Counter-Strike)
+    # 🔧 jives/hlds:czero (Counter-Strike: Condition Zero)
+    # 🔧 jives/hlds:dmc (Deathmatch Classic)
+    # 🔧 jives/hlds:gearbox (Half-Life Opposing Force)
+    # 🔧 jives/hlds:ricochet (Ricochet)
+    # 🔧 jives/hlds:dod (Day of Defeat)
+    # 🔧 jives/hlds:tfc (Team Fortress Classic)
     image: jives/hlds:cstrike
-    # 📣 Learn more about these volumes in the advanced setup guides.
+    # 📣 Learn more about these volumes in the advanced setup guides: https://github.com/JamesIves/hlds-docker?tab=readme-ov-file#advanced-setup-%EF%B8%8F
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"
@@ -13,6 +21,7 @@ services:
       - "26900:2690/udp"
     environment:
       - GAME=${GAME}
-    # 📣 Modify your server startup commands here.
+    # 📣 Modify your server startup commands here, you can add more flags as needed (see: https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server),
     # 📣 Remember: Stating map is based on the game, and will likely be different between images.
-    command: +maxplayers 12 +map cs_italy
+    # 📣 You should also modify the rcon_password value so you can use server admin commands.
+    command: +log on +rcon_password "changeme" +maxplayers 12 +map cs_italy

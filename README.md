@@ -1,6 +1,6 @@
-<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
-
 # hlds-docker
+
+<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
 
 [Half-Life Dedicated Server](https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A) powered by [Docker](https://www.docker.com). It supports all the classic [GoldSrc](https://developer.valvesoftware.com/wiki/GoldSrc) Half-Life games and mods, including the ability to add custom configurations and plugins.
 
@@ -57,6 +57,6 @@ If you'd prefer to configure your server using [Docker Compose](https://docs.doc
 
 To customize the server client further, please check out the following advanced setup guides.
 
-- [Server Configs and Plugins](docs/SERVER_CONFIGS_AND_PLUGINS.md)
-- [Custom Mods](docs/CUSTOM_MODS.md)
-- [Building a Custom Image](docs/BUILDING_AN_IMAGE.md)
+- [Server Configs and Plugins](config/README.md)
+- [Custom Mods](mods/README.md)
+- [Building a Custom Image](container/README.md)
