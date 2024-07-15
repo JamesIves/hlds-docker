@@ -46,6 +46,16 @@ body:
         - Deathmatch Classic (dmc)
         - Ricochet (ricochet)
         - Custom Mod
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Do you have custom server configs or mods installed?
+      description: These are optional, please check all that apply.
+      options:
+        - label: I have custom config files located in the config directory
+          required: false
+        - label: I have a custom mod located in the mods directory
+          required: false
   - type: textarea
     id: logs
     attributes:
