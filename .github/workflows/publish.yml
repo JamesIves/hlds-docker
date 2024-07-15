@@ -56,6 +56,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Replace fallback value in Dockerfile and entrypoint.sh
+        working-directory: ./container
         run: |
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" Dockerfile
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" entrypoint.sh
@@ -65,7 +66,7 @@ jobs:
         env:
           GAME: ${{ matrix.game }}
         with:
-          context: .
+          context: ./container
           push: true
           tags: |
             jives/hlds:${{ matrix.game }}
@@ -81,7 +82,7 @@ jobs:
         env:
           GAME: ${{ matrix.game }}
         with:
-          context: .
+          context: ./container
           push: true
           tags: |
             ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}
