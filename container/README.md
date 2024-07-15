@@ -23,13 +23,13 @@ Before continuing to the following steps, verify that the environment variable i
 > - `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 
-3. Build the image.
+3. Navigate to the `container` folder (where this README file is) and build the image.
 
 ```sh
-docker compose -f docker-compose.build.yml build
+docker compose build
 ```
 
-4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.build.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
+4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 > [!NOTE]  
 > In most cases, you'll need to specify `+map` for the server to be joinable.
@@ -43,7 +43,7 @@ services:
 5. Start the image. Once the Half-Life Dedicated Server client starts, you'll receive a stream of messages, including the server's public IP address and any startup errors.
 
 ```bash
-docker compose -f docker-compose.build.yml up
+docker compose up
 ```
 
 6. Connect to your server via the public IP address by loading the game on [Steam](https://store.steampowered.com/). To play, you must own a copy of the game on Steam.
