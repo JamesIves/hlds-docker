@@ -32,4 +32,4 @@ export GAME=decay
 4. Start the image as you normally would, either with `docker run` or `docker compose up`. Most Half-Life mods require specific startup arguments. For more details, refer to the [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server) and the instructions for the mod you're trying to run.
 
 > [!TIP]  
-> When using a pre-built image, you'll likely want to use the `valve` image (`jives/hlds:valve`), but this ultimately depends on the mod.
+> When using a pre-built image, you'll likely want to use the `valve` base image (`jives/hlds:valve`).
