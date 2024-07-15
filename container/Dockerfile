@@ -1,11 +1,5 @@
 FROM ubuntu:18.04
 
-# Sets an environment variable for the game to install.
-# Supported games: valve, cstrike, czero, dod, dmc, gearbox, ricochet, tfc
-# Default is valve. This get replaced when building the image with --build-arg GAME=<game>
-ARG GAME=valve
-ENV GAME ${GAME}
-
 LABEL org.opencontainers.image.title="hlds-docker" \
     org.opencontainers.image.description="🐋 📦 Half-Life Dedicated Server powered by Docker. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins." \
     org.opencontainers.image.vendor="https://jamesiv.es" \
@@ -14,6 +8,12 @@ LABEL org.opencontainers.image.title="hlds-docker" \
     org.opencontainers.image.url="https://github.com/jamesives/hlds-docker" \
     org.opencontainers.image.documentation="https://github.com/jamesives/hlds-docker" \
     org.opencontainers.image.source="https://github.com/jamesives/hlds-docker"
+
+# Sets an environment variable for the game to install.
+# Supported games: valve, cstrike, czero, dod, dmc, gearbox, ricochet, tfc
+# Default is valve. This get replaced when building the image with --build-arg GAME=<game>
+ARG GAME=valve
+ENV GAME ${GAME}
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
