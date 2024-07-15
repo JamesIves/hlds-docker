@@ -6,8 +6,14 @@ FROM ubuntu:18.04
 ARG GAME=valve
 ENV GAME ${GAME}
 
-LABEL vendor="jives.dev" \
-    maintainer="James Ives"
+LABEL org.opencontainers.image.title="hlds-docker" \
+    org.opencontainers.image.description="🐋 📦 Half-Life Dedicated Server powered by Docker. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins." \
+    org.opencontainers.image.vendor="jamesiv.es" \
+    org.opencontainers.image.authors="James Ives" \
+    org.opencontainers.image.licenses="MIT" \
+    org.opencontainers.image.url="https://github.com/jamesives/hlds-docker" \
+    org.opencontainers.image.documentation="https://github.com/jamesives/hlds-docker/README.md" \
+    org.opencontainers.image.source="https://github.com/jamesives/hlds-docker"
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
@@ -25,7 +31,7 @@ WORKDIR /opt/steam
 
 COPY ./hlds.txt /opt/steam
 
-# Replace $GAME with the requested mod to install in hlds.txt.
+# Replaces $GAME with the requested mod to install in hlds.txt.
 RUN sed -i "s/\$GAME/${GAME}/g" /opt/steam/hlds.txt
 
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
@@ -33,6 +39,7 @@ RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | 
     ./steamcmd.sh +runscript /opt/steam/hlds.txt
 
 # Writes the steam_appid.txt file to the hlds directory with the title id for Half-Life.
+# Patches a known issue with the Steam client.
 RUN mkdir -p $HOME/.steam \
     && ln -s /opt/steam/linux32 $HOME/.steam/sdk32 \
     && echo 70 > /opt/steam/hlds/steam_appid.txt
