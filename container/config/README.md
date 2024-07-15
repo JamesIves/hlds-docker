@@ -2,6 +2,9 @@
 
 If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. The `config` directory is volume mapped within the directory for the game you're starting the container for. For example, if you're starting a container for `cstrike`, you can add things like `mapcycle.txt` or `motd.txt` here and it would appear within the corresponding `cstrike` directory on the server.
 
+> [!NOTE]  
+> The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, [please refer back to it to get started](../../README.md).
+
 ```
 ├── hlds
 │   ├── cstrike
