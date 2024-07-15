@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-LABEL org.opencontainers.image.title="hlds-docker" \
+LABEL org.opencontainers.image.title="hlds" \
     org.opencontainers.image.description="🐋 📦 Half-Life Dedicated Server powered by Docker. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins." \
     org.opencontainers.image.vendor="https://jamesiv.es" \
     org.opencontainers.image.authors="James Ives" \
