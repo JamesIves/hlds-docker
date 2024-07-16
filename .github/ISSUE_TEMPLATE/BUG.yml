@@ -65,6 +65,6 @@ body:
   - type: textarea
     id: compose
     attributes:
-      label: Startup Setup
-      description: Please copy and paste the command you are using to start the container, or your docker-compose file.
+      label: Docker Command
+      description: Please copy and paste the command you are using to start the container, or your docker-compose file if you're using docker compose.
       render: yml
