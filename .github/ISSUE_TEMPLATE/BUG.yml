@@ -34,7 +34,7 @@ body:
   - type: dropdown
     id: game
     attributes:
-      label: What game are you trying to run?
+      label: What games are you trying to run?
       multiple: true
       options:
         - Half-Life Deathmatch (valve)
