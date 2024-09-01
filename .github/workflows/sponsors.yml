@@ -18,7 +18,7 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
           file: "README.md"
-          template: '<a href="https://github.com/{{{ login }}}"><img src="{{ websiteUrl }}" width="25px" alt="{{{ login }}}" /></a>&nbsp;&nbsp;'
+          template: '<a href="https://github.com/{{{ login }}}"><img src="{{ avatarUrl }}" width="25px" alt="{{{ login }}}" /></a>&nbsp;&nbsp;'
           active-only: false
           include-private: true
 
