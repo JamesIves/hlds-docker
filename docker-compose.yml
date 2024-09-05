@@ -9,7 +9,6 @@ services:
     # 🔧 jives/hlds:ricochet (Ricochet)
     # 🔧 jives/hlds:dod (Day of Defeat)
     # 🔧 jives/hlds:tfc (Team Fortress Classic)
-    #
     # 🔧 jives/hlds:valve-legacy (Half-Life Deathmatch) (Pre 25th Anniversary Edition)
     # 🔧 jives/hlds:cstrike-legacy (Counter-Strike) (Pre 25th Anniversary Edition)
     # 🔧 jives/hlds:czero-legacy (Counter-Strike: Condition Zero) (Pre 25th Anniversary Edition)
