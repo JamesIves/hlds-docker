@@ -13,7 +13,20 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        game: [cstrike, valve, czero, dmc, gearbox, ricochet, dod, tfc]
+        game:
+          [
+            cstrike,
+            cstrike-legacy,
+            valve,
+            valve-legacy,
+            czero,
+            czero-legacy,
+            dmc,
+            gearbox,
+            ricochet,
+            dod,
+            tfc,
+          ]
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -36,21 +49,35 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set GAME environment variable 🎮
+        working-directory: ./container
+        run: |
+          GAME=${{ matrix.game }}
+          GAME=${GAME%-legacy}
+          echo "GAME=$GAME" >> $GITHUB_ENV
+
       - name: Replace fallback value in Dockerfile and entrypoint.sh
         working-directory: ./container
         run: |
-          sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" Dockerfile
-          sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" entrypoint.sh
+          sed -i "s/\${GAME:-valve}/\${GAME:-${{ env.GAME }}}/g" Dockerfile
+          sed -i "s/\${GAME:-valve}/\${GAME:-${{ env.GAME }}}/g" entrypoint.sh
+
+      - name: Configure SteamCMD to install the legacy engine version 🚒
+        if: contains(matrix.game, 'legacy')
+        run: echo "FLAG=-beta steam_legacy" >> $GITHUB_ENV
 
       - name: Build and Push Docker Image to DockerHub 🐳
         uses: docker/build-push-action@v6
         env:
-          GAME: ${{ matrix.game }}
+          GAME: ${{ env.GAME }}
+          FLAG: ${{ env.FLAG }}
         with:
           context: ./container
           push: true
           tags: jives/hlds:${{ matrix.game }}-beta
-          build-args: GAME=${{ matrix.game }}
+          build-args: |
+            GAME=${{ env.GAME }}
+            FLAG=${{ env.FLAG }}
 
       - name: Set repo owner to lowercase
         id: repo_owner
@@ -59,9 +86,12 @@ jobs:
       - name: Build and Push Docker Image to GitHub Container Registry 🐳
         uses: docker/build-push-action@v6
         env:
-          GAME: ${{ matrix.game }}
+          GAME: ${{ env.GAME }}
+          FLAG: ${{ env.FLAG }}
         with:
           context: ./container
           push: true
           tags: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta
-          build-args: GAME=${{ matrix.game }}
+          build-args: |
+            GAME=${{ env.GAME }}
+            FLAG=${{ env.FLAG }}

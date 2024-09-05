@@ -22,6 +22,8 @@ Before continuing to the following steps, verify that the environment variable i
 > - `ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
 > - `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
+>
+> To install a specific sub version, such as a beta, you can utilize the `FLAG` environment variable to pass arbitrary command flags to Steam CMD. For example, `export FLAG=-beta steam_legacy` can be used to get a [Pre-25th Anniversary build](https://www.half-life.com/en/halflife25) of some titles.
 
 3. Navigate to the `container` folder (where this README file is) and build the image.
 

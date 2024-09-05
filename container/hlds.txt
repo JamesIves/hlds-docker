@@ -3,7 +3,7 @@
 force_install_dir ./hlds
 login anonymous
 app_set_config 90 mod $GAME
-app_update 90 validate
-app_update 90 validate
-app_update 90 validate
+app_update 90 $FLAG validate
+app_update 90 $FLAG validate
+app_update 90 $FLAG validate
 quit
