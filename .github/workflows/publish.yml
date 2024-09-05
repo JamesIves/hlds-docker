@@ -75,7 +75,7 @@ jobs:
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" Dockerfile
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" entrypoint.sh
 
-      - name: Sets FLAGS to install legacy engine version for legacy images 🚀
+      - name: Configure SteamCMD to install the legacy engine version 🚒
         if: contains(matrix.game, 'legacy')
         run: echo "FLAGS=-beta steam_legacy" >> $GITHUB_ENV
 
@@ -90,7 +90,7 @@ jobs:
           tags: |
             jives/hlds:${{ matrix.game }}
             jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
-          build-args: GAME=${{ matrix.game }}
+          build-args: GAME=${{ matrix.game }} FLAGS=${{ env.FLAGS }}
 
       - name: Set repo owner to lowercase
         id: repo_owner

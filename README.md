@@ -42,6 +42,8 @@ docker run -d \
 > - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 >
+> Additionally `jives/hlds:valve-legacy`, `jives/hlds:cstrike-legacy` and `jives/hlds:czero-legacy` are available if you are looking for a [Pre-25th Anniversary build](https://www.half-life.com/en/halflife25).
+>
 > Container images are alternatively available on the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
 Once the command finishes, you can connect to your server via the public IP address by loading the game on [Steam](https://steampowered.com). **You must own a copy of the game on Steam to play**.
