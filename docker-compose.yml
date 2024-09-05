@@ -1,6 +1,5 @@
 services:
   hlds:
-    build: docker
     # 📣 Adjust the image value here with the desired game you want the server to use. Options include:
     # 🔧 jives/hlds:valve (Half-Life Deathmatch)
     # 🔧 jives/hlds:cstrike (Counter-Strike)
