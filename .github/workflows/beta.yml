@@ -57,20 +57,20 @@ jobs:
 
       - name: Configure SteamCMD to install the legacy engine version 🚒
         if: contains(matrix.game, 'legacy')
-        run: echo "FLAGS=-beta steam_legacy" >> $GITHUB_ENV
+        run: echo "FLAG=-beta steam_legacy" >> $GITHUB_ENV
 
       - name: Build and Push Docker Image to DockerHub 🐳
         uses: docker/build-push-action@v6
         env:
           GAME: ${{ matrix.game }}
-          FLAGS: ${{ env.FLAGS }}
+          FLAG: ${{ env.FLAG }}
         with:
           context: ./container
           push: true
           tags: jives/hlds:${{ matrix.game }}-beta
           build-args: |
             GAME=${{ matrix.game }}
-            FLAGS=${{ env.FLAGS }}
+            FLAG=${{ env.FLAG }}
 
       - name: Set repo owner to lowercase
         id: repo_owner
@@ -86,4 +86,4 @@ jobs:
           tags: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta
           build-args: |
             GAME=${{ matrix.game }}
-            FLAGS=${{ env.FLAGS }}
+            FLAG=${{ env.FLAG }}

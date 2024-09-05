@@ -41,8 +41,9 @@ docker run -d \
 > - `jives/hlds:ricohet` ([Ricochet](https://store.steampowered.com/app/60/Ricochet/))
 > - `jives/hlds:dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `jives/hlds:tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
->
-> Additionally `jives/hlds:valve-legacy`, `jives/hlds:cstrike-legacy` and `jives/hlds:czero-legacy` are available if you are looking for a [Pre-25th Anniversary build](https://www.half-life.com/en/halflife25).
+> - `jives/hlds:valve-legacy` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
+> - `jives/hlds:cstrike-legacy` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
+> - `jives/hlds:czero-legacy` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
 >
 > Container images are alternatively available on the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
