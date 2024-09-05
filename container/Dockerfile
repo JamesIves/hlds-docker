@@ -15,6 +15,12 @@ LABEL org.opencontainers.image.source="https://github.com/jamesives/hlds-docker"
 ARG GAME=valve
 ENV GAME ${GAME}
 
+# Sets an environment variable for any additional flags that should be passed to the SteamCMD installer.
+# Default is an empty string. This get replaced when building the image with --build-arg FLAGS=<flags>
+# For example, you may set this to "-beta steam_legacy".
+ARG FLAGS
+ENV FLAGS ${FLAGS}
+
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends curl rsync file libc6:i386 lib32stdc++6 ca-certificates && \
@@ -32,7 +38,9 @@ WORKDIR /opt/steam
 COPY ./hlds.txt /opt/steam
 
 # Replaces $GAME with the requested mod to install in hlds.txt.
+# Additionally replaces $FLAGS with any additional flags that should be passed to the SteamCMD installer to support betas.
 RUN sed -i "s/\$GAME/${GAME}/g" /opt/steam/hlds.txt
+RUN sed -i "s/\$FLAGS/${FLAGS}/g" /opt/steam/hlds.txt
 
 RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - && \
     file /opt/steam/linux32/steamcmd && \

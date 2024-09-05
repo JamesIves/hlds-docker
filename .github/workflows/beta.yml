@@ -13,7 +13,20 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        game: [cstrike, valve, czero, dmc, gearbox, ricochet, dod, tfc]
+        game:
+          [
+            cstrike,
+            cstrike-legacy,
+            valve,
+            valve-legacy,
+            czero,
+            czero-legacy,
+            dmc,
+            gearbox,
+            ricochet,
+            dod,
+            tfc,
+          ]
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -41,6 +54,10 @@ jobs:
         run: |
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" Dockerfile
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ matrix.game }}}/g" entrypoint.sh
+
+      - name: Sets FLAGS to install legacy engine version for legacy images 🚀
+        if: contains(matrix.game, 'legacy')
+        run: echo "FLAGS=-beta steam_legacy" >> $GITHUB_ENV
 
       - name: Build and Push Docker Image to DockerHub 🐳
         uses: docker/build-push-action@v6
