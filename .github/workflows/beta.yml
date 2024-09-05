@@ -68,7 +68,9 @@ jobs:
           context: ./container
           push: true
           tags: jives/hlds:${{ matrix.game }}-beta
-          build-args: GAME=${{ matrix.game }} FLAGS=${{ env.FLAGS }}
+          build-args: |
+            GAME=${{ matrix.game }}
+            FLAGS=${{ env.FLAGS }}
 
       - name: Set repo owner to lowercase
         id: repo_owner
@@ -82,4 +84,6 @@ jobs:
           context: ./container
           push: true
           tags: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta
-          build-args: GAME=${{ matrix.game }}
+          build-args: |
+            GAME=${{ matrix.game }}
+            FLAGS=${{ env.FLAGS }}
