@@ -2,6 +2,7 @@
 
 GAME=${GAME:-valve}
 VERSION=${VERSION:-custom}
+IMAGE=${IMAGE:-custom}
 
 if echo "$@" | grep -qv "+map"; then
   echo -e "\e[33mWarning: No +map specified in the command. Server will start but may not be joinable.\e[0m"
@@ -18,17 +19,8 @@ then
   rsync --chown=steam:steam /temp/config/* /opt/steam/hlds/$GAME
 fi
 
-echo -e "\e[32mStarting Half-Life Dedicated Server for $GAME...\e[0m"
 
-
-IRed='\033[0;91m'         # Red
-IYellow='\033[0;93m'      # Yellow
-IPurple='\033[0;95m'      # Purple
-ICyan='\033[0;96m'        # Cyan
-IWhite='\033[0;97m'       # White
-Color_Off='\033[0m' 
-
-echo -e "\033[0;91m
+echo "\e[31mS
                           ..::::::..              
                       :-=++++++++++++=-:          
                   :=++++=--::...::-=++++=:       
@@ -48,24 +40,25 @@ echo -e "\033[0;91m
                   :=+++++=-::..::-=+++++=:       
                       :-=++++++++++++=-:          
                           ..::::::..              
-\033[0;97m
+
                           hlds-docker 
-${IYellow}
-▄▄ ${IWhite}LINKS${IYellow} ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+\e[0m
+▄▄ LINKS ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 █                                                                  █
-█  ${IWhite}🔧 Maintained by Jives: https://jives.dev${IYellow}                       █
-█  ${IWhite}💖 Support: https://github.com/sponsors/JamesIves${IYellow}               █
-█  ${IWhite}🔔 Feedback / Issues: https://github.com/JamesIves/hlds-docker${IYellow}  █
-█                                                                  █
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-${IPurple}
-▄▄ ${IWhite}STARTUP${IPurple} ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-█                                                                  █
-█  ${IWhite}🔧 Container Version: ${VERSION} ${IPurple}                                   █
+█  🔧 Maintained by Jives: https://jives.dev                       █
+█  💖 Support: https://github.com/sponsors/JamesIves               █
+█  🔔 Feedback / Issues: https://github.com/JamesIves/hlds-docker  █
 █                                                                  █
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-\033[0m
+
+====================================================================
+💿 Image: $IMAGE
+🏷️ Version: $VERSION
+🎮 Game: $GAME
+====================================================================
 "
+
+echo "\e[32mStarting Half-Life Dedicated Server...\e[0m"
 
 # Start the server with the specified game and any additional arguments.
 ./hlds_run "-game $GAME $@"

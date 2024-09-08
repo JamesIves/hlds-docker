@@ -4,27 +4,7 @@ on:
     branches:
       - beta
 jobs:
-  version:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.create_tag.outputs.new_tag }}
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: "0"
-
-      - name: Bump Version and Create Tag 🏷️
-        id: create_tag
-        uses: anothrNick/github-tag-action@1.70.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
-          DRY_RUN: true
-
   build:
-    needs: version
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -91,7 +71,8 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ needs.version.outputs.version }}-beta
+          VERSION: beta
+          IMAGE: jives/hlds:${{ matrix.game }}-beta
         with:
           context: ./container
           push: true
@@ -99,7 +80,8 @@ jobs:
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ needs.version.outputs.version }}-beta
+            IMAGE=jives/hlds:${{ matrix.game }}-beta
+            VERSION=beta
 
       - name: Set repo owner to lowercase
         id: repo_owner
@@ -110,7 +92,8 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ needs.version.outputs.version }}-beta
+          VERSION: beta
+          IMAGE: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta
         with:
           context: ./container
           push: true
@@ -118,4 +101,5 @@ jobs:
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ needs.version.outputs.version }}-beta
+            VERSION=beta
+            IMAGE=ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta

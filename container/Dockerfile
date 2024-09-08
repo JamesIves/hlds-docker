@@ -16,6 +16,10 @@ ENV FLAG ${FLAG}
 ARG VERSION=custom
 ENV VERSION ${VERSION}
 
+# Sets an environment variable for the image name.
+ARG IMAGE=custom
+ENV IMAGE ${IMAGE}
+
 # Tags the image with the Open Containers Initiative (OCI) image format.
 LABEL org.opencontainers.image.title="hlds:${GAME}"
 LABEL org.opencontainers.image.description="🐋 📦 Half-Life Dedicated Server powered by Docker. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins."
