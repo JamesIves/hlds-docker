@@ -38,9 +38,12 @@ body:
       multiple: true
       options:
         - Half-Life Deathmatch (valve)
+        - Half-Life Deathmatch (Pre 25th Anniversary Edition) (valve-legacy)
         - Half-Life Opposing Force (gearbox)
         - Counter-Strike (cstrike)
+        - Counter-Strike (Pre 25th Anniversary Edition) (cstrike-legacy)
         - Counter-Strike Condition Zero (czero)
+        - Counter-Strike Condition Zero (Pre 25th Anniversary Edition) (czero-legacy)
         - Day of Defeat (dod)
         - Team Fortress Classic (tfc)
         - Deathmatch Classic (dmc)
