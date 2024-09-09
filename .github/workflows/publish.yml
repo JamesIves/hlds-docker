@@ -20,7 +20,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
-          DEFAULT_BUMP: patch
           DRY_RUN: true
 
   build:
@@ -91,6 +90,8 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
+          VERSION: ${{ needs.version.outputs.version }}
+          IMAGE: jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
         with:
           context: ./container
           push: true
@@ -100,6 +101,8 @@ jobs:
           build-args: |
             GAME=${{ env.GAME}} 
             FLAG=${{ env.FLAG }}
+            VERSION=${{ needs.version.outputs.version }}
+            IMAGE: jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
 
       - name: Set repo owner to lowercase
         id: repo_owner
@@ -110,6 +113,8 @@ jobs:
         env:
           GAME: ${{ matrix.game }}
           FLAG: ${{ env.FLAG }}
+          VERSION: ${{ needs.version.outputs.version }}
+          IMAGE: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
         with:
           context: ./container
           push: true
@@ -119,6 +124,8 @@ jobs:
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
+            VERSION=${{ needs.version.outputs.version }}
+            IMAGE: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
 
   publish:
     needs: build

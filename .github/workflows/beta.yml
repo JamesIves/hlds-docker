@@ -71,6 +71,8 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
+          VERSION: beta
+          IMAGE: jives/hlds:${{ matrix.game }}-beta
         with:
           context: ./container
           push: true
@@ -78,6 +80,8 @@ jobs:
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
+            IMAGE=jives/hlds:${{ matrix.game }}-beta
+            VERSION=beta
 
       - name: Set repo owner to lowercase
         id: repo_owner
@@ -88,6 +92,8 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
+          VERSION: beta
+          IMAGE: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta
         with:
           context: ./container
           push: true
@@ -95,3 +101,5 @@ jobs:
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
+            VERSION=beta
+            IMAGE=ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-beta

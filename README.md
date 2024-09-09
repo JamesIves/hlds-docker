@@ -26,8 +26,8 @@ docker run -d \
   -p 27015:27015 \
   -p 26900:26900/udp \
   -e GAME=${GAME} \
-  jives/hlds:cstrike  \
-  "+log on +rcon_password changeme +maxplayers 12 +map cs_italy" # 📣 Modify your server startup commands here. You can specify the image with the desired game you want the server to run in the line above.
+  jives/hlds:valve  \
+  "+log on +rcon_password changeme +maxplayers 12 +map crossfire" # 📣 Modify your server startup commands here. You can specify the image with the desired game you want the server to run in the line above.
 ```
 
 > [!TIP]  
