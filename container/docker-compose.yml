@@ -5,6 +5,8 @@ services:
       args:
         - GAME=${GAME}
         - FLAG=${FLAG}
+        - VERSION=${VERSION}
+        - IMAGE=${IMAGE}
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"
@@ -15,4 +17,6 @@ services:
     environment:
       - GAME=${GAME}
       - FLAG=${FLAG}
+      - VERSION=${VERSION}
+      - IMAGE=${IMAGE}
     command: +maxplayers 12 +log on
