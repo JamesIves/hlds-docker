@@ -19,4 +19,4 @@ services:
       - FLAG=${FLAG}
       - VERSION=${VERSION}
       - IMAGE=${IMAGE}
-    command: +maxplayers 12 +log on
+    command: +maxplayers 12 +log on +rcon_password "changeme" +map crossfire
