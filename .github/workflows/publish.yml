@@ -102,7 +102,7 @@ jobs:
             GAME=${{ env.GAME}} 
             FLAG=${{ env.FLAG }}
             VERSION=${{ needs.version.outputs.version }}
-            IMAGE: jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
 
       - name: Set repo owner to lowercase
         id: repo_owner
@@ -125,7 +125,7 @@ jobs:
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
             VERSION=${{ needs.version.outputs.version }}
-            IMAGE: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            IMAGE=ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
 
   publish:
     needs: build
