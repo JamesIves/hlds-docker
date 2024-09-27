@@ -19,4 +19,4 @@ The four main requirements for this project are:
 4. Validate your changes; at the very least, please build the image and start a server. [You can learn how to build the images using the guide located here](docs/BUILDING_AN_IMAGE.md).
 5. Submit a pull request to the `beta` branch.
 6. Once reviewed, your changes will be made available on DockerHub via the `-beta` tag, for example `jives/hlds:cstrike-beta`.
-7. After some more tests, changes will be made sent to the `main` branch where the production images will be published.
+7. After some more tests, changes will be merged into the `main` branch where the production images will be published. This step will be performed by a project maintainer.
