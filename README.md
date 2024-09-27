@@ -45,7 +45,7 @@ docker run -d \
 > - `jives/hlds:cstrike-legacy` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
 > - `jives/hlds:czero-legacy` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
 >
-> Container images are alternatively available on the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
+> Container images are published on [Docker Hub](https://hub.docker.com/repository/docker/jives/hlds/general) and the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
 Once the command finishes, you can connect to your server via the public IP address by loading the game on [Steam](https://steampowered.com). **You must own a copy of the game on Steam to play**.
 
