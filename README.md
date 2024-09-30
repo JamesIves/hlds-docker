@@ -18,7 +18,7 @@ Before starting, ensure you have the [Docker daemon](https://www.docker.com/) a
 You can run the following in your terminal to get started as quickly as possible. Adjust the image name (`jives/hlds`) so the tag corresponds with the game you want to use. Additionally, you can adjust the server startup arguments by modifying the `command` property; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 ```bash
-docker run -d \
+docker run -d -ti \
   --name hlds \
   -v "$(pwd)/config:/temp/config" \
   -v "$(pwd)/mods:/temp/mods" \
