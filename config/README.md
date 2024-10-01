@@ -30,7 +30,7 @@ The `config` directory is volume-mapped within the directory for the game for wh
 > [!TIP]  
 > You can use this method to install server plugins such as AMX Mod, Meta Mod, etc., as the directory can handle nested folders too; for example, these can be placed in `config/addons/amxmodx` etc.
 
-1. Create a folder called `config` alongside where you would typically start the server process. If you've cloned this project locally, you'd place it alongside this README file.
+1. Create a folder called `config` alongside where you would typically start the server process. If you've cloned this project locally, you'd place your files alongside this README file.
 2. Add your config files to the directory.
 3. Start the image as you usually would, either with `docker run` or `docker compose up`.
 
