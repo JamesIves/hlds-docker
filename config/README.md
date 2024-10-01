@@ -1,17 +1,30 @@
 # Configs and Plugins
 
-If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. The `config` directory is volume-mapped within the directory for the game for which you're starting the container. For example, if you're starting a container for `cstrike`, you can add things like `mapcycle.txt` or `motd.txt` here, and it would appear within the corresponding `cstrike` directory on the server.
+If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. Your directory setup should look something like the following where you're running either `docker run` or `docker compose` next to where the `config` directory is located.
+
+```
+├── 📂 server
+│   ├── 📜 docker-compose.yml
+│   ├── 📂 config
+│   │   ├── 📜 mapcycle.txt
+│   │   ├── 📜 motd.txt
+│   │   ├── 📂 maps
+|   │   |   ├── 📜 crazytank.bsp
+```
+
+
+The `config` directory is volume-mapped within the directory for the game for which you're starting the container. For example, if you're starting a container for `cstrike`, you can add things like `mapcycle.txt` or `motd.txt` here, and it would appear within the corresponding `cstrike` directory within the container.
 
 > [!NOTE]  
 > The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, [please refer back to it to get started](../../README.md).
 
 ```
-├── hlds
-│   ├── cstrike
-│   │   ├── models
-│   │   ├── maps
-│   │   ├── mapcycle.txt
-│   │   ├── motd.txt
+├── 📦 hlds
+│   ├── 📂 cstrike
+│   │   ├── 📂 maps
+|   │   |   ├── 📜 crazytank.bsp
+│   │   ├── 📜 mapcycle.txt
+│   │   ├── 📜 motd.txt
 ```
 
 > [!TIP]  
