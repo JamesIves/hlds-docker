@@ -1,21 +1,38 @@
 # Custom Mods
 
-If you want to run a custom mod, you can do so with the `mods` directory. The `mods` directory is volume mapped within the root directory of the Half-Life Dedicated Server client on startup. For example, if you wanted to add a mod named `decay`, you'd place it as a subfolder here, i.e., `mods/decay`. Once the container starts, it would be placed in the following directory.
+If you want to run a custom mod, you can do so with the `mods` directory. Your directory setup should look something like the following where you're running either `docker run` or `docker compose` next to where the `mods` directory is located.
 
 ```
-├── hlds
-│   ├── cstrike
-│   │   ├── models
-│   │   ├── maps
-│   │   ├── autoexec.cfg
-│   ├── valve
-│   │   ├── models
-│   │   ├── maps
-│   │   ├── autoexec.cfg
-│   ├── decay
-│   │   ├── models
-│   │   ├── maps
-│   │   ├── autoexec.cfg
+├── 📂 server
+│   ├── 📜 docker-compose.yml
+│   ├── 📂 mods
+│   |   ├── 📂 decay
+│   │   |   ├── 📜 autoexec.cfg
+│   │   |   ├── 📂 models
+│   │   |   ├── 📂 maps
+│   |   ├── 📂 svencoop
+```
+
+The `mods` directory is volume mapped within the root directory of the Half-Life Dedicated Server client on startup. For example, if you wanted to add a mod named `decay`, you'd place it as a subfolder here, i.e., `mods/decay`. Once the container starts, it would be placed in the following directory within the container.
+
+```
+├── 📦 hlds
+│   ├── 📂 cstrike
+│   │   ├── 📂 models
+│   │   ├── 📂 maps
+│   │   ├── 📜 autoexec.cfg
+│   ├── 📂 valve
+│   │   ├── 📂 models
+│   │   ├── 📂 maps
+│   │   ├── 📜 autoexec.cfg
+│   ├── 📂 decay
+│   │   ├── 📂 models
+│   │   ├── 📂 maps
+│   │   ├── 📜 autoexec.cfg
+│   ├── 📂 svencoop
+│   │   ├── 📂 models
+│   │   ├── 📂 maps
+│   │   ├── 📜 autoexec.cfg
 ```
 
 > [!NOTE]  
