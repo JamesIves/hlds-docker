@@ -68,7 +68,6 @@ RUN mkdir -p $HOME/.steam \
     && ln -s /opt/steam/linux32 $HOME/.steam/sdk32 \
     && echo 70 > /opt/steam/hlds/steam_appid.txt
 
-
 WORKDIR /opt/steam/hlds
 
 # Copies the entrypoint script to the container and sets the necessary permissions.
