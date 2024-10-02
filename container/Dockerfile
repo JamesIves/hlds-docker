@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:24.04
 
 # Sets an environment variable for the game to install.
 # Supported games: valve, cstrike, czero, dod, dmc, gearbox, ricochet, tfc
