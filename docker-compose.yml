@@ -23,7 +23,7 @@ services:
       - "26900:2690/udp"
     environment:
       - GAME=${GAME}
-    # 📣 Modify your server startup commands here, you can add more FLAG as needed (see: https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server),
+    # 📣 Modify your server startup commands here, you can add more flags as needed (see: https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server),
     # 📣 Remember: Stating map is based on the game, and will likely be different between images.
     # 📣 You should also modify the rcon_password value so you can use server admin commands.
     command: +log on +rcon_password "changeme" +maxplayers 12 +map crossfire
