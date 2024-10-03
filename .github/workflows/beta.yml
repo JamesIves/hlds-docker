@@ -5,6 +5,7 @@ on:
       - beta
 jobs:
   build:
+    name: Build Beta Docker Images 🐳
     runs-on: ubuntu-latest
     permissions:
       packages: write

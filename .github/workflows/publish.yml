@@ -5,6 +5,7 @@ on:
       - main
 jobs:
   version:
+    name: Bump Version 🏷️
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.create_tag.outputs.new_tag }}
@@ -23,6 +24,7 @@ jobs:
           DRY_RUN: true
 
   build:
+    name: Build Production Docker Images 🐳
     needs: version
     runs-on: ubuntu-latest
     permissions:
@@ -85,6 +87,86 @@ jobs:
         if: contains(matrix.game, 'legacy')
         run: echo "FLAG=-beta steam_legacy" >> $GITHUB_ENV
 
+      - name: Build Docker Image 🐳
+        uses: docker/build-push-action@v6
+        env:
+          GAME: ${{ env.GAME }}
+          FLAG: ${{ env.FLAG }}
+          VERSION: ${{ needs.version.outputs.version }}
+          IMAGE: jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+        with:
+          context: ./container
+          push: false
+          load: true
+          tags: |
+            jives/hlds:${{ matrix.game }}
+            jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          build-args: |
+            GAME=${{ env.GAME}} 
+            FLAG=${{ env.FLAG }}
+            VERSION=${{ needs.version.outputs.version }}
+            IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+
+      - name: Get Docker Image ID 🆔
+        id: get_image_id
+        run: echo "image_id=$(docker images -q | head -n 1)" >> $GITHUB_ENV
+
+      - name: Add Custom Mod Content 📂
+        run: |
+          mkdir -p ./mods/decay
+          touch ./mods/decay/plugin.ini
+
+      - name: Add Configuration 📂
+        run: |
+          mkdir -p ./config
+          mkdir -p ./config/maps
+          touch ./config/test.cfg
+          touch ./config/maps/crazytank.bsp
+
+      - name: Run Docker Container 🐳
+        run: |
+          docker run -d -ti \
+            --name hlds \
+            -v "./config:/temp/config" \
+            -v "./mods:/temp/mods" \
+            -p 27015:27015/udp \
+            -p 27015:27015 \
+            -p 26900:26900/udp \
+            -e GAME=${GAME} \
+            ${{ env.image_id }}  \
+            "+log on +rcon_password changeme +maxplayers 12"
+          sleep 5
+
+      - name: Validate Directory Mappings 📂
+        run: |
+          # Check if plugin.ini exists in the decay directory
+          if [ "$(docker exec hlds ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
+            echo "plugin.ini file is missing in the decay directory!"
+            exit 1
+          fi
+
+          # Check if test.cfg exists in the game directory
+          if [ "$(docker exec hlds ls /opt/steam/hlds/${{ env.GAME }} | grep -c 'test.cfg')" -eq 0 ]; then
+            echo "test.cfg file is missing in the ${{ env.GAME }} directory!"
+            exit 1
+          fi
+
+          # Check if crazytank.bsp exists in the maps directory
+          if [ "$(docker exec hlds ls /opt/steam/hlds/${{ env.GAME }}/maps | grep -c 'crazytank.bsp')" -eq 0 ]; then
+            echo "crazytank.bsp file is missing in the maps directory!"
+            exit 1
+          fi
+
+          echo "Volume mappings work as expectected!"
+
+      - name: Validate Game Data Is Available 📂
+        run: |
+          GAME_NAME=$(echo "${{ env.GAME }}" | sed 's/-legacy//')
+          if [ "$(docker exec hlds ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then
+            echo "$GAME_NAME directory is missing!"
+            exit 1
+          fi
+
       - name: Build and Push Docker Image to DockerHub 🐳
         uses: docker/build-push-action@v6
         env:
@@ -106,7 +188,9 @@ jobs:
 
       - name: Set repo owner to lowercase
         id: repo_owner
-        run: echo "::set-output name=repo_owner::$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')"
+        run: |
+          REPO_OWNER=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')
+          echo "repo_owner=$REPO_OWNER" >> $GITHUB_ENV
 
       - name: Build and Push Docker Image to GitHub Container Registry 🐳
         uses: docker/build-push-action@v6
@@ -114,20 +198,21 @@ jobs:
           GAME: ${{ matrix.game }}
           FLAG: ${{ env.FLAG }}
           VERSION: ${{ needs.version.outputs.version }}
-          IMAGE: ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          IMAGE: ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
         with:
           context: ./container
           push: true
           tags: |
-            ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}
-            ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}
+            ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
             VERSION=${{ needs.version.outputs.version }}
-            IMAGE=ghcr.io/${{ steps.repo_owner.outputs.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            IMAGE=ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
 
   publish:
+    name: Publish GitHub Release 🚀
     needs: build
     runs-on: ubuntu-latest
     permissions:
