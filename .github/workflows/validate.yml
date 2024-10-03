@@ -27,7 +27,6 @@ jobs:
           context: ./container
           build-args: |
             GAME=${{ env.GAME }}
-          load: true
 
       - name: Get Docker Image ID 🆔
         id: get_image_id
@@ -48,7 +47,7 @@ jobs:
         run: |
           cd ./container
           docker run -d -ti \
-            --name hlds ${{ env.image_id }} \
+            --name hlds2 1f3ade4bb207 \
             -v "$(pwd)/config:/temp/config" \
             -v "$(pwd)/mods:/temp/mods" \
             -p 27015:27015/udp \
