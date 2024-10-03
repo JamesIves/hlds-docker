@@ -47,13 +47,13 @@ jobs:
         run: |
           docker run -d -ti \
             --name hlds \
-            -v "${{ github.workspace }}/config:/temp/config" \
-            -v "${{ github.workspace }}/mods:/temp/mods" \
+            -v "./config:/temp/config" \
+            -v "./mods:/temp/mods" \
             -p 27015:27015/udp \
             -p 27015:27015 \
             -p 26900:26900/udp \
             -e GAME=${GAME} \
-            ${{ env.image_id }} 
+            ${{ env.image_id }} \
             "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
 
       - name: Inspect Container Directories 🕵️‍♂️
