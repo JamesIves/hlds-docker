@@ -76,6 +76,7 @@ jobs:
         with:
           context: ./container
           push: false
+          load: true
           tags: jives/hlds:${{ matrix.game }}-beta
           build-args: |
             GAME=${{ env.GAME }}
