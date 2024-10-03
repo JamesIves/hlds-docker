@@ -85,7 +85,7 @@ jobs:
 
       - name: Get Docker Image ID 🆔
         id: get_image_id
-        run: echo "image_id=$(docker images -q jives/hlds:${{ matrix.game }}-beta)" >> $GITHUB_ENV
+        run: echo "image_id=$(docker images -q | head -n 1)" >> $GITHUB_ENV
 
       - name: Add Custom Mod Content 📂
         run: |
