@@ -35,10 +35,12 @@ jobs:
 
       - name: Add Custom Mod Content 📂
         run: |
+          mkdir -p ./mods/decay
           touch ./mods/decay/plugin.ini
 
       - name: Add Configuration 📂
         run: |
+          mkdir -p ./config
           touch ./config/test.cfg
 
       - name: Validate Files Are Present 📂
