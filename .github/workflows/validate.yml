@@ -41,6 +41,17 @@ jobs:
           mkdir -p ./config
           touch ./config/test.cfg
 
+      - name: List Contents of Directories 📂
+        run: |
+          echo "Listing contents of ./config:"
+          ls ./config
+          echo "Listing contents of ./mods:"
+          ls ./mods
+          echo "Listing contents of ./mods/decay:"
+          ls ./mods/decay
+          echo "Listing contents of ./config:"
+          ls ./config
+
       - name: Run Docker Container 🐳
         run: |
           docker run -d -ti \
