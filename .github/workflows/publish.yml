@@ -78,7 +78,7 @@ jobs:
           GAME=${GAME%-legacy}
           echo "GAME=$GAME" >> $GITHUB_ENV
 
-      - name: Replace fallback value in Dockerfile and entrypoint.sh
+      - name: Replace fallback value in Dockerfile and entrypoint.sh 📝
         working-directory: ./container
         run: |
           sed -i "s/\${GAME:-valve}/\${GAME:-${{ env.GAME }}}/g" Dockerfile
@@ -187,7 +187,7 @@ jobs:
             VERSION=${{ needs.version.outputs.version }}
             IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
 
-      - name: Set repo owner to lowercase
+      - name: Set repo owner to lowercase 📝
         id: repo_owner
         run: |
           REPO_OWNER=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')
