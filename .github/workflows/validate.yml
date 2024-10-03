@@ -23,3 +23,45 @@ jobs:
         with:
           context: ./container
           build-args: GAME=cstrike
+          load: true
+
+      - name: Get Docker Image ID
+        id: get_image_id
+        run: echo "::set-output name=image_id::$(docker images -q | head -n 1)"
+
+      - name: Add Custom Mod Content 📂
+        run: |
+          mkdir -p ./mods
+          mkdir -p ./mods/decay
+          touch ./mods/decay/plugin.ini
+
+      - name: Add Configuration 📂
+        run: |
+          mkdir -p ./config
+          touch ./config/test.cfg
+
+      - name: Run Docker Container 🐳
+        run: |
+          docker run -d --name test-container ${{ steps.get_image_id.outputs.image_id }}
+
+      - name: Validate Directory Mappings 📂
+        run: |
+          # Check if plugin.ini exists in the decay directory
+          if [ "$(docker exec test-container ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
+            echo "plugin.ini file is missing in the decay directory!"
+            exit 1
+          fi
+
+          # Check if test.cfg exists in the cstrike directory
+          if [ "$(docker exec test-container ls /opt/steam/hlds/cstrike | grep -c 'test.cfg')" -eq 0 ]; then
+            echo "test.cfg file is missing in the cstrike directory!"
+            exit 1
+          fi
+
+          echo "Volume mappings work as expectected!"
+
+      - name: Cleanup 🧹
+        if: always()
+        run: |
+          docker stop test-container
+          docker rm test-container
