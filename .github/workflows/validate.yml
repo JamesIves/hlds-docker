@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   build:
+    name: Build and Validate 🏁
     runs-on: ubuntu-latest
 
     steps:
@@ -42,18 +43,15 @@ jobs:
 
       - name: Run Docker Container 🐳
         run: |
-          docker run -d --name test-container ${{ steps.get_image_id.outputs.image_id }}
-
-      - name: Inspect Container Directories 🕵️‍♂️
-        run: |
-          echo "Listing contents of /opt/steam:"
-          docker exec test-container ls /opt/steam
-          echo "Listing contents of /opt/steam/hlds:"
-          docker exec test-container ls /opt/steam/hlds
-          echo "Listing contents of /opt/steam/hlds/decay:"
-          docker exec test-container ls /opt/steam/hlds/decay
-          echo "Listing contents of /opt/steam/hlds/cstrike:"
-          docker exec test-container ls /opt/steam/hlds/cstrike
+          docker run -d -ti \
+            --name hlds ${{ steps.get_image_id.outputs.image_id }} \
+            -v "$(pwd)/config:/temp/config" \
+            -v "$(pwd)/mods:/temp/mods" \
+            -p 27015:27015/udp \
+            -p 27015:27015 \
+            -p 26900:26900/udp \
+            -e GAME=${{ env.GAME }} \
+            "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
 
       - name: Validate Directory Mappings 📂
         run: |
