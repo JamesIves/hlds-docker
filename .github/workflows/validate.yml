@@ -56,13 +56,13 @@ jobs:
       - name: Validate Directory Mappings 📂
         run: |
           # Check if plugin.ini exists in the decay directory
-          if [ "$(docker exec test-container ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
+          if [ "$(docker exec hlds ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
             echo "plugin.ini file is missing in the decay directory!"
             exit 1
           fi
 
           # Check if test.cfg exists in the cstrike directory
-          if [ "$(docker exec test-container ls /opt/steam/hlds/cstrike | grep -c 'test.cfg')" -eq 0 ]; then
+          if [ "$(docker exec hlds ls /opt/steam/hlds/cstrike | grep -c 'test.cfg')" -eq 0 ]; then
             echo "test.cfg file is missing in the cstrike directory!"
             exit 1
           fi
@@ -72,5 +72,5 @@ jobs:
       - name: Cleanup 🧹
         if: always()
         run: |
-          docker stop test-container
-          docker rm test-container
+          docker stop hlds
+          docker rm hlds
