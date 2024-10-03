@@ -13,7 +13,7 @@ If you want to run a custom mod, you can do so with the `mods` directory. Your d
 │   |   ├── 📂 svencoop
 ```
 
-The `mods` directory is volume mapped within the root directory of the Half-Life Dedicated Server client on startup. For example, if you wanted to add a mod named `decay`, you'd place it as a subfolder here, i.e., `mods/decay`. Once the container starts, it would be placed in the following directory within the container.
+The `mods` directory is volume mapped within the root directory of the Half-Life Dedicated Server client on startup. For example, if you wanted to add a mod named `decay`, you'd place it as a subfolder here, i.e., `mods/decay`. Once the container starts, it would be placed in the following directory within the container. The mods directory should be volume mapped to `/temp/mods`, for example `./mods:/temp/mods"`, once the container starts it will re-write the files into the correct place so the Half-Life Dedicated Server client recognizes them.
 
 ```
 ├── 📦 hlds
@@ -38,7 +38,7 @@ The `mods` directory is volume mapped within the root directory of the Half-Life
 > [!NOTE]  
 > The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, [please refer back to it to get started](../README.md).
 
-1. Create a folder called `mods` alongside where you would normally start the server process. If you've cloned this project locally, you'd place your files longside this README file.
+1. Create a folder called `mods` alongside where you would normally start the server process. If you've cloned this project locally, you'd place your files longside this README file. If you're building a custom image, place them alongside the equivalent README in the `container` directory.
 2. Add your mod files as a sub-directory of `mods`. For example if the mod name is `decay`, you'd place it in `mods/decay`.
 3. Define the `GAME` environment variable for your mod name. The dedicated server client will use this to ensure that it starts a server for the correct mod, which corresponds with the directory name that was just created.
 

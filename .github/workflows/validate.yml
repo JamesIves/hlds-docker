@@ -45,8 +45,8 @@ jobs:
         run: |
           docker run -d -ti \
             --name hlds ${{ env.image_id }} \
-            -v "$(pwd)/config:/temp/config" \
-            -v "$(pwd)/mods:/temp/mods" \
+            -v "./container/config:/temp/config" \
+            -v "./container/mods:/temp/mods" \
             -p 27015:27015/udp \
             -p 27015:27015 \
             -p 26900:26900/udp \
