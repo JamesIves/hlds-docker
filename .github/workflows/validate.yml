@@ -25,7 +25,7 @@ jobs:
           build-args: GAME=cstrike
           load: true
 
-      - name: Get Docker Image ID
+      - name: Get Docker Image ID 🆔
         id: get_image_id
         run: echo "::set-output name=image_id::$(docker images -q | head -n 1)"
 
@@ -43,6 +43,17 @@ jobs:
       - name: Run Docker Container 🐳
         run: |
           docker run -d --name test-container ${{ steps.get_image_id.outputs.image_id }}
+
+      - name: Inspect Container Directories 🕵️‍♂️
+        run: |
+          echo "Listing contents of /opt/steam:"
+          docker exec test-container ls /opt/steam
+          echo "Listing contents of /opt/steam/hlds:"
+          docker exec test-container ls /opt/steam/hlds
+          echo "Listing contents of /opt/steam/hlds/decay:"
+          docker exec test-container ls /opt/steam/hlds/decay
+          echo "Listing contents of /opt/steam/hlds/cstrike:"
+          docker exec test-container ls /opt/steam/hlds/cstrike
 
       - name: Validate Directory Mappings 📂
         run: |
