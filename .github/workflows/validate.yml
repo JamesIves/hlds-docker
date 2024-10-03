@@ -32,24 +32,25 @@ jobs:
 
       - name: Add Custom Mod Content 📂
         run: |
-          mkdir -p ./container/mods
-          mkdir -p ./container/mods/decay
-          touch ./container/mods/decay/plugin.ini
+          mkdir -p ./mods
+          mkdir -p ./mods/decay
+          touch ./mods/decay/plugin.ini
 
       - name: Add Configuration 📂
         run: |
-          mkdir -p ./container/config
-          touch ./container/config/test.cfg
+          mkdir -p ./config
+          touch ./config/test.cfg
 
       - name: Run Docker Container 🐳
         run: |
           docker run -d -ti \
             --name hlds ${{ env.image_id }} \
-            -v "./container/config:/temp/config" \
-            -v "./container/mods:/temp/mods" \
+            -v "$(pwd)/config:/temp/config" \
+            -v "$(pwd)/mods:/temp/mods" \
             -p 27015:27015/udp \
             -p 27015:27015 \
             -p 26900:26900/udp \
+            -e GAME=${GAME} \
             "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
 
       - name: Inspect Container Directories 🕵️‍♂️
