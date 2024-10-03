@@ -41,9 +41,12 @@ RUN dpkg --add-architecture i386 && \
 RUN groupadd -r steam && \
     useradd -r -g steam -m -d /opt/steam steam
 
-# Creates the necessary directories for the Half-Life Dedicated Server.
+# Creates the necessary directories for the Half-Life Dedicated Server, including the configuration and mods directories.
 RUN mkdir /config
 RUN mkdir /mods
+RUN mkdir /temp
+RUN mkdir /temp/config
+RUN mkdir /temp/mods
 
 # Sets the user to the steam user.
 USER steam
