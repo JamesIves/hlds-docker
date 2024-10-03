@@ -80,7 +80,7 @@ jobs:
 
           echo "Volume mappings work as expectected!"
 
-      - name: Validate Game Directory Is Present 📂
+      - name: Validate Game Data Is Available 📂
         run: |
           GAME_NAME=$(echo "${{ env.GAME }}" | sed 's/-legacy//')
           if [ "$(docker exec hlds ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then

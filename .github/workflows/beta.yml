@@ -66,7 +66,7 @@ jobs:
         if: contains(matrix.game, 'legacy')
         run: echo "FLAG=-beta steam_legacy" >> $GITHUB_ENV
 
-      - name: Build and Push Docker Image to DockerHub 🐳
+      - name: Build Docker Image 🐳
         uses: docker/build-push-action@v6
         env:
           GAME: ${{ env.GAME }}
@@ -75,13 +75,17 @@ jobs:
           IMAGE: jives/hlds:${{ matrix.game }}-beta
         with:
           context: ./container
-          push: true
+          push: false
           tags: jives/hlds:${{ matrix.game }}-beta
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
             IMAGE=jives/hlds:${{ matrix.game }}-beta
             VERSION=beta
+
+      - name: Get Docker Image ID 🆔
+        id: get_image_id
+        run: echo "image_id=$(docker images -q jives/hlds:${{ matrix.game }}-beta)" >> $GITHUB_ENV
 
       - name: Add Custom Mod Content 📂
         run: |
@@ -91,7 +95,9 @@ jobs:
       - name: Add Configuration 📂
         run: |
           mkdir -p ./config
+          mkdir -p ./config/maps
           touch ./config/test.cfg
+          touch ./config/maps/crazytank.bsp
 
       - name: Run Docker Container 🐳
         run: |
@@ -103,7 +109,7 @@ jobs:
             -p 27015:27015 \
             -p 26900:26900/udp \
             -e GAME=${GAME} \
-            jives/hlds:${{ env.GAME }}-beta  \
+            ${{ env.image_id }}  \
             "+log on +rcon_password changeme +maxplayers 12"
           sleep 5
 
@@ -129,13 +135,30 @@ jobs:
 
           echo "Volume mappings work as expectected!"
 
-      - name: Validate Game Directory Is Present 📂
+      - name: Validate Game Data Is Available 📂
         run: |
           GAME_NAME=$(echo "${{ env.GAME }}" | sed 's/-legacy//')
           if [ "$(docker exec hlds ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then
             echo "$GAME_NAME directory is missing!"
             exit 1
           fi
+
+      - name: Build and Push Docker Image to DockerHub 🐳
+        uses: docker/build-push-action@v6
+        env:
+          GAME: ${{ env.GAME }}
+          FLAG: ${{ env.FLAG }}
+          VERSION: beta
+          IMAGE: jives/hlds:${{ matrix.game }}-beta
+        with:
+          context: ./container
+          push: true
+          tags: jives/hlds:${{ matrix.game }}-beta
+          build-args: |
+            GAME=${{ env.GAME }}
+            FLAG=${{ env.FLAG }}
+            IMAGE=jives/hlds:${{ matrix.game }}-beta
+            VERSION=beta
 
       - name: Set repo owner to lowercase
         id: repo_owner
