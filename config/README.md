@@ -14,7 +14,7 @@ If you wish to add server configurations, such as add-ons, plugins, map rotation
 
 The `config` directory is volume-mapped within the directory for the game for which you're starting the container. For example, if you're starting a container for `cstrike`, you can add things like `mapcycle.txt` or `motd.txt` here, and it would appear within the corresponding `cstrike` directory within the container.
 
-The config directory should be volume mapped to `/temp/config`, for example `./config:/temp/config"`, once the container starts it will re-write the files into the correct place so the Half-Life Dedicated Server client recognizes them.
+The config directory should be volume mapped to `/temp/config`, for example `./config:/temp/config`, once the container starts it will re-write the files into the correct place so the Half-Life Dedicated Server client recognizes them.
 
 > [!NOTE]  
 > The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, [please refer back to it to get started](../../README.md).
