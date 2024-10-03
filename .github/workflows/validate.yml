@@ -43,12 +43,6 @@ jobs:
           mkdir -p ./config
           touch ./config/test.cfg
 
-      - name: Validate Files Are Present 📂
-        run: |
-          ls
-          ls ./config
-          ls ./mods
-
       - name: Run Docker Container 🐳
         run: |
           docker run -d -ti \
@@ -61,21 +55,6 @@ jobs:
             -e GAME=${GAME} \
             ${{ env.image_id }} \
             "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
-
-      - name: Inspect Container Directories 🕵️‍♂️
-        run: |
-          echo "Listing contents of /temp/config:"
-          docker exec hlds ls /temp/config
-          echo "Listing contents of /temp/mods:"
-          docker exec hlds ls /temp/mods
-          echo "Listing contents of /opt/steam:"
-          docker exec hlds ls /opt/steam
-          echo "Listing contents of /opt/steam/hlds:"
-          docker exec hlds ls /opt/steam/hlds
-          echo "Listing contents of /opt/steam/hlds/cstrike:"
-          docker exec hlds ls /opt/steam/hlds/cstrike
-          echo "Listing contents of /opt/steam/hlds/decay:"
-          docker exec hlds ls /opt/steam/hlds/decay
 
       - name: Validate Directory Mappings 📂
         run: |
@@ -106,3 +85,4 @@ jobs:
         run: |
           docker stop hlds
           docker rm hlds
+          docker system prune --all --force
