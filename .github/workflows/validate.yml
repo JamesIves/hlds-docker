@@ -45,7 +45,7 @@ jobs:
 
       - name: Run Docker Container 🐳
         run: |
-          cd container
+          cd ./container
           docker run  \
             --name hlds ${{ env.image_id }} \
             -v "$(pwd)/config:/temp/config" \
@@ -76,7 +76,7 @@ jobs:
             exit 1
           fi
 
-          # Check if test.cfg exists in the cstrike directory
+          # Check if test.cfg exists in the game directory
           if [ "$(docker exec hlds ls /opt/steam/hlds/${{ env.GAME }} | grep -c 'test.cfg')" -eq 0 ]; then
             echo "test.cfg file is missing in the ${{ env.GAME }} directory!"
             exit 1
