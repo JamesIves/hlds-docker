@@ -58,6 +58,10 @@ jobs:
 
       - name: Inspect Container Directories 🕵️‍♂️
         run: |
+          echo "Listing contents of /temp/config:"
+          docker exec hlds ls /temp/config
+          echo "Listing contents of /temp/mods:"
+          docker exec hlds ls /temp/mods
           echo "Listing contents of /opt/steam:"
           docker exec hlds ls /opt/steam
           echo "Listing contents of /opt/steam/hlds:"
