@@ -9,6 +9,7 @@ jobs:
   build:
     name: Build and Validate 🏁
     runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
     env:
       GAME: cstrike
     steps:
@@ -46,7 +47,7 @@ jobs:
       - name: Run Docker Container 🐳
         run: |
           cd ./container
-          docker run  \
+          docker run -d -ti \
             --name hlds ${{ env.image_id }} \
             -v "$(pwd)/config:/temp/config" \
             -v "$(pwd)/mods:/temp/mods" \
