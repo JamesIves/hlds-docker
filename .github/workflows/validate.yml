@@ -56,13 +56,13 @@ jobs:
       - name: Inspect Container Directories 🕵️‍♂️
         run: |
           echo "Listing contents of /opt/steam:"
-          docker exec test-container ls /opt/steam
+          docker exec hlds ls /opt/steam
           echo "Listing contents of /opt/steam/hlds:"
-          docker exec test-container ls /opt/steam/hlds
+          docker exec hlds ls /opt/steam/hlds
           echo "Listing contents of /opt/steam/hlds/decay:"
-          docker exec test-container ls /opt/steam/hlds/decay
+          docker exec hlds ls /opt/steam/hlds/decay
           echo "Listing contents of /opt/steam/hlds/cstrike:"
-          docker exec test-container ls /opt/steam/hlds/cstrike
+          docker exec hlds ls /opt/steam/hlds/cstrike
 
       - name: Validate Directory Mappings 📂
         run: |
