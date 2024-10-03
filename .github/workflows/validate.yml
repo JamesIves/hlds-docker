@@ -17,17 +17,6 @@ jobs:
       - name: Set up Docker Buildx 🛠️
         uses: docker/setup-buildx-action@v3
 
-      - name: Add Custom Mod Content 📂
-        run: |
-          mkdir -p ./container/mods
-          mkdir -p ./container/mods/decay
-          touch ./container/mods/decay/plugin.ini
-
-      - name: Add Configuration 📂
-        run: |
-          mkdir -p ./container/config
-          touch ./container/config/test.cfg
-
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@v6
         env:
@@ -41,6 +30,17 @@ jobs:
         id: get_image_id
         run: echo "image_id=$(docker images -q | head -n 1)" >> $GITHUB_ENV
 
+      - name: Add Custom Mod Content 📂
+        run: |
+          mkdir -p ./container/mods
+          mkdir -p ./container/mods/decay
+          touch ./container/mods/decay/plugin.ini
+
+      - name: Add Configuration 📂
+        run: |
+          mkdir -p ./container/config
+          touch ./container/config/test.cfg
+
       - name: Run Docker Container 🐳
         run: |
           docker run -d -ti \
@@ -50,7 +50,6 @@ jobs:
             -p 27015:27015/udp \
             -p 27015:27015 \
             -p 26900:26900/udp \
-            -e GAME=${{ env.GAME }} \
             "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
 
       - name: Inspect Container Directories 🕵️‍♂️
