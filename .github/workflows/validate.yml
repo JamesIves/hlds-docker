@@ -21,11 +21,10 @@ jobs:
 
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@v6
-        working-directory: ./container
         env:
           GAME: ${{ env.GAME }}
         with:
-          context: .
+          context: ./container
           build-args: |
             GAME=${{ env.GAME }}
           load: true
@@ -35,16 +34,18 @@ jobs:
         run: echo "image_id=$(docker images -q | head -n 1)" >> $GITHUB_ENV
 
       - name: Add Custom Mod Content 📂
-        working-directory: ./container
         run: |
-          mkdir -p ./mods/decay
           touch ./mods/decay/plugin.ini
 
       - name: Add Configuration 📂
-        working-directory: ./container
         run: |
-          mkdir -p ./config
           touch ./config/test.cfg
+
+      - name: Validate Files Are Present 📂
+        run: |
+          ls
+          ls ./config
+          ls ./mods
 
       - name: Run Docker Container 🐳
         run: |
