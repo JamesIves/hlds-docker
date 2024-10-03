@@ -24,7 +24,7 @@ jobs:
           DRY_RUN: true
 
   build:
-    name: Build Production Docker Images 🐳
+    name: Build Production Docker Image 🐳
     needs: version
     runs-on: ubuntu-latest
     permissions:
