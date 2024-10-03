@@ -4,6 +4,9 @@ GAME=${GAME:-valve}
 VERSION=${VERSION:-custom}
 IMAGE=${IMAGE:-custom}
 
+# Adds a delay to ensure volumes are mounted properly
+sleep 10
+
 if echo "$@" | grep -qv "+map"; then
   echo -e "\e[33mWarning: No +map specified in the command. Server will start but may not be joinable.\e[0m"
 fi
