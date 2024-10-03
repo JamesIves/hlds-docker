@@ -35,7 +35,6 @@ jobs:
 
       - name: Add Custom Mod Content 📂
         run: |
-          mkdir -p ./mods
           mkdir -p ./mods/decay
           touch ./mods/decay/plugin.ini
 
@@ -44,17 +43,12 @@ jobs:
           mkdir -p ./config
           touch ./config/test.cfg
 
-      - name: Permissions
-        run: |
-          sudo chmod -R 777 ./config
-          sudo chmod -R 777 ./mods
-
       - name: Run Docker Container 🐳
         run: |
           docker run -d -ti \
             --name hlds ${{ env.image_id }} \
-            -v "${{ github.workspace }}/config:/temp/config" \
-            -v "${{ github.workspace }}/mods:/temp/mods" \
+            -v "${{ github.workspace }}/config:/temp/config:rw" \
+            -v "${{ github.workspace }}/mods:/temp/mods:rw" \
             -p 27015:27015/udp \
             -p 27015:27015 \
             -p 26900:26900/udp \
