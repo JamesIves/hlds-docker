@@ -44,6 +44,11 @@ jobs:
           mkdir -p ./config
           touch ./config/test.cfg
 
+      - name: Permissions
+        run: |
+          sudo chmod -R 777 ./config
+          sudo chmod -R 777 ./mods
+
       - name: Run Docker Container 🐳
         run: |
           docker run -d -ti \
