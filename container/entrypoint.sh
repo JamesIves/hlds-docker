@@ -8,16 +8,16 @@ if echo "$@" | grep -qv "+map"; then
   echo -e "\e[33mWarning: No +map specified in the command. Server will start but may not be joinable.\e[0m"
 fi
 
-# Push mods and config files from their temp directories to the server directories.
-if [ -d /temp/mods ]
-then
-  rsync --recursive --update --chown=steam:steam /temp/mods/* /opt/steam/hlds
-fi
+# # Push mods and config files from their temp directories to the server directories.
+# if [ -d /temp/mods ]
+# then
+#   rsync --recursive --update --chown=steam:steam /temp/mods/* /opt/steam/hlds
+# fi
 
-if [ -d /temp/config ]
-then
-  rsync --recursive --update --chown=steam:steam /temp/config/* /opt/steam/hlds/$GAME
-fi
+# if [ -d /temp/config ]
+# then
+#   rsync --recursive --update --chown=steam:steam /temp/config/* /opt/steam/hlds/$GAME
+# fi
 
 
 echo "
