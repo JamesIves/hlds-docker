@@ -28,18 +28,18 @@ jobs:
 
       - name: Get Docker Image ID 🆔
         id: get_image_id
-        run: echo "::set-output name=image_id::$(docker images -q | head -n 1)"
+        run: echo "image_id=$(docker images -q | head -n 1)" >> $GITHUB_ENV
 
       - name: Add Custom Mod Content 📂
         run: |
-          mkdir -p ./mods
-          mkdir -p ./mods/decay
-          touch ./mods/decay/plugin.ini
+          mkdir -p ./container/mods
+          mkdir -p ./container/mods/decay
+          touch ./container/mods/decay/plugin.ini
 
       - name: Add Configuration 📂
         run: |
-          mkdir -p ./config
-          touch ./config/test.cfg
+          mkdir -p ./container/config
+          touch ./container/config/test.cfg
 
       - name: List Contents of Directories 📂
         run: |
