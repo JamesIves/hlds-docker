@@ -9,7 +9,8 @@ jobs:
   build:
     name: Build and Validate 🏁
     runs-on: ubuntu-latest
-
+    env:
+      GAME: cstrike
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -20,11 +21,11 @@ jobs:
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@v6
         env:
-          GAME: cstrike
+          GAME: ${{ env.GAME }}
         with:
           context: ./container
           build-args: |
-            GAME=cstrike
+            GAME=${{ env.GAME }}
           load: true
 
       - name: Get Docker Image ID 🆔
@@ -34,7 +35,7 @@ jobs:
       - name: Add Custom Mod Content 📂
         run: |
           mkdir -p ./container/mods
-          mkdir -p ./containermods/decay
+          mkdir -p ./container/mods/decay
           touch ./container/mods/decay/plugin.ini
 
       - name: Add Configuration 📂
@@ -76,12 +77,20 @@ jobs:
           fi
 
           # Check if test.cfg exists in the cstrike directory
-          if [ "$(docker exec hlds ls /opt/steam/hlds/cstrike | grep -c 'test.cfg')" -eq 0 ]; then
-            echo "test.cfg file is missing in the cstrike directory!"
+          if [ "$(docker exec hlds ls /opt/steam/hlds/${{ env.GAME }} | grep -c 'test.cfg')" -eq 0 ]; then
+            echo "test.cfg file is missing in the ${{ env.GAME }} directory!"
             exit 1
           fi
 
           echo "Volume mappings work as expectected!"
+
+      - name: Validate Game Directory Is Present 📂
+        run: |
+          GAME_NAME=$(echo "${{ env.GAME }}" | sed 's/-legacy//')
+          if [ "$(docker exec hlds ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then
+            echo "$GAME_NAME directory is missing!"
+            exit 1
+          fi
 
       - name: Cleanup 🧹
         if: always()
