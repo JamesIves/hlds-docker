@@ -42,8 +42,8 @@ RUN groupadd -r steam && \
     useradd -r -g steam -m -d /opt/steam steam
 
 # Creates the necessary directories for the Half-Life Dedicated Server.
-RUN mkdir /config
-RUN mkdir /mods
+RUN mkdir /temp/config
+RUN mkdir /temp/mods
 
 # Sets the user to the steam user.
 USER steam
