@@ -30,7 +30,7 @@ docker run -d -ti \
 ```
 
 > [!TIP]  
-> The available images are below. When changing the game, be sure to adjust the `+map` parameter, as it may cause the server not to be joinable if the map is unavailable.
+> The available images are below. When changing the game, be sure to adjust the `+map` parameter, as it may cause the server to not be joinable if the map is unavailable.
 >
 > - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
 > - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
