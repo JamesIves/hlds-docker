@@ -32,8 +32,9 @@ This repository provides a Dockerized solution for running the Half-Life Dedicat
    - The `entrypoint.sh` script is responsible for initializing the server, copying configuration files, and starting the HLDS server with the specified game and arguments.
 
 3. **Configuration Files**:
+
    - The `config` directory contains server configuration files (e.g., `server.cfg`, `motd.txt`) that are copied into the container during the build process or mounted as volumes at runtime.
-     d d
+
 4. **Mods Directory**:
 
    - The `mods` directory is used for custom mods and plugins. Files in this directory are copied into the container or mounted as volumes.
