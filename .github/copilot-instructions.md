@@ -76,4 +76,4 @@ This repository provides a Dockerized solution for running the Half-Life Dedicat
 ## Additional Notes
 
 - The repository adheres to best practices for Docker image creation, including multi-stage builds and minimal base images.
-- Contributions should align with the project's scope, focusing on ease of use, extensibility, and legal compliance with Valve's licensing terms. d
+- Contributions should align with the project's scope, focusing on ease of use, extensibility, and legal compliance with Valve's licensing terms.
