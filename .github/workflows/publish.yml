@@ -48,6 +48,7 @@ jobs:
             ricochet,
             dod,
             tfc,
+            tfc-legacy,
           ]
     steps:
       - name: Checkout 🛎️
