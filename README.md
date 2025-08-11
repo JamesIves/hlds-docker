@@ -43,6 +43,7 @@ docker run -d -ti \
 > - `jives/hlds:valve-legacy` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
 > - `jives/hlds:cstrike-legacy` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
 > - `jives/hlds:czero-legacy` ([Counter-Strike Condition Zero](https://store.steampowered.com/app/80/CounterStrike_Condition_Zero/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
+> - `jives/hlds:tfc-legacy` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/)) ([Pre-25th Anniversary Build](https://www.half-life.com/en/halflife25))
 >
 > Container images are published on [Docker Hub](https://hub.docker.com/repository/docker/jives/hlds/general) and the [GitHub Container Registry](https://github.com/JamesIves/hlds-docker/pkgs/container/hlds).
 
