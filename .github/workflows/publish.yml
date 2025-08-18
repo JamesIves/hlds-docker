@@ -12,7 +12,7 @@ jobs:
       version: ${{ steps.create_tag.outputs.new_tag }}
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: "0"
 
@@ -52,7 +52,7 @@ jobs:
           ]
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: "0"
 
@@ -221,7 +221,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: "0"
 
