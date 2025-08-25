@@ -18,7 +18,7 @@ jobs:
 
       - name: Bump Version and Create Tag 🏷️
         id: create_tag
-        uses: anothrNick/github-tag-action@1.73.0
+        uses: anothrNick/github-tag-action@1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
@@ -228,7 +228,7 @@ jobs:
       - name: Bump Version and Create Tag 🏷️
         id: create_tag
         if: github.ref == 'refs/heads/main'
-        uses: anothrNick/github-tag-action@1.73.0
+        uses: anothrNick/github-tag-action@1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
