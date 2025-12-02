@@ -104,6 +104,16 @@ jobs:
             org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.version=beta
+          annotations: |
+            org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }} (Beta)
+            org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }} (Beta). This is a beta build and may be unstable. Supports GoldSrc mods, custom configurations and plugins.
+            org.opencontainers.image.vendor=https://jamesiv.es
+            org.opencontainers.image.authors=James Ives (https://jamesiv.es)
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.version=beta
 
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@v6
