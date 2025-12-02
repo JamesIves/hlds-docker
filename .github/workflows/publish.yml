@@ -116,8 +116,8 @@ jobs:
             type=raw,value=${{ matrix.game }}
             type=raw,value=${{ matrix.game }}-${{ needs.version.outputs.version }}
           labels: |
-            org.opencontainers.image.title=HLDS ${{ env.game_title }}
-            org.opencontainers.image.description=🐋 📦 Half-Life Dedicated Server - ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
+            org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }}
+            org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
             org.opencontainers.image.vendor=https://jamesiv.es
             org.opencontainers.image.authors=James Ives (https://jamesiv.es)
             org.opencontainers.image.licenses=MIT
@@ -141,7 +141,7 @@ jobs:
             jives/hlds:${{ matrix.game }}
             jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
           build-args: |
-            GAME=${{ env.GAME}} 
+            GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
             VERSION=${{ needs.version.outputs.version }}
             IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
@@ -222,7 +222,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
-            GAME=${{ env.GAME}} 
+            GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
             VERSION=${{ needs.version.outputs.version }}
             IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}

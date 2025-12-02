@@ -95,8 +95,8 @@ jobs:
           tags: |
             type=raw,value=${{ matrix.game }}-beta
           labels: |
-            org.opencontainers.image.title=HLDS ${{ env.game_title }} (Beta)
-            org.opencontainers.image.description=🐋 📦 Half-Life Dedicated Server - ${{ env.game_title }} (Beta). This is a beta build and may be unstable. Supports GoldSrc mods, custom configurations and plugins.
+            org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }} (Beta)
+            org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }} (Beta). This is a beta build and may be unstable. Supports GoldSrc mods, custom configurations and plugins.
             org.opencontainers.image.vendor=https://jamesiv.es
             org.opencontainers.image.authors=James Ives (https://jamesiv.es)
             org.opencontainers.image.licenses=MIT
