@@ -468,27 +468,8 @@
             <div class="button-container">
               <div class="button-spacer"></div>
               <button onclick="copyToClipboard()">Copy Command</button>
-              <p
-                id="copy-status"
-                role="status"
-                aria-live="polite"
-                class="output-text"
-                style="margin-top: 0.5rem; min-height: 1em;"
-              ></p>
             </div>
           </div>
-          <script>
-            window.addEventListener('DOMContentLoaded', function () {
-              var copyButton = document.querySelector('button[onclick="copyToClipboard()"]');
-              var statusElement = document.getElementById('copy-status');
-              if (!copyButton || !statusElement) {
-                return;
-              }
-              copyButton.addEventListener('click', function () {
-                statusElement.textContent = 'Docker command copied to clipboard.';
-              });
-            });
-          </script>
         </div>
       </div>
 
