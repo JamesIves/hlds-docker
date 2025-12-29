@@ -32,7 +32,7 @@ jobs:
           ]
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: "0"
 
@@ -68,6 +68,52 @@ jobs:
       - name: Configure SteamCMD to install the legacy engine version 🚒
         if: contains(matrix.game, 'legacy')
         run: echo "FLAG=-beta steam_legacy" >> $GITHUB_ENV
+
+      - name: Set Game Title 🎮
+        id: game_title
+        run: |
+          declare -A GAME_TITLES=(
+            ["cstrike"]="Counter-Strike"
+            ["valve"]="Half-Life Deathmatch"
+            ["czero"]="Counter-Strike Condition Zero"
+            ["dmc"]="Deathmatch Classic"
+            ["gearbox"]="Half-Life Opposing Force"
+            ["ricochet"]="Ricochet"
+            ["dod"]="Day of Defeat"
+            ["tfc"]="Team Fortress Classic"
+          )
+          GAME_TITLE="${GAME_TITLES[${{ env.GAME }}]:-${{ env.GAME }}}"
+          echo "game_title=$GAME_TITLE" >> $GITHUB_ENV
+
+      - name: Docker Metadata 🏷️
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            jives/hlds
+            ghcr.io/${{ github.repository_owner }}/hlds
+          tags: |
+            type=raw,value=${{ matrix.game }}-beta
+          labels: |
+            org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }} (Beta)
+            org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }} (Beta). This is a beta build and may be unstable. Supports GoldSrc mods, custom configurations and plugins.
+            org.opencontainers.image.vendor=https://jamesiv.es
+            org.opencontainers.image.authors=James Ives (https://jamesiv.es)
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.version=beta
+          annotations: |
+            org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }} (Beta)
+            org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }} (Beta). This is a beta build and may be unstable. Supports GoldSrc mods, custom configurations and plugins.
+            org.opencontainers.image.vendor=https://jamesiv.es
+            org.opencontainers.image.authors=James Ives (https://jamesiv.es)
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.version=beta
 
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@v6
@@ -158,6 +204,8 @@ jobs:
           context: ./container
           push: true
           tags: jives/hlds:${{ matrix.game }}-beta
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
@@ -181,6 +229,8 @@ jobs:
           context: ./container
           push: true
           tags: ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-beta
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}

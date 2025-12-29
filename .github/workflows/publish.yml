@@ -12,13 +12,13 @@ jobs:
       version: ${{ steps.create_tag.outputs.new_tag }}
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: "0"
 
       - name: Bump Version and Create Tag 🏷️
         id: create_tag
-        uses: anothrNick/github-tag-action@1.73.0
+        uses: anothrNick/github-tag-action@1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
@@ -52,7 +52,7 @@ jobs:
           ]
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: "0"
 
@@ -89,6 +89,53 @@ jobs:
         if: contains(matrix.game, 'legacy')
         run: echo "FLAG=-beta steam_legacy" >> $GITHUB_ENV
 
+      - name: Set Game Title 🎮
+        id: game_title
+        run: |
+          declare -A GAME_TITLES=(
+            ["cstrike"]="Counter-Strike"
+            ["valve"]="Half-Life Deathmatch"
+            ["czero"]="Counter-Strike Condition Zero"
+            ["dmc"]="Deathmatch Classic"
+            ["gearbox"]="Half-Life Opposing Force"
+            ["ricochet"]="Ricochet"
+            ["dod"]="Day of Defeat"
+            ["tfc"]="Team Fortress Classic"
+          )
+          GAME_TITLE="${GAME_TITLES[${{ env.GAME }}]:-${{ env.GAME }}}"
+          echo "game_title=$GAME_TITLE" >> $GITHUB_ENV
+
+      - name: Docker Metadata 🏷️
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            jives/hlds
+            ghcr.io/${{ github.repository_owner }}/hlds
+          tags: |
+            type=raw,value=${{ matrix.game }}
+            type=raw,value=${{ matrix.game }}-${{ needs.version.outputs.version }}
+          labels: |
+            org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }}
+            org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
+            org.opencontainers.image.vendor=https://jamesiv.es
+            org.opencontainers.image.authors=James Ives (https://jamesiv.es)
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+          annotations: |
+            org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }}
+            org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
+            org.opencontainers.image.vendor=https://jamesiv.es
+            org.opencontainers.image.authors=James Ives (https://jamesiv.es)
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
+            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@v6
         env:
@@ -104,7 +151,7 @@ jobs:
             jives/hlds:${{ matrix.game }}
             jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
           build-args: |
-            GAME=${{ env.GAME}} 
+            GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
             VERSION=${{ needs.version.outputs.version }}
             IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
@@ -182,8 +229,10 @@ jobs:
           tags: |
             jives/hlds:${{ matrix.game }}
             jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
-            GAME=${{ env.GAME}} 
+            GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
             VERSION=${{ needs.version.outputs.version }}
             IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
@@ -207,6 +256,8 @@ jobs:
           tags: |
             ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}
             ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
@@ -221,14 +272,14 @@ jobs:
       contents: write
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: "0"
 
       - name: Bump Version and Create Tag 🏷️
         id: create_tag
         if: github.ref == 'refs/heads/main'
-        uses: anothrNick/github-tag-action@1.73.0
+        uses: anothrNick/github-tag-action@1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
