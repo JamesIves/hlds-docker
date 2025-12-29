@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Generate Docker commands to run Half-Life Dedicated Servers with custom configurations."
+    />
+    <meta name="theme-color" content="#3e4637" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:title" content="Half-Life Dedicated Server" />
+    <meta
+      property="og:description"
+      content="Generate Docker commands to run Half-Life Dedicated Servers with custom configurations."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://jamesives.github.io/hlds-docker/"
+    />
+
+    <link rel="icon" type="image/png" href="favicon.ico" />
+    <link rel="canonical" href="https://jives.dev/hlds-docker" />
+
+    <title>Half-Life Dedicated Server</title>
+    <style>
+      :root {
+        --bg-primary: #3e4637;
+        --bg-secondary: #4c5844;
+        --text-primary: #d8ded3;
+        --text-secondary: #d0d0d0;
+        --text-accent: #f0d963;
+        --border-light: #899281;
+        --border-dark: #292d23;
+        --text-link: #ffffff;
+        --font-main: "Trebuchet MS", Arial, sans-serif;
+        --font-size-base: 11px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        align-items: center;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        display: flex;
+        font-family: var(--font-main);
+        justify-content: center;
+        margin: 0;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      main {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 1000px;
+        width: 100%;
+      }
+
+      .window {
+        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-dark);
+        border-left: 1px solid var(--border-light);
+        border-right: 1px solid var(--border-dark);
+        border-top: 1px solid var(--border-light);
+      }
+
+      .window::before {
+        background-color: var(--bg-secondary);
+        color: white;
+        content: attr(name);
+        display: block;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        line-height: 18px;
+        text-indent: 8px;
+        text-transform: uppercase;
+      }
+
+      .window-content {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+        padding: 10px;
+      }
+
+      .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .right-column {
+        display: flex;
+        flex-direction: column;
+      }
+
+      @media (max-width: 900px) {
+        .window-content {
+          grid-template-columns: 1fr;
+        }
+        .right-column {
+          margin-top: 12px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+      }
+
+      fieldset {
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+        margin: 0;
+        padding: 8px;
+      }
+
+      legend {
+        color: var(--text-accent);
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        padding: 0 3px;
+        text-transform: uppercase;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="number"],
+      select {
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+        color: var(--text-primary);
+        font-family: var(--font-main);
+        font-size: var(--font-size-base);
+        padding: 3px;
+        width: 100%;
+      }
+
+      input[type="checkbox"] {
+        appearance: none;
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+        cursor: pointer;
+        height: 13px;
+        margin-right: 4px;
+        vertical-align: middle;
+        width: 13px;
+      }
+
+      input[type="checkbox"]:checked {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ctext x='2' y='10' font-size='12' fill='%23d8ded3' font-weight='bold'%3E%E2%9C%93%3C/text%3E%3C/svg%3E");
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+      .form-row {
+        align-items: center;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 100px 1fr;
+        margin-bottom: 6px;
+      }
+
+      .form-label {
+        color: var(--text-primary);
+        font-size: var(--font-size-base);
+        text-align: right;
+      }
+
+      .checkbox-row {
+        align-items: center;
+        color: var(--text-primary);
+        display: flex;
+        font-size: var(--font-size-base);
+        margin-bottom: 6px;
+      }
+
+      .checkbox-row label {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        margin: 0;
+      }
+
+      pre.inset {
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+        color: var(--text-primary);
+        flex: 1;
+        font-size: 10px;
+        height: 220px;
+        line-height: 1.3;
+        margin: 0;
+        max-width: 600px;
+        overflow-y: auto;
+        padding: 6px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .output-header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+
+      .output-header legend {
+        margin: 0;
+      }
+
+      .button-row {
+        border-top: 1px solid rgba(137, 146, 129, 0.5);
+        display: flex;
+        gap: 8px;
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        margin-top: 12px;
+        padding-top: 8px;
+      }
+
+      button {
+        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-dark);
+        border-left: 1px solid var(--border-light);
+        border-right: 1px solid var(--border-dark);
+        border-top: 1px solid var(--border-light);
+        color: white;
+        cursor: pointer;
+        font-family: var(--font-main);
+        font-size: var(--font-size-base);
+        min-width: 75px;
+        padding: 4px 20px;
+        text-align: center;
+      }
+
+      button:active {
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+      }
+
+      .footer-link {
+        text-align: center;
+        font-size: 10px;
+        color: var(--text-secondary);
+      }
+
+      a {
+        color: var(--text-link);
+        text-decoration: underline;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .form-label {
+          text-align: left;
+          margin-bottom: 2px;
+        }
+      }
+
+      .description {
+        color: var(--text-primary);
+        font-size: var(--font-size-base);
+        grid-column: 1 / -1;
+        margin-bottom: 8px;
+        margin-top: 8px;
+        padding-bottom: 8px;
+      }
+
+      .output-text {
+        color: var(--text-secondary);
+        font-size: 10px;
+        margin-top: 6px;
+        text-align: left;
+      }
+
+      .footer-container {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 8px;
+      }
+
+      .footer-links {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 12px;
+        justify-content: center;
+        white-space: nowrap;
+      }
+
+      .footer-divider {
+        align-items: center;
+        color: var(--text-secondary);
+        display: flex;
+        font-size: 14px;
+        line-height: 1;
+        opacity: 0.5;
+      }
+
+      .footer-text {
+        color: var(--text-secondary);
+        font-size: 10px;
+        margin: 0;
+        text-align: center;
+      }
+
+      .footer-link {
+        text-decoration: none;
+      }
+
+      .footer-link img {
+        border: none;
+        display: block;
+        height: 16px;
+        width: 16px;
+      }
+
+      .button-container {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        width: 100%;
+      }
+
+      .button-spacer {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="window" name="Create Server">
+        <div class="window-content">
+          <div class="description">
+            Half-Life Dedicated Server powered by Docker, supporting all the
+            classic GoldSrc Half-Life games and mods—including Counter-Strike
+            1.6, Team Fortress Classic, Day of Defeat and more. Easily
+            extendable with custom configurations and plugins. For more detailed
+            setup instructions refer to the
+            <a href="https://github.com/jamesives/hlds-docker">documentation</a
+            >.
+          </div>
+          <div class="left-column">
+            <fieldset>
+              <legend>Game Configuration</legend>
+
+              <div class="form-row">
+                <label class="form-label" for="game">Game</label>
+                <select id="game">
+                  <option value="valve">Half-Life</option>
+                  <option value="cstrike">Counter-Strike</option>
+                  <option value="czero">Counter-Strike Condition Zero</option>
+                  <option value="dmc">Deathmatch Classic</option>
+                  <option value="gearbox">Half-Life Opposing Force</option>
+                  <option value="ricochet">Ricochet</option>
+                  <option value="dod">Day of Defeat</option>
+                  <option value="tfc">Team Fortress Classic</option>
+                  <option value="valve-legacy">Half-Life (Legacy)</option>
+                  <option value="cstrike-legacy">
+                    Counter-Strike (Legacy)
+                  </option>
+                  <option value="czero-legacy">
+                    Counter-Strike Condition Zero (Legacy)
+                  </option>
+                  <option value="tfc-legacy">
+                    Team Fortress Classic (Legacy)
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <label class="form-label" for="map">Starting Map</label>
+                <select id="map"></select>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Server Settings</legend>
+
+              <div class="form-row">
+                <label class="form-label" for="servername">Server Name</label>
+                <input
+                  type="text"
+                  id="servername"
+                  value="Half-Life Dedicated Server"
+                />
+              </div>
+
+              <div class="form-row">
+                <label class="form-label" for="maxplayers">Max Players</label>
+                <input
+                  type="number"
+                  id="maxplayers"
+                  value="12"
+                  min="1"
+                  max="32"
+                />
+              </div>
+
+              <div class="form-row">
+                <label class="form-label" for="rcon">RCON Password</label>
+                <input type="password" id="rcon" value="" />
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Startup Options</legend>
+
+              <div class="checkbox-row">
+                <label>
+                  <input type="checkbox" id="lanmode" />
+                  LAN Mode (sv_lan 1)
+                </label>
+              </div>
+
+              <div class="checkbox-row">
+                <label>
+                  <input type="checkbox" id="cheats" />
+                  Enable Cheats (sv_cheats 1)
+                </label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="right-column">
+            <div class="output-header">
+              <legend>Docker Command</legend>
+            </div>
+            <pre class="inset" id="output"></pre>
+            <p class="output-text">
+              Copy and paste this command into your terminal to start your
+              Half-Life dedicated server.
+            </p>
+          </div>
+
+          <div class="button-row">
+            <div class="button-container">
+              <div class="button-spacer"></div>
+              <button onclick="copyToClipboard()">Copy Command</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-container">
+        <div class="footer-links">
+          <a
+            href="https://github.com/jamesives/hlds-docker"
+            target="_blank"
+            class="footer-link"
+          >
+            View on GitHub
+          </a>
+          <span class="footer-divider">|</span>
+          <a
+            href="https://jamesiv.es/blog/experiment/docker/2024/06/20/half-life-dedicated-server-with-docker"
+            target="_blank"
+            title="Read the accompanying blog post"
+            class="footer-link"
+          >
+            Read the Article
+          </a>
+        </div>
+        <a
+          href="https://jamesiv.es"
+          target="_blank"
+          title="James Ives"
+          class="footer-link"
+        >
+          <img src="icon.png" alt="James Ives" />
+        </a>
+      </div>
+    </main>
+
+    <script>
+      const clickSound = new Audio("click.mp3");
+
+      // Map data for each game
+      const mapData = {
+        valve: [
+          "bounce",
+          "contamination",
+          "crossfire",
+          "datacore",
+          "disposal",
+          "doublecross",
+          "frenzy",
+          "gasworks",
+          "lambda_bunker",
+          "pool_party",
+          "rapidcore",
+          "rocket_frenzy",
+          "rustmill",
+          "snark_pit",
+          "stalkyard",
+          "subtransit",
+          "undertow",
+          "xen_dm",
+        ],
+        cstrike: [
+          "as_oilrig",
+          "cs_747",
+          "cs_assault",
+          "cs_backalley",
+          "cs_estate",
+          "cs_havana",
+          "cs_italy",
+          "cs_militia",
+          "cs_office",
+          "cs_siege",
+          "de_airstrip",
+          "de_aztec",
+          "de_cbble",
+          "de_chateau",
+          "de_dust",
+          "de_dust2",
+          "de_inferno",
+          "de_nuke",
+          "de_piranesi",
+          "de_storm",
+          "de_survivor",
+          "de_torn",
+          "de_train",
+          "de_vertigo",
+        ],
+        czero: [
+          "as_oilrig",
+          "cs_747",
+          "cs_assault",
+          "cs_backalley",
+          "cs_downed_cz",
+          "cs_estate",
+          "cs_havana",
+          "cs_havana_cz",
+          "cs_italy",
+          "cs_italy_cz",
+          "cs_militia",
+          "cs_militia_cz",
+          "cs_office",
+          "cs_office_cz",
+          "cs_siege",
+          "de_airstrip",
+          "de_airstrip_cz",
+          "de_aztec",
+          "de_aztec_cz",
+          "de_cbble",
+          "de_cbble_cz",
+          "de_chateau",
+          "de_chateau_cz",
+          "de_dust",
+          "de_dust_cz",
+          "de_dust2",
+          "de_dust2_cz",
+          "de_inferno",
+          "de_inferno_cz",
+          "de_nuke",
+          "de_piranesi",
+          "de_piranesi_cz",
+          "de_prodigy",
+          "de_prodigy_cz",
+          "de_sienna_cz",
+          "de_stadium_cz",
+          "de_storm",
+          "de_survivor",
+          "de_tides_cz",
+          "de_torn",
+          "de_torn_cz",
+          "de_train",
+          "de_truth_cz",
+          "de_vertigo",
+          "de_vostok_cz",
+        ],
+        dmc: [
+          "dcdm5",
+          "dmc_dm2",
+          "dmc_dm3",
+          "dmc_dm4",
+          "dmc_dm6",
+          "dmc_e1m2",
+          "p_se_3",
+        ],
+        gearbox: [
+          "op4_bootcamp",
+          "op4_datacore",
+          "op4_demise",
+          "op4_disposal",
+          "op4_gasworks",
+          "op4_kbase",
+          "op4_kndyone",
+          "op4_meanie",
+          "op4_outpost",
+          "op4_park",
+          "op4_repent",
+          "op4_rubble",
+          "op4_xendance",
+          "op4cp_park",
+          "op4ctf_biodomes",
+          "op4ctf_chasm",
+          "op4ctf_crash",
+          "op4ctf_dam",
+          "op4ctf_gunyard",
+          "op4ctf_hairball",
+          "op4ctf_mortar",
+          "op4ctf_power",
+          "op4ctf_repent",
+          "op4ctf_wonderland",
+          "op4ctf_xendance",
+        ],
+        ricochet: ["rc_arena", "rc_deathmatch", "rc_deathmatch2"],
+        dod: [
+          "dod_anzio",
+          "dod_avalanche",
+          "dod_caen",
+          "dod_charlie",
+          "dod_chemille",
+          "dod_donner",
+          "dod_escape",
+          "dod_falaise",
+          "dod_flash",
+          "dod_flugplatz",
+          "dod_forest",
+          "dod_glider",
+          "dod_jagd",
+          "dod_kalt",
+          "dod_kraftstoff",
+          "dod_merderet",
+          "dod_northbound",
+          "dod_saints",
+          "dod_sturm",
+          "dod_vicenza",
+          "dod_zalec",
+        ],
+        tfc: [
+          "2fort",
+          "avanti",
+          "badlands",
+          "casbah",
+          "crossover2",
+          "cz2",
+          "dustbowl",
+          "epicenter",
+          "flagrun",
+          "hunted",
+          "push",
+          "ravelin",
+          "rock2",
+          "warpath",
+          "well",
+        ],
+      };
+
+      // Assign legacy versions after object is defined
+      mapData["valve-legacy"] = mapData["valve"];
+      mapData["cstrike-legacy"] = mapData["cstrike"];
+      mapData["czero-legacy"] = mapData["czero"];
+      mapData["tfc-legacy"] = mapData["tfc"];
+
+      function playButtonSound() {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(() => {
+          // Silently ignore if audio fails to play
+        });
+      }
+
+      function updateMapOptions() {
+        const game = document.getElementById("game").value;
+        const mapSelect = document.getElementById("map");
+        const maps = mapData[game] || [];
+
+        mapSelect.innerHTML = "";
+        maps.forEach((map) => {
+          const option = document.createElement("option");
+          option.value = map;
+          option.textContent = map;
+          mapSelect.appendChild(option);
+        });
+      }
+
+      function updateCommand() {
+        const game = document.getElementById("game").value;
+        const servername = document.getElementById("servername").value;
+        const map = document.getElementById("map").value;
+        let maxplayers = document.getElementById("maxplayers").value;
+        const rcon = document.getElementById("rcon").value;
+        const lanmode = document.getElementById("lanmode").checked;
+        const cheats = document.getElementById("cheats").checked;
+
+        // Ensure maxplayers has a minimum value of 1
+        if (!maxplayers || parseInt(maxplayers) < 1) {
+          maxplayers = 1;
+        }
+
+        let command = `docker run -d -ti \\
+      --name hlds \\
+      -v "$(pwd)/config:/temp/config" \\
+      -v "$(pwd)/mods:/temp/mods" \\
+      -p 27015:27015/udp \\
+      -p 27015:27015 \\
+      jives/hlds:${game} \\
+      +log on`;
+
+        if (rcon) {
+          command += ` +rcon_password ${rcon}`;
+        }
+
+        command += ` +hostname "${servername}" +maxplayers ${maxplayers}`;
+
+        if (lanmode) {
+          command += ` +sv_lan 1`;
+        }
+
+        if (cheats) {
+          command += ` +sv_cheats 1`;
+        }
+
+        command += ` +map ${map}`;
+
+        document.getElementById("output").textContent = command;
+      }
+
+      function copyToClipboard() {
+        playButtonSound();
+        const output = document.getElementById("output").textContent;
+        navigator.clipboard.writeText(output);
+      }
+
+      // Auto-update on input change
+      document.getElementById("game").addEventListener("change", () => {
+        updateMapOptions();
+        updateCommand();
+      });
+      document
+        .getElementById("servername")
+        .addEventListener("input", updateCommand);
+      document.getElementById("map").addEventListener("change", updateCommand);
+      document
+        .getElementById("maxplayers")
+        .addEventListener("input", updateCommand);
+      document.getElementById("rcon").addEventListener("input", updateCommand);
+      document
+        .getElementById("lanmode")
+        .addEventListener("change", updateCommand);
+      document
+        .getElementById("cheats")
+        .addEventListener("change", updateCommand);
+
+      // Initial setup
+      updateMapOptions();
+      updateCommand();
+    </script>
+  </body>
+</html>
