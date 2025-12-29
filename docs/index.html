@@ -714,14 +714,16 @@
         const game = document.getElementById("game").value;
         const servername = document.getElementById("servername").value;
         const map = document.getElementById("map").value;
-        let maxplayers = document.getElementById("maxplayers").value;
+        const maxplayersInput = document.getElementById("maxplayers");
+        let maxplayers = parseInt(maxplayersInput.value, 10);
         const rcon = document.getElementById("rcon").value;
         const lanmode = document.getElementById("lanmode").checked;
         const cheats = document.getElementById("cheats").checked;
 
-        // Ensure maxplayers has a minimum value of 1
-        if (!maxplayers || parseInt(maxplayers) < 1) {
+        // Ensure maxplayers has a minimum value of 1 and keep the input field in sync
+        if (!Number.isFinite(maxplayers) || maxplayers < 1) {
           maxplayers = 1;
+          maxplayersInput.value = String(maxplayers);
         }
 
         let command = `docker run -d -ti \\
