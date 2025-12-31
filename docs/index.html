@@ -3,40 +3,78 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Run a Half-Life Dedicated Server with Docker. Simple setup for classic GoldSrc games including Counter-Strike, Team Fortress Classic, and more."
+    <meta name="description" />
+    <meta name="description"
+      content="Half-Life Dedicated Server powered by Docker, supporting all the classic GoldSrc Half-Life games and mods-including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more."
     />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="James Ives" />
     <meta name="theme-color" content="#3e4637" />
     <meta name="color-scheme" content="dark" />
-    <meta property="og:title" content="Half-Life Dedicated Server" />
+    <meta property="og:title" content="Half-Life Dedicated Server with Docker" />
     <meta
       property="og:description"
-      content="Run a Half-Life Dedicated Server with Docker. Simple setup for classic GoldSrc games including Counter-Strike, Team Fortress Classic, and more."
+      content="Half-Life Dedicated Server powered by Docker, supporting all the classic GoldSrc Half-Life games and mods-including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://jives.dev/hlds-docker/" />
+    <meta property="og:image" content="meta.png" />
+    <meta property="og:image:alt" content="Half-Life Dedicated Server with Docker" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Half-Life Dedicated Server" />
+    <meta name="twitter:description" content="Half-Life Dedicated Server powered by Docker, supporting all the classic GoldSrc Half-Life games and mods-including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more." />
+    <meta name="twitter:image" content="meta.png" />
 
     <link rel="icon" type="image/png" href="favicon.ico" />
+    <link rel="apple-touch-icon" href="favicon.ico" />
     <link rel="canonical" href="https://jives.dev/hlds-docker" />
 
-    <title>Half-Life Dedicated Server</title>
+    <title>Half-Life Dedicated Server with Docker</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Half-Life Dedicated Server",
+      "description": "Half-Life Dedicated Server powered by Docker, supporting all the classic GoldSrc Half-Life games and mods-including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more. Easily extendable with custom configurations and plugins.",
+      "url": "https://jives.dev/hlds-docker/",
+      "image": "https://jives.dev/hlds-docker/meta.png",
+      "applicationCategory": "Utility",
+      "operatingSystem": "Docker",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
     <style>
       :root {
         --bg-primary: #3e4637;
         --bg-secondary: #4c5844;
+        --border-dark: #292d23;
+        --border-light: #76806e;
+        --font-main: Verdana, sans-serif;
+        --font-size-base: 11px;
+        --text-accent: #cfbf53;
+        --text-link: #ffffff;
         --text-primary: #d8ded3;
         --text-secondary: #d0d0d0;
-        --text-accent: #f0d963;
-        --border-light: #899281;
-        --border-dark: #292d23;
-        --text-link: #ffffff;
-        --font-main: "Trebuchet MS", Arial, sans-serif;
-        --font-size-base: 11px;
       }
 
       * {
         box-sizing: border-box;
+      }
+
+      a {
+        color: var(--text-primary);
+        text-decoration: underline;
+        text-decoration-color: rgba(216, 222, 211, 0.5);
+        text-underline-offset: 2px;
+      }
+
+      a:hover {
+        text-decoration-color: rgba(216, 222, 211, 1);
       }
 
       body {
@@ -51,110 +89,55 @@
         padding: 20px;
       }
 
-      main {
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        max-width: 1000px;
-        width: 100%;
-      }
-
-      .window {
+      button {
+        -webkit-font-smoothing: none;
         background-color: var(--bg-secondary);
         border-bottom: 1px solid var(--border-dark);
         border-left: 1px solid var(--border-light);
         border-right: 1px solid var(--border-dark);
         border-top: 1px solid var(--border-light);
-      }
-
-      .window::before {
-        background-color: var(--bg-secondary);
         color: white;
-        content: attr(name);
-        display: block;
-        font-size: 12px;
-        font-weight: bold;
-        letter-spacing: 2px;
-        line-height: 18px;
-        text-indent: 8px;
-        text-transform: uppercase;
+        cursor: pointer;
+        font-family: var(--font-main);
+        font-size: 11px;
+        font-weight: lighter;
+        min-width: 75px;
+        padding: 4px 20px;
+        text-align: center;
       }
 
-      .window-content {
-        display: grid;
-        gap: 12px;
-        grid-template-columns: 1fr 1fr;
-        padding: 10px;
+      button:active {
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+        transform: none;
       }
 
-      .left-column {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .right-column {
-        display: flex;
-        flex-direction: column;
-      }
-
-      @media (max-width: 900px) {
-        .window-content {
-          grid-template-columns: 1fr;
-        }
-        .right-column {
-          margin-top: 12px;
-        }
-      }
-
-      @media (max-width: 768px) {
-        body {
-          padding: 10px;
-        }
+      button:focus {
+        outline: 1px dashed #292d23;
+        outline-offset: -4px;
       }
 
       fieldset {
-        border-bottom: 1px solid var(--border-light);
-        border-left: 1px solid var(--border-dark);
-        border-right: 1px solid var(--border-light);
-        border-top: 1px solid var(--border-dark);
+        border: 1px solid #5d6d52;
+        border-radius: 2px;
         margin: 0;
+        margin-top: 5px;
         padding: 8px;
+        position: relative;
       }
 
-      legend {
-        color: var(--text-accent);
-        font-size: 11px;
-        font-weight: bold;
-        letter-spacing: 1px;
-        padding: 0 3px;
-        text-transform: uppercase;
-      }
-
-      input[type="text"],
-      input[type="password"],
-      input[type="number"],
-      select {
-        background-color: var(--bg-primary);
-        border-bottom: 1px solid var(--border-light);
-        border-left: 1px solid var(--border-dark);
-        border-right: 1px solid var(--border-light);
-        border-top: 1px solid var(--border-dark);
-        color: var(--text-primary);
-        font-family: var(--font-main);
-        font-size: var(--font-size-base);
-        padding: 3px;
-        width: 100%;
+      fieldset::before {
+        content: "";
       }
 
       input[type="checkbox"] {
+        -webkit-appearance: none;
         appearance: none;
         background-color: var(--bg-primary);
-        border-bottom: 1px solid var(--border-light);
-        border-left: 1px solid var(--border-dark);
-        border-right: 1px solid var(--border-light);
-        border-top: 1px solid var(--border-dark);
+        border: 1px solid;
+        border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
         cursor: pointer;
         height: 13px;
         margin-right: 4px;
@@ -163,38 +146,59 @@
       }
 
       input[type="checkbox"]:checked {
-        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ctext x='2' y='10' font-size='12' fill='%23d8ded3' font-weight='bold'%3E%E2%9C%93%3C/text%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ctext x='2' y='10' font-size='12' fill='%23c4b550' font-weight='bold'%3E%E2%9C%93%3C/text%3E%3C/svg%3E");
         background-position: center;
         background-repeat: no-repeat;
       }
 
-      .form-row {
-        align-items: center;
-        display: grid;
-        gap: 8px;
-        grid-template-columns: 100px 1fr;
-        margin-bottom: 6px;
+      input[type="checkbox"]:focus {
+        outline: 1px dotted black;
+        outline-offset: -2px;
       }
 
-      .form-label {
+      input[type="number"],
+      input[type="password"],
+      input[type="text"] {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #3e4637;
+        border: 1px solid;
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+        box-shadow: none;
         color: var(--text-primary);
+        font-family: var(--font-main);
         font-size: var(--font-size-base);
-        text-align: right;
+        padding: 4px;
+        width: 100%;
       }
 
-      .checkbox-row {
-        align-items: center;
-        color: var(--text-primary);
-        display: flex;
-        font-size: var(--font-size-base);
-        margin-bottom: 6px;
+      input[type="number"]:focus,
+      input[type="password"]:focus,
+      input[type="text"]:focus,
+      select:focus {
+        outline: 1px dashed black;
+        outline-offset: -2px;
       }
 
-      .checkbox-row label {
+      legend {
+        color: var(--text-accent);
+        font-size: 11px;
+        font-weight: normal;
+        letter-spacing: 0;
+        margin-left: 4px;
+        padding: 0 4px;
+      }
+
+      main {
         align-items: center;
-        cursor: pointer;
         display: flex;
-        margin: 0;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 800px;
+        width: 100%;
       }
 
       pre.inset {
@@ -216,15 +220,77 @@
         word-wrap: break-word;
       }
 
-      .output-header {
-        align-items: center;
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
+      select {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #3e4637;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%226%22%20height%3D%223%22%20viewBox%3D%220%200%206%203%22%3E%3Cpath%20fill%3D%22%23d8ded3%22%20d%3D%22M0%200l3%203%203-3z%22%2F%3E%3C%2Fsvg%3E");
+        background-position: right 8px center;
+        background-repeat: no-repeat;
+        border: 1px solid;
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-radius: 0;
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+        box-shadow: none;
+        color: var(--text-primary);
+        font-family: var(--font-main);
+        font-size: var(--font-size-base);
+        padding: 4px;
+        padding-right: 24px;
+        width: 100%;
       }
 
-      .output-header legend {
-        margin: 0;
+      .action-button {
+        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-dark);
+        border-left: 1px solid var(--border-light);
+        border-right: 1px solid var(--border-dark);
+        border-top: 1px solid var(--border-light);
+        color: var(--text-primary);
+        cursor: pointer;
+        display: inline-block;
+        font-family: var(--font-main);
+        font-size: var(--font-size-base);
+        padding: 4px 16px;
+        text-align: center;
+        text-decoration: none;
+        transition: background-color 0.1s;
+        width: 100%;
+      }
+
+      .action-button:active {
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+      }
+
+      .action-button:hover {
+        background-color: var(--bg-secondary);
+        text-decoration: none;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 6px;
+        grid-column: 1 / -1;
+        justify-content: center;
+        margin-top: 12px;
+      }
+
+      .action-buttons-column {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .button-container {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        width: 100%;
       }
 
       .button-row {
@@ -237,52 +303,23 @@
         padding-top: 8px;
       }
 
-      button {
-        background-color: var(--bg-secondary);
-        border-bottom: 1px solid var(--border-dark);
-        border-left: 1px solid var(--border-light);
-        border-right: 1px solid var(--border-dark);
-        border-top: 1px solid var(--border-light);
-        color: white;
-        cursor: pointer;
-        font-family: var(--font-main);
+      .button-spacer {
+        flex: 1;
+      }
+
+      .checkbox-row {
+        align-items: center;
+        color: var(--text-primary);
+        display: flex;
         font-size: var(--font-size-base);
-        min-width: 75px;
-        padding: 4px 20px;
-        text-align: center;
+        margin-bottom: 6px;
       }
 
-      button:active {
-        border-bottom: 1px solid var(--border-light);
-        border-left: 1px solid var(--border-dark);
-        border-right: 1px solid var(--border-light);
-        border-top: 1px solid var(--border-dark);
-      }
-
-      .footer-link {
-        text-align: center;
-        font-size: 10px;
-        color: var(--text-secondary);
-      }
-
-      a {
-        color: var(--text-link);
-        text-decoration: underline;
-      }
-
-      a:hover {
-        text-decoration: underline;
-      }
-
-      @media (max-width: 600px) {
-        .form-row {
-          grid-template-columns: 1fr;
-        }
-
-        .form-label {
-          text-align: left;
-          margin-bottom: 2px;
-        }
+      .checkbox-row label {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        margin: 0;
       }
 
       .description {
@@ -294,13 +331,6 @@
         padding-bottom: 8px;
       }
 
-      .output-text {
-        color: var(--text-secondary);
-        font-size: 10px;
-        margin-top: 6px;
-        text-align: left;
-      }
-
       .footer-container {
         align-items: center;
         display: flex;
@@ -308,6 +338,28 @@
         gap: 8px;
         justify-content: center;
         margin-top: 8px;
+      }
+
+      .footer-divider {
+        align-items: center;
+        color: var(--text-secondary);
+        display: flex;
+        font-size: 14px;
+        line-height: 1;
+        opacity: 0.5;
+      }
+
+      .footer-link {
+        color: var(--text-secondary);
+        font-size: 10px;
+        text-align: center;
+      }
+
+      .footer-link img {
+        border: none;
+        display: block;
+        height: 16px;
+        width: 16px;
       }
 
       .footer-links {
@@ -320,15 +372,6 @@
         white-space: nowrap;
       }
 
-      .footer-divider {
-        align-items: center;
-        color: var(--text-secondary);
-        display: flex;
-        font-size: 14px;
-        line-height: 1;
-        opacity: 0.5;
-      }
-
       .footer-text {
         color: var(--text-secondary);
         font-size: 10px;
@@ -336,26 +379,47 @@
         text-align: center;
       }
 
-      .footer-link {
-        text-decoration: none;
+      .form-label {
+        color: var(--text-primary);
+        font-size: var(--font-size-base);
+        text-align: right;
       }
 
-      .footer-link img {
-        border: none;
-        display: block;
-        height: 16px;
-        width: 16px;
-      }
-
-      .button-container {
-        display: flex;
+      .form-row {
+        align-items: center;
+        display: grid;
         gap: 8px;
-        justify-content: flex-end;
-        width: 100%;
+        grid-template-columns: 100px 1fr;
+        margin-bottom: 6px;
       }
 
-      .button-spacer {
-        flex: 1;
+      .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .output-header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+
+      .output-header legend {
+        margin: 0;
+      }
+
+      .output-text {
+        color: var(--text-secondary);
+        font-size: 10px;
+        margin-top: 6px;
+        text-align: left;
+      }
+
+      .right-column {
+        display: flex;
+        flex-direction: column;
       }
 
       .sr-only {
@@ -368,24 +432,168 @@
         position: absolute;
         width: 1px;
       }
+
+      .title-bar {
+        align-items: center;
+        display: flex;
+        height: 28px;
+        margin-bottom: 2px;
+        padding-right: 6px;
+      }
+
+      .title-bar-icon {
+        background-image: url("steam.png");
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 16px;
+        margin-left: 6px;
+        margin-right: 6px;
+        width: 16px;
+      }
+
+      .title-bar-text {
+        color: #fff;
+        flex-grow: 1;
+        font-size: 11px;
+        letter-spacing: 0.6px;
+        line-height: 28px;
+      }
+
+      .window {
+        background-color: var(--bg-secondary);
+        border-bottom: 2px solid var(--border-dark);
+        border-left: 2px solid var(--border-light);
+        border-right: 2px solid var(--border-dark);
+        border-top: 2px solid var(--border-light);
+        box-shadow: none;
+        padding: 2px;
+        position: relative;
+      }
+
+      .window-button {
+        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-dark);
+        border-left: 1px solid var(--border-light);
+        border-right: 1px solid var(--border-dark);
+        border-top: 1px solid var(--border-light);
+        cursor: pointer;
+        display: block;
+        height: 20px;
+        margin: 0;
+        min-width: 0;
+        padding: 0;
+        position: relative;
+        width: 20px;
+      }
+
+      .window-button:active {
+        border-bottom: 1px solid var(--border-light);
+        border-left: 1px solid var(--border-dark);
+        border-right: 1px solid var(--border-light);
+        border-top: 1px solid var(--border-dark);
+      }
+
+      .window-button:active span {
+        margin-left: 1px;
+        margin-top: 1px;
+      }
+
+      .window-button:active span::after {
+        transform: translate(calc(-50% + 1px), calc(-50% + 1px)) rotate(-45deg);
+      }
+
+      .window-button:active span::before,
+      .window-button:active span::after {
+        transform: translate(calc(-50% + 1px), calc(-50% + 1px)) rotate(45deg);
+      }
+
+      .window-button.close span::after {
+        background-color: white;
+        content: "";
+        height: 1px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        width: 12px;
+      }
+
+      .window-button.close span::before {
+        background-color: white;
+        content: "";
+        height: 1px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+        width: 12px;
+      }
+
+      .window-button span {
+        display: block;
+        height: 100%;
+        position: relative;
+        width: 100%;
+      }
+
+      .window-content {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+        padding: 10px;
+      }
+
+      .window-controls {
+        cursor: pointer;
+        display: flex;
+        gap: 2px;
+        position: absolute;
+        right: 4px;
+        top: 4px;
+      }
+
+      @media (max-width: 600px) {
+        .form-label {
+          margin-bottom: 2px;
+          text-align: left;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .right-column {
+          margin-top: 12px;
+        }
+
+        .window-content {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
     <h1 class="sr-only">Half-Life Dedicated Server With Docker</h1>
     <main>
-      <div class="window" name="Create Server">
+      <div class="window">
+        <div class="title-bar">
+          <div class="title-bar-icon"></div>
+          <div class="title-bar-text">Create Server</div>
+          <div class="window-controls">
+            <button class="window-button close" aria-label="Close"><span></span></button>
+          </div>
+        </div>
         <div class="window-content">
           <div class="description">
-            Run a Half-Life Dedicated Server with Docker. Supports all classic
-            GoldSrc games including Counter-Strike 1.6, Team Fortress Classic,
-            Day of Defeat, and more. For detailed setup instructions for custom
-            configurations, plugins and mods, refer to the
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://github.com/jamesives/hlds-docker"
-              >documentation</a
-            >.
+            <a href="https://help.steampowered.com/en/faqs/view/081A-106F-B906-1A7A" target="_blank" rel="noopener noreferrer">Half-Life Dedicated Server</a> powered by <a href="https://www.docker.com" target="_blank" rel="noopener noreferrer">Docker</a>, supporting all the classic <a href="https://developer.valvesoftware.com/wiki/GoldSrc" target="_blank" rel="noopener noreferrer">GoldSrc</a> Half-Life games and mods-including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more. Easily extendable with custom configurations and plugins. Before starting, ensure you're using a non-ARM architecture machine and you have the <a href="https://www.docker.com/" target="_blank" rel="noopener noreferrer">Docker daemon</a> and the <a href="https://docs.docker.com/engine/reference/commandline/cli/" target="_blank" rel="noopener noreferrer">Docker CLI tool</a> installed and available.
           </div>
           <div class="left-column">
             <fieldset>
@@ -469,6 +677,55 @@
                 </label>
               </div>
             </fieldset>
+
+            <fieldset>
+              <legend>Advanced Setup</legend>
+              <div class="action-buttons-column">
+                <a
+                  href="https://github.com/JamesIves/hlds-docker/blob/beta/config/README.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="action-button"
+                >
+                  Server Configs and Plugins
+                </a>
+                <a
+                  href="https://github.com/JamesIves/hlds-docker/blob/beta/mods/README.md"
+                  target="_blank"
+                  class="action-button"
+                >
+                  Running Custom Mods
+                </a>
+                              <a
+                  href="https://github.com/JamesIves/hlds-docker/blob/beta/container/README.md"
+                  target="_blank"
+                  class="action-button"
+                >
+                  Build a Custom Image
+                </a>
+              </div>
+            </fieldset>
+
+          
+            <fieldset>
+              <legend>Learn More</legend>
+              <div class="action-buttons-column">
+                <a
+                  href="https://jamesiv.es/blog/experiment/docker/2024/06/20/half-life-dedicated-server-with-docker"
+                  target="_blank"
+                  class="action-button"
+                >
+                  Read Blog Post
+                </a>
+                              <a
+                  href="https://github.com/JamesIves/hlds-docker"
+                  target="_blank"
+                  class="action-button"
+                >
+                  Contribute on GitHub
+                </a>
+              </div>
+            </fieldset>
           </div>
 
           <div class="right-column">
@@ -490,39 +747,23 @@
           </div>
         </div>
       </div>
+    </div>
 
       <div class="footer-container">
-        <div class="footer-links">
-          <a
-            href="https://github.com/jamesives/hlds-docker"
-            target="_blank"
-            class="footer-link"
-          >
-            View on GitHub
-          </a>
-          <span class="footer-divider">|</span>
-          <a
-            href="https://jamesiv.es/blog/experiment/docker/2024/06/20/half-life-dedicated-server-with-docker"
-            target="_blank"
-            title="Read the accompanying blog post"
-            class="footer-link"
-          >
-            Read the Article
-          </a>
-        </div>
         <a
           href="https://jamesiv.es"
           target="_blank"
-          title="James Ives"
+          title="Built by Jives"
           class="footer-link"
         >
-          <img src="icon.png" alt="James Ives" />
+          <img width="16" height="16" src="icon.png" alt="James Ives" />
         </a>
       </div>
     </main>
 
     <script>
       const clickSound = new Audio("click.mp3");
+      const noSound = new Audio("no.mp3");
 
       // Map data for each game
       const mapData = {
@@ -798,6 +1039,43 @@
       // Initial setup
       updateMapOptions();
       updateCommand();
+
+      // Attach sound effects to interactive elements (excluding text inputs)
+      const interactiveElements = document.querySelectorAll(
+        "button:not(.close), a, select, input[type='checkbox'], input[type='radio']"
+      );
+      interactiveElements.forEach((element) => {
+        element.addEventListener("mousedown", playButtonSound);
+      });
+      
+      // Attach "no" sound to close button
+      const closeBtn = document.querySelector(".window-button.close");
+      if (closeBtn) {
+        closeBtn.addEventListener("mousedown", () => {
+          noSound.currentTime = 0;
+          noSound.play().catch(e => console.log("Audio play failed:", e));
+        });
+      }
+      
+      // Attach wise sound to icons
+      const wiseSound = new Audio("wise.mp3");
+      const titleIcon = document.querySelector(".title-bar-icon");
+      if (titleIcon) {
+        titleIcon.style.cursor = "pointer";
+        titleIcon.addEventListener("click", () => {
+          wiseSound.currentTime = 0;
+          wiseSound.play().catch(e => console.log("Audio play failed:", e));
+        });
+      }
+      
+      // Attach wise sound to footer icon
+      const footerLink = document.querySelector(".footer-link");
+      if (footerLink) {
+        footerLink.addEventListener("click", (e) => {
+          wiseSound.currentTime = 0;
+          wiseSound.play().catch(e => console.log("Audio play failed:", e));
+        });
+      }
     </script>
   </body>
 </html>
