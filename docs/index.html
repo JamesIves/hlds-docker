@@ -643,6 +643,11 @@
               </div>
 
               <div class="form-row">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" value="" />
+              </div>
+
+              <div class="form-row">
                 <label class="form-label" for="maxplayers">Max Players</label>
                 <input
                   type="number"
@@ -972,6 +977,7 @@
         const maxplayersInput = document.getElementById("maxplayers");
         let maxplayers = parseInt(maxplayersInput.value, 10);
         const rcon = document.getElementById("rcon").value;
+        const password = document.getElementById("password").value;
         const lanmode = document.getElementById("lanmode").checked;
         const cheats = document.getElementById("cheats").checked;
 
@@ -982,19 +988,23 @@
         }
 
         let command = `docker run -d -ti \\
-      --name hlds \\
-      -v "$(pwd)/config:/temp/config" \\
-      -v "$(pwd)/mods:/temp/mods" \\
-      -p 27015:27015/udp \\
-      -p 27015:27015 \\
-      jives/hlds:${game} \\
-      +log on`;
+  --name hlds \\
+  -v "$(pwd)/config:/temp/config" \\
+  -v "$(pwd)/mods:/temp/mods" \\
+  -p 27015:27015/udp \\
+  -p 27015:27015 \\
+  jives/hlds:${game} \\
+  +log on`;
 
         if (rcon) {
           command += ` +rcon_password ${rcon}`;
         }
 
         command += ` +hostname "${servername}" +maxplayers ${maxplayers}`;
+
+        if (password) {
+          command += ` +sv_password "${password}"`;
+        }
 
         if (lanmode) {
           command += ` +sv_lan 1`;
@@ -1028,6 +1038,9 @@
         .getElementById("maxplayers")
         .addEventListener("input", updateCommand);
       document.getElementById("rcon").addEventListener("input", updateCommand);
+      document
+        .getElementById("password")
+        .addEventListener("input", updateCommand);
       document
         .getElementById("lanmode")
         .addEventListener("change", updateCommand);
