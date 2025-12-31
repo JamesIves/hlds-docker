@@ -767,6 +767,7 @@
     <script>
       const clickSound = new Audio("click.mp3");
       const noSound = new Audio("no.mp3");
+      noSound.volume = 0.6;
 
       // Map data for each game
       const mapData = {
@@ -1068,18 +1069,9 @@
         });
       }
       
-      // Attach wise sound to icons
-      const wiseSound = new Audio("wise.mp3");
-      const titleIcon = document.querySelector(".title-bar-icon");
-      if (titleIcon) {
-        titleIcon.style.cursor = "pointer";
-        titleIcon.addEventListener("click", () => {
-          wiseSound.currentTime = 0;
-          wiseSound.play().catch(e => console.log("Audio play failed:", e));
-        });
-      }
-      
       // Attach wise sound to footer icon
+      const wiseSound = new Audio("wise.mp3");
+      wiseSound.volume = 0.6;
       const footerLink = document.querySelector(".footer-link");
       if (footerLink) {
         footerLink.addEventListener("click", (e) => {
