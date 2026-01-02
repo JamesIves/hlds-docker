@@ -767,6 +767,7 @@
     <script>
       const clickSound = new Audio("click.mp3");
       const noSound = new Audio("no.mp3");
+      const inputSound = new Audio("input.mp3");
       noSound.volume = 0.6;
 
       // Map data for each game
@@ -1052,12 +1053,21 @@
       updateMapOptions();
       updateCommand();
 
-      // Attach sound effects to interactive elements (excluding text inputs)
       const interactiveElements = document.querySelectorAll(
         "button:not(.close), a, select, input[type='checkbox'], input[type='radio']"
       );
       interactiveElements.forEach((element) => {
         element.addEventListener("mousedown", playButtonSound);
+      });
+      
+      const inputElements = document.querySelectorAll(
+        "input[type='text'], input[type='password'], input[type='number']"
+      );
+      inputElements.forEach((element) => {
+        element.addEventListener("click", () => {
+          inputSound.currentTime = 0;
+          inputSound.play().catch(() => {});
+        });
       });
       
       // Attach "no" sound to close button
