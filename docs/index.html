@@ -768,6 +768,7 @@
       const clickSound = new Audio("click.mp3");
       const noSound = new Audio("no.mp3");
       const inputSound = new Audio("input.mp3");
+      const tapSound = new Audio("tap.mp3");
       noSound.volume = 0.6;
 
       // Map data for each game
@@ -1054,10 +1055,18 @@
       updateCommand();
 
       const interactiveElements = document.querySelectorAll(
-        "button:not(.close), a, select, input[type='checkbox'], input[type='radio']"
+        "button:not(.close), a, select, input[type='radio']"
       );
       interactiveElements.forEach((element) => {
         element.addEventListener("mousedown", playButtonSound);
+      });
+      
+      const checkboxElements = document.querySelectorAll("input[type='checkbox']");
+      checkboxElements.forEach((element) => {
+        element.addEventListener("click", () => {
+          tapSound.currentTime = 0;
+          tapSound.play().catch(() => {});
+        });
       });
       
       const inputElements = document.querySelectorAll(
