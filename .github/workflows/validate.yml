@@ -1,4 +1,6 @@
 name: Validate Docker Image 🐳
+permissions:
+  contents: read
 on:
   push:
     branches-ignore:
