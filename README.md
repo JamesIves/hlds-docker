@@ -31,7 +31,7 @@ docker run -d -ti \
 
 > [!TIP]  
 > The available images are below. When changing the game, be sure to adjust the `+map` parameter, as it may cause the server to not be joinable if the map is unavailable.
-> [You can use the command builder](https://jives.dev/hlds-docker) for all available images and their corresponding default maps.
+> [You can use the command builder](https://jamesiv.es/hlds-docker) for all available images and their corresponding default maps.
 >
 > - `jives/hlds:valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
 > - `jives/hlds:cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
