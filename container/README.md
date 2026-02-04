@@ -52,8 +52,8 @@ docker compose up
 7. _Optional_: If you want to start a custom mod, you can modify your `$GAME` environment variable once the image is built before running `docker compose up`. This allows you to add custom scripts to the server image while telling the dedicated server client what mod to use. If you're building a custom image with the intent on playing a custom mod it's recommended that you set the `$GAME` variable to `valve` for the initial build.
 
 ```bash
-$export GAME=valve
+$ export GAME=valve
 $ docker compose build
-$export GAME=decay
+$ export GAME=decay
 $ docker compose up
 ```
