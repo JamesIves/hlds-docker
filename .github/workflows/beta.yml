@@ -116,7 +116,7 @@ jobs:
             org.opencontainers.image.version=beta
 
       - name: Build Docker Image 🐳
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
@@ -194,7 +194,7 @@ jobs:
           fi
 
       - name: Build and Push Docker Image to DockerHub 🐳
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
@@ -219,7 +219,7 @@ jobs:
           echo "repo_owner=$REPO_OWNER" >> $GITHUB_ENV
 
       - name: Build and Push Docker Image to GitHub Container Registry 🐳
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
