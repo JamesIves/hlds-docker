@@ -9,14 +9,15 @@ if echo "$@" | grep -qv "+map"; then
 fi
 
 # Push mods and config files from their temp directories to the server directories.
+
 if [ -d /temp/mods ]
 then
-  rsync --recursive --update --chown=steam:steam /temp/mods/* /opt/steam/hlds
+  rsync --recursive --chown=steam:steam /temp/mods/* /opt/steam/hlds
 fi
 
 if [ -d /temp/config ]
 then
-  rsync --recursive --update --chown=steam:steam /temp/config/* /opt/steam/hlds/$GAME
+  rsync --recursive --chown=steam:steam /temp/config/* /opt/steam/hlds/$GAME
 fi
 
 
