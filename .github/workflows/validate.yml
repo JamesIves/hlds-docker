@@ -67,15 +67,15 @@ jobs:
               -e GAME=gearbox \
               ${{ env.image_id }} \
               "+log on +rcon_password changeme +maxplayers 12 +map op4_bootcamp"
-          else
+          elif [ "${{ matrix.game }}" = "cstrike" ]; then
             docker run -d -ti \
-              --name hlds-${{ matrix.game }} \
+              --name hlds-cstrike \
               -v "$PWD/config:/temp/config" \
               -v "$PWD/mods:/temp/mods" \
               -p 27015:27015/udp \
               -p 27015:27015 \
               -p 26900:26900/udp \
-              -e GAME=${{ matrix.game }} \
+              -e GAME=cstrike \
               ${{ env.image_id }} \
               "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
           fi
