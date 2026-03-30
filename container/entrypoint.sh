@@ -12,12 +12,12 @@ fi
 
 if [ -d /temp/mods ]
 then
-  rsync --recursive --chown=steam:steam /temp/mods/* /opt/steam/hlds
+  rsync --recursive --update --chown=steam:steam /temp/mods/* /opt/steam/hlds
 fi
 
 if [ -d /temp/config ]
 then
-  rsync --recursive --chown=steam:steam /temp/config/* /opt/steam/hlds/$GAME
+  rsync --recursive --update --chown=steam:steam /temp/config/* /opt/steam/hlds/$GAME
 fi
 
 
