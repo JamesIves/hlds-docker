@@ -12,6 +12,7 @@ jobs:
     name: Build and Validate 🏁
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
         game:
           [
@@ -142,3 +143,4 @@ jobs:
         run: |
           docker stop hlds-${{ matrix.game }} || true
           docker rm hlds-${{ matrix.game }} || true
+          docker system prune --all --force
