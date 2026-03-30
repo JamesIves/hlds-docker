@@ -12,7 +12,6 @@ jobs:
     name: Build and Validate 🏁
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 1
       matrix:
         game:
           [
@@ -52,13 +51,11 @@ jobs:
         id: get_image_id
         run: echo "image_id=$(docker images -q | head -n 1)" >> $GITHUB_ENV
 
-      - name: Add Custom Mod Content 📂
+      - name: Add Configuration 📂
         run: |
           mkdir -p ./mods/decay
           touch ./mods/decay/plugin.ini
 
-      - name: Add Configuration 📂
-        run: |
           mkdir -p ./config/maps
           echo "custom-liblist" > ./config/liblist.gam
           echo "custom-mapcycle" > ./config/mapcycle.txt
