@@ -91,6 +91,18 @@ jobs:
             ${{ env.image_id }} \
             "+log on +rcon_password changeme +maxplayers 12 +map $START_MAP"
 
+      - name: Wait for Container Readiness ⏳
+        run: |
+          echo "Waiting for the container entrypoint to finish setup..."
+          for i in $(seq 1 30); do
+            if docker exec hlds-${{ matrix.game }} test -f /opt/steam/hlds/decay/plugin.ini 2>/dev/null; then
+              echo "Container is ready!"
+              break
+            fi
+            echo "Attempt $i: Container not ready yet, waiting..."
+            sleep 2
+          done
+
       - name: Validate Directory Mappings 📂
         run: |
           GAME_DIR=/opt/steam/hlds/${{ matrix.game }}
