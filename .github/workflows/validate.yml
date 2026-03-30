@@ -84,8 +84,8 @@ jobs:
 
           docker run -d -ti \
             --name hlds-${{ matrix.game }} \
-            -v "$PWD/config:/temp/config" \
-            -v "$PWD/mods:/temp/mods" \
+            -v "./config:/temp/config" \
+            -v "./mods:/temp/mods" \
             -p 27015:27015/udp \
             -p 27015:27015 \
             -p 26900:26900/udp \
