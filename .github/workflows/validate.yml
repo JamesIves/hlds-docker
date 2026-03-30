@@ -43,7 +43,6 @@ jobs:
           mkdir -p ./mods/decay
           touch ./mods/decay/plugin.ini
 
-
       - name: Add Configuration 📂
         run: |
           mkdir -p ./config
@@ -55,7 +54,6 @@ jobs:
             touch ./config/test.cfg
             touch ./config/maps/crazytank.bsp
           fi
-
 
       - name: Run Docker Container 🐳
         run: |
@@ -79,7 +77,6 @@ jobs:
               ${{ env.image_id }} \
               "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
           fi
-
 
       - name: Validate Directory Mappings 📂
         run: |
@@ -116,7 +113,6 @@ jobs:
             echo "Volume mappings work as expected!"
           fi
 
-
       - name: Validate Game Data Is Available 📂
         run: |
           GAME_NAME=$(echo "${{ matrix.game }}" | sed 's/-legacy//')
@@ -124,7 +120,6 @@ jobs:
             echo "$GAME_NAME directory is missing!"
             exit 1
           fi
-
 
       - name: Cleanup 🧹
         if: always()
