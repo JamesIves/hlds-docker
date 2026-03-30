@@ -12,8 +12,11 @@ jobs:
     name: Build and Validate 🏁
     runs-on: ubuntu-latest
     concurrency: ci-${{ github.ref }}
+    strategy:
+      matrix:
+        game: [cstrike, gearbox]
     env:
-      GAME: cstrike
+      GAME: ${{ matrix.game }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v6
@@ -40,59 +43,92 @@ jobs:
           mkdir -p ./mods/decay
           touch ./mods/decay/plugin.ini
 
+
       - name: Add Configuration 📂
         run: |
           mkdir -p ./config
-          mkdir -p ./config/maps
-          touch ./config/test.cfg
-          touch ./config/maps/crazytank.bsp
+          if [ "${{ matrix.game }}" = "gearbox" ]; then
+            echo "custom-liblist" > ./config/liblist.gam
+            echo "custom-mapcycle" > ./config/mapcycle.txt
+          else
+            mkdir -p ./config/maps
+            touch ./config/test.cfg
+            touch ./config/maps/crazytank.bsp
+          fi
+
 
       - name: Run Docker Container 🐳
         run: |
-          docker run -d -ti \
-            --name hlds \
-            -v "./config:/temp/config" \
-            -v "./mods:/temp/mods" \
-            -p 27015:27015/udp \
-            -p 27015:27015 \
-            -p 26900:26900/udp \
-            -e GAME=${GAME} \
-            ${{ env.image_id }} \
-            "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
+          if [ "${{ matrix.game }}" = "gearbox" ]; then
+            docker run -d -ti \
+              --name hlds-${{ matrix.game }} \
+              -v "$PWD/config:/temp/config" \
+              -p 27017:27015/udp \
+              -e GAME=gearbox \
+              ${{ env.image_id }} \
+              "+log on +rcon_password changeme +maxplayers 12 +map op4_bootcamp"
+          else
+            docker run -d -ti \
+              --name hlds-${{ matrix.game }} \
+              -v "$PWD/config:/temp/config" \
+              -v "$PWD/mods:/temp/mods" \
+              -p 27015:27015/udp \
+              -p 27015:27015 \
+              -p 26900:26900/udp \
+              -e GAME=${{ matrix.game }} \
+              ${{ env.image_id }} \
+              "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
+          fi
+
 
       - name: Validate Directory Mappings 📂
         run: |
-          # Check if plugin.ini exists in the decay directory
-          if [ "$(docker exec hlds ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
-            echo "plugin.ini file is missing in the decay directory!"
-            exit 1
+          if [ "${{ matrix.game }}" = "gearbox" ]; then
+            # Check that liblist.gam was overwritten
+            LIBLIST_CONTENT=$(docker exec hlds-gearbox cat /opt/steam/hlds/gearbox/liblist.gam)
+            if [ "$LIBLIST_CONTENT" != "custom-liblist" ]; then
+              echo "liblist.gam was not overwritten!"
+              exit 1
+            fi
+            # Check that mapcycle.txt was overwritten
+            MAPCYCLE_CONTENT=$(docker exec hlds-gearbox cat /opt/steam/hlds/gearbox/mapcycle.txt)
+            if [ "$MAPCYCLE_CONTENT" != "custom-mapcycle" ]; then
+              echo "mapcycle.txt was not overwritten!"
+              exit 1
+            fi
+            echo "Gearbox config file mappings work as expected!"
+          else
+            # Check if plugin.ini exists in the decay directory
+            if [ "$(docker exec hlds-cstrike ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
+              echo "plugin.ini file is missing in the decay directory!"
+              exit 1
+            fi
+            # Check if test.cfg exists in the game directory
+            if [ "$(docker exec hlds-cstrike ls /opt/steam/hlds/cstrike | grep -c 'test.cfg')" -eq 0 ]; then
+              echo "test.cfg file is missing in the cstrike directory!"
+              exit 1
+            fi
+            # Check if crazytank.bsp exists in the maps directory
+            if [ "$(docker exec hlds-cstrike ls /opt/steam/hlds/cstrike/maps | grep -c 'crazytank.bsp')" -eq 0 ]; then
+              echo "crazytank.bsp file is missing in the maps directory!"
+              exit 1
+            fi
+            echo "Volume mappings work as expected!"
           fi
 
-          # Check if test.cfg exists in the game directory
-          if [ "$(docker exec hlds ls /opt/steam/hlds/${{ env.GAME }} | grep -c 'test.cfg')" -eq 0 ]; then
-            echo "test.cfg file is missing in the ${{ env.GAME }} directory!"
-            exit 1
-          fi
-
-          # Check if crazytank.bsp exists in the maps directory
-          if [ "$(docker exec hlds ls /opt/steam/hlds/${{ env.GAME }}/maps | grep -c 'crazytank.bsp')" -eq 0 ]; then
-            echo "crazytank.bsp file is missing in the maps directory!"
-            exit 1
-          fi
-
-          echo "Volume mappings work as expectected!"
 
       - name: Validate Game Data Is Available 📂
         run: |
-          GAME_NAME=$(echo "${{ env.GAME }}" | sed 's/-legacy//')
-          if [ "$(docker exec hlds ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then
+          GAME_NAME=$(echo "${{ matrix.game }}" | sed 's/-legacy//')
+          if [ "$(docker exec hlds-${{ matrix.game }} ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then
             echo "$GAME_NAME directory is missing!"
             exit 1
           fi
 
+
       - name: Cleanup 🧹
         if: always()
         run: |
-          docker stop hlds
-          docker rm hlds
+          docker stop hlds-${{ matrix.game }} || true
+          docker rm hlds-${{ matrix.game }} || true
           docker system prune --all --force
