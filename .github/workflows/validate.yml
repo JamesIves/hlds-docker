@@ -14,7 +14,21 @@ jobs:
     concurrency: ci-${{ github.ref }}
     strategy:
       matrix:
-        game: [cstrike, gearbox]
+        game:
+          [
+            cstrike,
+            cstrike-legacy,
+            valve,
+            valve-legacy,
+            czero,
+            czero-legacy,
+            dmc,
+            gearbox,
+            ricochet,
+            dod,
+            tfc,
+            tfc-legacy,
+          ]
     env:
       GAME: ${{ matrix.game }}
     steps:
@@ -45,73 +59,76 @@ jobs:
 
       - name: Add Configuration 📂
         run: |
-          mkdir -p ./config
-          if [ "${{ matrix.game }}" = "gearbox" ]; then
-            echo "custom-liblist" > ./config/liblist.gam
-            echo "custom-mapcycle" > ./config/mapcycle.txt
-          elif [ "${{ matrix.game }}" = "cstrike" ]; then
-            mkdir -p ./config/maps
-            touch ./config/test.cfg
-            touch ./config/maps/crazytank.bsp
-          fi
+          mkdir -p ./config/maps
+          echo "custom-liblist" > ./config/liblist.gam
+          echo "custom-mapcycle" > ./config/mapcycle.txt
+          touch ./config/test.cfg
+          touch ./config/maps/crazytank.bsp
 
       - name: Run Docker Container 🐳
         run: |
-          if [ "${{ matrix.game }}" = "gearbox" ]; then
-            docker run -d -ti \
-              --name hlds-${{ matrix.game }} \
-              -v "$PWD/config:/temp/config" \
-              -p 27017:27015/udp \
-              -e GAME=gearbox \
-              ${{ env.image_id }} \
-              "+log on +rcon_password changeme +maxplayers 12 +map op4_bootcamp"
-          elif [ "${{ matrix.game }}" = "cstrike" ]; then
-            docker run -d -ti \
-              --name hlds-cstrike \
-              -v "$PWD/config:/temp/config" \
-              -v "$PWD/mods:/temp/mods" \
-              -p 27015:27015/udp \
-              -p 27015:27015 \
-              -p 26900:26900/udp \
-              -e GAME=cstrike \
-              ${{ env.image_id }} \
-              "+log on +rcon_password changeme +maxplayers 12 +map cs_italy"
-          fi
+          declare -A MAPS
+          MAPS[valve]=bounce
+          MAPS[valve-legacy]=bounce
+          MAPS[cstrike]=cs_italy
+          MAPS[cstrike-legacy]=cs_italy
+          MAPS[czero]=cs_italy
+          MAPS[czero-legacy]=cs_italy
+          MAPS[dmc]=dmc_dm2
+          MAPS[gearbox]=op4_bootcamp
+          MAPS[ricochet]=rc_arena
+          MAPS[dod]=dod_anzio
+          MAPS[tfc]=2fort
+          MAPS[tfc-legacy]=2fort
+
+          START_MAP=${MAPS[${{ matrix.game }}]}
+
+          docker run -d -ti \
+            --name hlds-${{ matrix.game }} \
+            -v "$PWD/config:/temp/config" \
+            -v "$PWD/mods:/temp/mods" \
+            -p 27015:27015/udp \
+            -p 27015:27015 \
+            -p 26900:26900/udp \
+            -e GAME=${{ matrix.game }} \
+            ${{ env.image_id }} \
+            "+log on +rcon_password changeme +maxplayers 12 +map $START_MAP"
 
       - name: Validate Directory Mappings 📂
         run: |
-          if [ "${{ matrix.game }}" = "gearbox" ]; then
-            # Check that liblist.gam was overwritten
-            LIBLIST_CONTENT=$(docker exec hlds-gearbox cat /opt/steam/hlds/gearbox/liblist.gam)
+          GAME_DIR=/opt/steam/hlds/${{ matrix.game }}
+          # Check if plugin.ini exists in the decay directory
+          if [ "$(docker exec hlds-${{ matrix.game }} ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
+            echo "plugin.ini file is missing in the decay directory!"
+            exit 1
+          fi
+          # Check if test.cfg exists in the game directory
+          if [ "$(docker exec hlds-${{ matrix.game }} ls $GAME_DIR | grep -c 'test.cfg')" -eq 0 ]; then
+            echo "test.cfg file is missing in the $GAME_DIR directory!"
+            exit 1
+          fi
+          # Check if crazytank.bsp exists in the maps directory
+          if [ "$(docker exec hlds-${{ matrix.game }} ls $GAME_DIR/maps | grep -c 'crazytank.bsp')" -eq 0 ]; then
+            echo "crazytank.bsp file is missing in the $GAME_DIR/maps directory!"
+            exit 1
+          fi
+          # Check that liblist.gam was overwritten (if present)
+          if docker exec hlds-${{ matrix.game }} test -f $GAME_DIR/liblist.gam; then
+            LIBLIST_CONTENT=$(docker exec hlds-${{ matrix.game }} cat $GAME_DIR/liblist.gam)
             if [ "$LIBLIST_CONTENT" != "custom-liblist" ]; then
               echo "liblist.gam was not overwritten!"
               exit 1
             fi
-            # Check that mapcycle.txt was overwritten
-            MAPCYCLE_CONTENT=$(docker exec hlds-gearbox cat /opt/steam/hlds/gearbox/mapcycle.txt)
+          fi
+          # Check that mapcycle.txt was overwritten (if present)
+          if docker exec hlds-${{ matrix.game }} test -f $GAME_DIR/mapcycle.txt; then
+            MAPCYCLE_CONTENT=$(docker exec hlds-${{ matrix.game }} cat $GAME_DIR/mapcycle.txt)
             if [ "$MAPCYCLE_CONTENT" != "custom-mapcycle" ]; then
               echo "mapcycle.txt was not overwritten!"
               exit 1
             fi
-            echo "Gearbox config file mappings work as expected!"
-          else
-            # Check if plugin.ini exists in the decay directory
-            if [ "$(docker exec hlds-cstrike ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
-              echo "plugin.ini file is missing in the decay directory!"
-              exit 1
-            fi
-            # Check if test.cfg exists in the game directory
-            if [ "$(docker exec hlds-cstrike ls /opt/steam/hlds/cstrike | grep -c 'test.cfg')" -eq 0 ]; then
-              echo "test.cfg file is missing in the cstrike directory!"
-              exit 1
-            fi
-            # Check if crazytank.bsp exists in the maps directory
-            if [ "$(docker exec hlds-cstrike ls /opt/steam/hlds/cstrike/maps | grep -c 'crazytank.bsp')" -eq 0 ]; then
-              echo "crazytank.bsp file is missing in the maps directory!"
-              exit 1
-            fi
-            echo "Volume mappings work as expected!"
           fi
+          echo "All config and mod file mappings work as expected!"
 
       - name: Validate Game Data Is Available 📂
         run: |
