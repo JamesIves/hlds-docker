@@ -65,8 +65,6 @@ jobs:
           # Set old timestamps on liblist.gam and mapcycle.txt to simulate the
           # real-world scenario where user-provided config files have older
           # modification times than files generated during the Docker build.
-          # This exposes the rsync --update bug (issue #80) where volume-mapped
-          # files fail to overwrite container files due to timestamp comparison.
           touch -t 202001010000 ./config/liblist.gam
           touch -t 202001010000 ./config/mapcycle.txt
 
