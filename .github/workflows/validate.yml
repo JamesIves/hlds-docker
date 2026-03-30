@@ -49,7 +49,7 @@ jobs:
           if [ "${{ matrix.game }}" = "gearbox" ]; then
             echo "custom-liblist" > ./config/liblist.gam
             echo "custom-mapcycle" > ./config/mapcycle.txt
-          else
+          elif [ "${{ matrix.game }}" = "cstrike" ]; then
             mkdir -p ./config/maps
             touch ./config/test.cfg
             touch ./config/maps/crazytank.bsp
