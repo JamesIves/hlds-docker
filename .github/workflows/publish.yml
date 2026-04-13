@@ -1,34 +1,15 @@
 name: Publish Docker Images 🐋 📦
 concurrency: ci-${{ github.ref }}
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version number to publish (e.g. v1.0.0)"
+        required: true
+        type: string
 jobs:
-  version:
-    name: Bump Version 🏷️
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      version: ${{ steps.create_tag.outputs.new_tag }}
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: "0"
-
-      - name: Bump Version and Create Tag 🏷️
-        id: create_tag
-        uses: anothrNick/github-tag-action@1.75.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DRY_RUN: true
-
   build:
     name: Build Docker Image 🐳
-    needs: version
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -116,7 +97,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/hlds
           tags: |
             type=raw,value=${{ matrix.game }}
-            type=raw,value=${{ matrix.game }}-${{ needs.version.outputs.version }}
+            type=raw,value=${{ matrix.game }}-${{ inputs.version }}
           labels: |
             org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }}
             org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
@@ -126,7 +107,7 @@ jobs:
             org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
-            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+            org.opencontainers.image.version=${{ inputs.version }}
           annotations: |
             org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }}
             org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
@@ -136,27 +117,27 @@ jobs:
             org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
-            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+            org.opencontainers.image.version=${{ inputs.version }}
 
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@v7
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ needs.version.outputs.version }}
-          IMAGE: jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          VERSION: ${{ inputs.version }}
+          IMAGE: jives/hlds:${{ matrix.game }}-${{ inputs.version }}
         with:
           context: ./container
           push: false
           load: true
           tags: |
             jives/hlds:${{ matrix.game }}
-            jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            jives/hlds:${{ matrix.game }}-${{ inputs.version }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ needs.version.outputs.version }}
-            IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            VERSION=${{ inputs.version }}
+            IMAGE=jives/hlds:${{ matrix.game }}-${{ inputs.version }}
 
       - name: Get Docker Image ID 🆔
         id: get_image_id
@@ -223,21 +204,21 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ needs.version.outputs.version }}
-          IMAGE: jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          VERSION: ${{ inputs.version }}
+          IMAGE: jives/hlds:${{ matrix.game }}-${{ inputs.version }}
         with:
           context: ./container
           push: true
           tags: |
             jives/hlds:${{ matrix.game }}
-            jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            jives/hlds:${{ matrix.game }}-${{ inputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ needs.version.outputs.version }}
-            IMAGE=jives/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            VERSION=${{ inputs.version }}
+            IMAGE=jives/hlds:${{ matrix.game }}-${{ inputs.version }}
 
       - name: Set repo owner to lowercase 📝
         id: repo_owner
@@ -250,21 +231,21 @@ jobs:
         env:
           GAME: ${{ matrix.game }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ needs.version.outputs.version }}
-          IMAGE: ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+          VERSION: ${{ inputs.version }}
+          IMAGE: ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ inputs.version }}
         with:
           context: ./container
           push: true
           tags: |
             ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}
-            ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ inputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ needs.version.outputs.version }}
-            IMAGE=ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ needs.version.outputs.version }}
+            VERSION=${{ inputs.version }}
+            IMAGE=ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ inputs.version }}
 
   publish:
     name: Publish GitHub Release 🚀
@@ -278,23 +259,7 @@ jobs:
         with:
           fetch-depth: "0"
 
-      - name: Bump Version and Create Tag 🏷️
-        id: create_tag
-        if: github.ref == 'refs/heads/main'
-        uses: anothrNick/github-tag-action@1.75.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
-
       - name: Create Release 🚀
-        id: create_release
-        if: github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.create_tag.outputs.new_tag }}
-          name: ${{ steps.create_tag.outputs.new_tag }}
-          draft: false
-          prerelease: false
+        run: gh release create "${{ inputs.version }}" --generate-notes --title "${{ inputs.version }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
