@@ -8,27 +8,6 @@ on:
         required: true
         type: string
 jobs:
-  version:
-    name: Bump Version 🏷️
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      version: ${{ steps.create_tag.outputs.new_tag }}
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: "0"
-
-      - name: Bump Version and Create Tag 🏷️
-        id: create_tag
-        uses: anothrNick/github-tag-action@1.75.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DRY_RUN: true
-
   build:
     name: Build Docker Image 🐳
     runs-on: ubuntu-latest
