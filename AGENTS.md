@@ -122,9 +122,9 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 - **Trigger**: Manual dispatch (`workflow_dispatch`) with a required `version` input.
 - **Jobs**:
-  1. `version` — Bumps semantic version tag.
+  1. `version` — Uses the manually provided `version` input for release metadata/tagging rather than automatically bumping the semantic version.
   2. `build` — For each game variant: build → validate → push to Docker Hub and GHCR with both `<game>` and `<game>-<version>` tags.
-  3. `publish` — Creates a GitHub Release with the new version tag.
+  3. `publish` — Creates the GitHub Release and associated version tag from the supplied `version` input.
 
 ### [`sponsors.yml`](.github/workflows/sponsors.yml) — Sponsor Management
 
