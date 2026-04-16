@@ -122,9 +122,8 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 - **Trigger**: Manual dispatch (`workflow_dispatch`) with a required `version` input.
 - **Jobs**:
-  1. `version` — Uses the manually provided `version` input for release metadata/tagging rather than automatically bumping the semantic version.
-  2. `build` — For each game variant: build → validate → push to Docker Hub and GHCR with both `<game>` and `<game>-<version>` tags.
-  3. `publish` — Creates the GitHub Release and associated version tag from the supplied `version` input.
+  1. `build` — For each game variant: build → validate → push to Docker Hub and GHCR with both `<game>` and `<game>-<version>` tags.
+  2. `publish` — Creates the GitHub Release and associated version tag from the supplied `version` input.
 
 ### [`sponsors.yml`](.github/workflows/sponsors.yml) — Sponsor Management
 
@@ -142,7 +141,7 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 2. Contributors branch from `beta`.
 3. Push triggers [`validate.yml`](.github/workflows/validate.yml) for automated testing.
 4. PRs merge into `beta` → triggers [`beta.yml`](.github/workflows/beta.yml) → publishes `-beta` tagged images.
-5. Maintainer merges `beta` into `main` → triggers [`publish.yml`](.github/workflows/publish.yml) → publishes production images and creates a GitHub Release.
+5. Maintainer manually triggers [`publish.yml`](.github/workflows/publish.yml) via `workflow_dispatch` with a version input → builds and validates all variants → pushes production images → creates a GitHub Release.
 
 ## Coding Conventions 📏
 

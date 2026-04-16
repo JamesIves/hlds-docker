@@ -191,13 +191,11 @@ flowchart TD
 
 ### Production Publish Pipeline Detail
 
-The production publish workflow is the most complex pipeline. It includes a version job that runs in dry-run mode and a build matrix for all 12 game variants. For each variant, it strips the `-legacy` suffix from the game name (if present) and sets the appropriate SteamCMD beta flag. After building, it runs the container with test configurations to validate that volume mappings and game data are correct before pushing to both Docker Hub and GitHub Container Registry. Once builds pass, the publish job creates the GitHub Release from the manually supplied `version` input.
+The production publish workflow is the most complex pipeline. It is triggered manually via `workflow_dispatch` with a required `version` input, and runs a build matrix for all 12 game variants. For each variant, it strips the `-legacy` suffix from the game name (if present) and sets the appropriate SteamCMD beta flag. After building, it runs the container with test configurations to validate that volume mappings and game data are correct before pushing to both Docker Hub and GitHub Container Registry. Once all builds pass, the publish job creates the GitHub Release and version tag from the supplied `version` input.
 
 ```mermaid
 flowchart TD
-    A[Manual Dispatch<br>with version input] --> B[Version Job]
-    A --> D[Build Job - Matrix x12]
-    B --> C["Tag action runs<br>(dry run only)"]
+    A[Manual Dispatch<br>with version input] --> D[Build Job - Matrix x12]
 
     D --> E[Login to Docker Hub + GHCR]
     E --> F[Set GAME env var<br>Strip -legacy suffix]
