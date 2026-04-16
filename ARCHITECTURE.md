@@ -191,12 +191,12 @@ flowchart TD
 
 ### Production Publish Pipeline Detail
 
-The production publish workflow is the most complex pipeline. It starts with a version bump, then builds each of the 12 game variants in parallel. For each variant, it strips the `-legacy` suffix from the game name (if present) and sets the appropriate SteamCMD beta flag. After building, it runs the container with test configurations to validate that volume mappings and game data are correct before pushing to both Docker Hub and GitHub Container Registry. Only after all builds pass does it create the Git tag and GitHub Release.
+The production publish workflow is the most complex pipeline. It starts by calculating the next version in dry-run mode, then builds each of the 12 game variants in parallel. For each variant, it strips the `-legacy` suffix from the game name (if present) and sets the appropriate SteamCMD beta flag. After building, it runs the container with test configurations to validate that volume mappings and game data are correct before pushing to both Docker Hub and GitHub Container Registry. Only after all builds pass does it perform the real version bump, create the Git tag, and publish the GitHub Release.
 
 ```mermaid
 flowchart TD
     A[Manual Dispatch<br>with version input] --> B[Version Job]
-    B --> C["Bump semver tag<br>(dry run)"]
+    B --> C["Calculate next semver<br>(dry run)"]
     C --> D[Build Job - Matrix x12]
 
     D --> E[Login to Docker Hub + GHCR]
