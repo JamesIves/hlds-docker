@@ -52,3 +52,10 @@ export GAME=decay
 
 > [!TIP]  
 > When using a pre-built image, you'll likely want to use the `valve` base image (`jives/hlds:valve`).
+
+## Resources 📚
+
+- [Getting Started and Usage](../README.md)
+- [Server Configs and Plugins](../config/README.md)
+- [Building a Custom Image](../container/README.md)
+- [Contributing](../CONTRIBUTING.md)
