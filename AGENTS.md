@@ -3,17 +3,17 @@
 > [!NOTE]
 > This document is intended for AI agents and tools such as GitHub Copilot. If you're a human, check out the [Getting Started guide](README.md) or the [Contributing guide](CONTRIBUTING.md) instead.
 
-## Repository Overview
+## Repository Overview 📖
 
 This repository provides a Dockerized solution for running the **Half-Life Dedicated Server (HLDS)**, supporting all classic GoldSrc games and mods. The project uses Docker to simplify server setup, with support for custom configurations, plugins, and mods. Pre-built images are published to Docker Hub and GitHub Container Registry via GitHub Actions CI/CD pipelines.
 
 ## Technologies 🔧
 
-- **Docker** — Containerizes the HLDS server. The `Dockerfile` lives in `container/` and supports build arguments (`GAME`, `FLAG`, `VERSION`, `IMAGE`).
-- **Docker Compose** — Two compose files: `docker-compose.yml` (root, for end-users pulling pre-built images) and `container/docker-compose.yml` (for building custom images locally).
+- **Docker** — Containerizes the HLDS server. The [`Dockerfile`](container/Dockerfile) lives in `container/` and supports build arguments (`GAME`, `FLAG`, `VERSION`, `IMAGE`).
+- **Docker Compose** — Two compose files: [`docker-compose.yml`](docker-compose.yml) (root, for end-users pulling pre-built images) and [`container/docker-compose.yml`](container/docker-compose.yml) (for building custom images locally).
 - **GitHub Actions** — CI/CD workflows in `.github/workflows/` for validation, beta publishing, production publishing, sponsor management, and PR labeling.
-- **Shell Scripting** — `container/entrypoint.sh` handles runtime initialization (mod syncing, config syncing, server startup).
-- **SteamCMD** — Downloads HLDS game files during the Docker build via the `container/hlds.txt` script.
+- **Shell Scripting** — [`container/entrypoint.sh`](container/entrypoint.sh) handles runtime initialization (mod syncing, config syncing, server startup).
+- **SteamCMD** — Downloads HLDS game files during the Docker build via the [`container/hlds.txt`](container/hlds.txt) script.
 
 ## Project Structure 📂
 
@@ -106,19 +106,19 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 ## CI/CD Workflows 🔄
 
-### `validate.yml` — Validation
+### [`validate.yml`](.github/workflows/validate.yml) — Validation
 
 - **Trigger**: Push to any branch except `main` and `beta`, or manual dispatch.
 - **Matrix**: All 12 game variants (8 games + 4 legacy).
 - **Steps**: Build image → create test config/mod files → run container → validate directory mappings and game data → cleanup.
 
-### `beta.yml` — Beta Publishing
+### [`beta.yml`](.github/workflows/beta.yml) — Beta Publishing
 
 - **Trigger**: Push to `beta` branch.
 - **Matrix**: All 12 game variants.
 - **Steps**: Build → validate → push to Docker Hub (`jives/hlds:<game>-beta`) and GHCR (`ghcr.io/jamesives/hlds:<game>-beta`).
 
-### `publish.yml` — Production Publishing
+### [`publish.yml`](.github/workflows/publish.yml) — Production Publishing
 
 - **Trigger**: Manual dispatch (`workflow_dispatch`) with a required `version` input.
 - **Jobs**:
@@ -126,12 +126,12 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
   2. `build` — For each game variant: build → validate → push to Docker Hub and GHCR with both `<game>` and `<game>-<version>` tags.
   3. `publish` — Creates a GitHub Release with the new version tag.
 
-### `sponsors.yml` — Sponsor Management
+### [`sponsors.yml`](.github/workflows/sponsors.yml) — Sponsor Management
 
 - **Trigger**: Daily cron + manual dispatch.
-- **Steps**: Generates sponsor avatars in `README.md`, deploys to `beta` branch.
+- **Steps**: Generates sponsor avatars in [`README.md`](README.md), deploys to `beta` branch.
 
-### `label.yml` — PR Labeling
+### [`label.yml`](.github/workflows/label.yml) — PR Labeling
 
 - **Trigger**: Pull request events.
 - **Steps**: Auto-assigns labels based on conventional commit prefixes in PR titles.
@@ -140,14 +140,14 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 1. Issues/discussions are filed on GitHub.
 2. Contributors branch from `beta`.
-3. Push triggers `validate.yml` for automated testing.
-4. PRs merge into `beta` → triggers `beta.yml` → publishes `-beta` tagged images.
-5. Maintainer merges `beta` into `main` → triggers `publish.yml` → publishes production images and creates a GitHub Release.
+3. Push triggers [`validate.yml`](.github/workflows/validate.yml) for automated testing.
+4. PRs merge into `beta` → triggers [`beta.yml`](.github/workflows/beta.yml) → publishes `-beta` tagged images.
+5. Maintainer merges `beta` into `main` → triggers [`publish.yml`](.github/workflows/publish.yml) → publishes production images and creates a GitHub Release.
 
 ## Coding Conventions 📏
 
-- The `Dockerfile` runs as a non-root `steam` user for security.
-- SteamCMD `app_update` runs 3 times in `hlds.txt` for download reliability.
+- The [`Dockerfile`](container/Dockerfile) runs as a non-root `steam` user for security.
+- SteamCMD `app_update` runs 3 times in [`hlds.txt`](container/hlds.txt) for download reliability.
 - Config files use `rsync` for syncing to preserve directory structure and handle overwrites.
 - All OCI labels are applied to images for discoverability.
 - Legacy game variants strip the `-legacy` suffix before passing to SteamCMD, using the `FLAG` variable to select the beta branch instead.
@@ -156,9 +156,9 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 ## Architecture Maintenance 🏛️
 
-`ARCHITECTURE.md` should be kept up to date with any major architectural changes. When modifying the build process, entrypoint behavior, CI/CD pipeline, volume mapping strategy, or container file system layout, update the corresponding diagrams and descriptions in `ARCHITECTURE.md`. During code reviews, reviewers should check that `ARCHITECTURE.md` still accurately reflects the current state of the project.
+[`ARCHITECTURE.md`](ARCHITECTURE.md) should be kept up to date with any major architectural changes. When modifying the build process, entrypoint behavior, CI/CD pipeline, volume mapping strategy, or container file system layout, update the corresponding diagrams and descriptions in [`ARCHITECTURE.md`](ARCHITECTURE.md). During code reviews, reviewers should check that [`ARCHITECTURE.md`](ARCHITECTURE.md) still accurately reflects the current state of the project.
 
-`AGENTS.md` should also be kept up to date when major changes are made. If workflow triggers, supported games, build arguments, volume mounts, ports, entrypoint behavior, or project structure change, update the corresponding sections in this file.
+[`AGENTS.md`](AGENTS.md) should also be kept up to date when major changes are made. If workflow triggers, supported games, build arguments, volume mounts, ports, entrypoint behavior, or project structure change, update the corresponding sections in this file.
 
 ## Resources 📚
 
