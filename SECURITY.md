@@ -4,4 +4,4 @@ This project only supports the legal usage of Steam and Valve's titles. It will 
 
 ## Reporting a Vulnerability 🔒
 
-Please report any [security related concerns as it pertains to this project as an issue here](https://github.com/JamesIves/hlds-docker/security/advisories/new).
+Please report any [security-related concerns related to this project here](https://github.com/JamesIves/hlds-docker/security/advisories/new).
