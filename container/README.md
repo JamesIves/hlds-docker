@@ -57,3 +57,10 @@ $ docker compose build
 $ export GAME=decay
 $ docker compose up
 ```
+
+## Resources 📚
+
+- [Getting Started and Usage](../README.md)
+- [Server Configs and Plugins](../config/README.md)
+- [Custom Mods](../mods/README.md)
+- [Contributing](../CONTRIBUTING.md)

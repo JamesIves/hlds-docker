@@ -36,3 +36,10 @@ The config directory should be volume mapped to `/temp/config`, for example `./c
 1. Start the image as you usually would, either with `docker run` or `docker compose up`.
 
 For a list of all the available server configuration types, [refer to the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Main_Page).
+
+## Resources 📚
+
+- [Getting Started and Usage](../README.md)
+- [Custom Mods](../mods/README.md)
+- [Building a Custom Image](../container/README.md)
+- [Contributing](../CONTRIBUTING.md)
