@@ -191,13 +191,13 @@ flowchart TD
 
 ### Production Publish Pipeline Detail
 
-The production publish workflow is the most complex pipeline. It starts by calculating the next version in dry-run mode, then builds each of the 12 game variants in parallel. For each variant, it strips the `-legacy` suffix from the game name (if present) and sets the appropriate SteamCMD beta flag. After building, it runs the container with test configurations to validate that volume mappings and game data are correct before pushing to both Docker Hub and GitHub Container Registry. Only after all builds pass does it perform the real version bump, create the Git tag, and publish the GitHub Release.
+The production publish workflow is the most complex pipeline. It includes a version job that runs in dry-run mode and a build matrix for all 12 game variants. For each variant, it strips the `-legacy` suffix from the game name (if present) and sets the appropriate SteamCMD beta flag. After building, it runs the container with test configurations to validate that volume mappings and game data are correct before pushing to both Docker Hub and GitHub Container Registry. Once builds pass, the publish job creates the GitHub Release from the manually supplied `version` input.
 
 ```mermaid
 flowchart TD
     A[Manual Dispatch<br>with version input] --> B[Version Job]
-    B --> C["Calculate next semver<br>(dry run)"]
-    C --> D[Build Job - Matrix x12]
+    A --> D[Build Job - Matrix x12]
+    B --> C["Tag action runs<br>(dry run only)"]
 
     D --> E[Login to Docker Hub + GHCR]
     E --> F[Set GAME env var<br>Strip -legacy suffix]
@@ -213,8 +213,7 @@ flowchart TD
     M --> N[Push to GHCR<br>ghcr.io/jamesives/hlds:game<br>ghcr.io/jamesives/hlds:game-version]
 
     N --> O[Publish Job]
-    O --> P[Bump Version + Create Git Tag]
-    P --> Q[Create GitHub Release]
+    O --> Q[Create GitHub Release<br>from version input]
 
     style A fill:#2d5aa0,color:#fff
     style Q fill:#2d8a4e,color:#fff
