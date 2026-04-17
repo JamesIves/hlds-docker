@@ -1,5 +1,9 @@
 # Security Policy
 
-## Reporting a Vulnerability
+<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
 
-Please report any [security related concerns as an issue here](https://github.com/JamesIves/hlds-docker/security/advisories/new).
+This project only supports the legal usage of Steam and Valve's titles. It will not, and never will, support the ability to circumvent any licensing or other restrictions Valve imposes. Any misuse or attempts to bypass Valve's restrictions will be reported directly to [Valve](https://www.valvesoftware.com/en/) and/or [GitHub](https://github.com).
+
+## Reporting a Vulnerability 🔒
+
+Please report any [security-related concerns related to this project here](https://github.com/JamesIves/hlds-docker/security/advisories/new).

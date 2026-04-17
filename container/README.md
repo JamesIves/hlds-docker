@@ -1,5 +1,7 @@
 # Building an Image
 
+<img align="right" width="180" height="auto"  src="../.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 If you want to build an image yourself, follow the steps below. This can be useful in cases where you want to make changes to the build scripts or add custom functionality. It is also useful for testing changes before submitting a contribution to the project.
 
 1. Clone this project locally.
@@ -12,7 +14,7 @@ export GAME=cstrike
 Before continuing to the following steps, verify that the environment variable is set by running `echo $GAME` in your terminal. It should send back the variable you just set.
 
 > [!TIP]
-> Available options include the following, these names are recognized by the `app_set_config 90 mod` command in `hlds.txt`.
+> Available options include the following, these names are recognized by the `app_set_config 90 mod` command in [`hlds.txt`](hlds.txt).
 >
 > - `valve` ([Half-Life Deathmatch](https://store.steampowered.com/app/70/HalfLife/))
 > - `cstrike` ([Counter-Strike](https://store.steampowered.com/app/10/CounterStrike/))
@@ -23,7 +25,7 @@ Before continuing to the following steps, verify that the environment variable i
 > - `dod` ([Day of Defeat](https://store.steampowered.com/app/30/Day_of_Defeat/))
 > - `tfc` ([Team Fortress Classic](https://store.steampowered.com/app/20/Team_Fortress_Classic/))
 >
-> To install a specific sub version, such as a beta, you can utilize the `FLAG` environment variable to pass arbitrary command flags to Steam CMD. For example, `export FLAG=-beta steam_legacy` can be used to get a [Pre-25th Anniversary build](https://www.half-life.com/en/halflife25) of some titles.
+> To install a specific sub version, such as a beta, you can utilize the `FLAG` environment variable to pass arbitrary command flags to SteamCMD. For example, `export FLAG=-beta steam_legacy` can be used to get a [Pre-25th Anniversary build](https://www.half-life.com/en/halflife25) of some titles.
 
 3. Navigate to the `container` folder (where this README file is) and build the image.
 
@@ -31,7 +33,7 @@ Before continuing to the following steps, verify that the environment variable i
 docker compose build
 ```
 
-4. If you want to modify the server startup arguments, you can provide a `command` property within `docker-compose.yml`; [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
+4. If you want to modify the server startup arguments, you can provide a `command` property within [`docker-compose.yml`](docker-compose.yml); [for a list of available arguments, visit the Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server).
 
 > [!NOTE]  
 > In most cases, you'll need to specify `+map` for the server to be joinable.
@@ -57,3 +59,10 @@ $ docker compose build
 $ export GAME=decay
 $ docker compose up
 ```
+
+## Resources 📚
+
+- [Getting Started and Usage](../README.md)
+- [Server Configs and Plugins](../config/README.md)
+- [Custom Mods](../mods/README.md)
+- [Contributing](../CONTRIBUTING.md)
