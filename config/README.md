@@ -1,5 +1,7 @@
 # Configs and Plugins
 
+<img align="right" width="180" height="auto"  src="../.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 If you wish to add server configurations, such as add-ons, plugins, map rotations, etc, you can add them to the `config` directory. Your directory setup should look something like the following where you're running either `docker run` or `docker compose` next to where the `config` directory is located.
 
 ```

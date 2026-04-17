@@ -1,5 +1,7 @@
 # Agents
 
+<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 > [!NOTE]
 > This document is intended for AI agents and tools such as GitHub Copilot. If you're a human, check out the [Getting Started guide](README.md) or the [Contributing guide](CONTRIBUTING.md) instead.
 
@@ -60,41 +62,41 @@ This repository provides a Dockerized solution for running the **Half-Life Dedic
 
 All images use SteamCMD app ID `90` with a `mod` config to select the game variant:
 
-| Game Identifier   | Game Name                          | Legacy Available |
-| ----------------- | ---------------------------------- | ---------------- |
-| `valve`           | Half-Life Deathmatch               | Yes              |
-| `cstrike`         | Counter-Strike                     | Yes              |
-| `czero`           | Counter-Strike: Condition Zero     | Yes              |
-| `dmc`             | Deathmatch Classic                 | No               |
-| `gearbox`         | Half-Life: Opposing Force          | No               |
-| `ricochet`        | Ricochet                           | No               |
-| `dod`             | Day of Defeat                      | No               |
-| `tfc`             | Team Fortress Classic              | Yes              |
+| Game Identifier | Game Name                      | Legacy Available |
+| --------------- | ------------------------------ | ---------------- |
+| `valve`         | Half-Life Deathmatch           | Yes              |
+| `cstrike`       | Counter-Strike                 | Yes              |
+| `czero`         | Counter-Strike: Condition Zero | Yes              |
+| `dmc`           | Deathmatch Classic             | No               |
+| `gearbox`       | Half-Life: Opposing Force      | No               |
+| `ricochet`      | Ricochet                       | No               |
+| `dod`           | Day of Defeat                  | No               |
+| `tfc`           | Team Fortress Classic          | Yes              |
 
 Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Anniversary Edition of the game.
 
 ## Key Build Arguments 🏗️
 
-| Argument  | Purpose                                                                 | Default   |
-| --------- | ----------------------------------------------------------------------- | --------- |
-| `GAME`    | GoldSrc game/mod identifier passed to SteamCMD                         | `valve`   |
-| `FLAG`    | Additional SteamCMD flags (e.g., `-beta steam_legacy`)                  | _(empty)_ |
-| `VERSION` | Semantic version tag, set by CI                                         | `custom`  |
-| `IMAGE`   | Full image name with tag, used in the entrypoint startup banner         | `custom`  |
+| Argument  | Purpose                                                         | Default   |
+| --------- | --------------------------------------------------------------- | --------- |
+| `GAME`    | GoldSrc game/mod identifier passed to SteamCMD                  | `valve`   |
+| `FLAG`    | Additional SteamCMD flags (e.g., `-beta steam_legacy`)          | _(empty)_ |
+| `VERSION` | Semantic version tag, set by CI                                 | `custom`  |
+| `IMAGE`   | Full image name with tag, used in the entrypoint startup banner | `custom`  |
 
 ## Runtime Volume Mounts 💾
 
-| Host Path  | Container Path   | Purpose                                                                |
-| ---------- | ---------------- | ---------------------------------------------------------------------- |
-| `./config` | `/temp/config`   | Config files synced into `/opt/steam/hlds/$GAME/` on container start   |
-| `./mods`   | `/temp/mods`     | Mod directories synced into `/opt/steam/hlds/` on container start      |
+| Host Path  | Container Path | Purpose                                                              |
+| ---------- | -------------- | -------------------------------------------------------------------- |
+| `./config` | `/temp/config` | Config files synced into `/opt/steam/hlds/$GAME/` on container start |
+| `./mods`   | `/temp/mods`   | Mod directories synced into `/opt/steam/hlds/` on container start    |
 
 ## Network Ports 🌐
 
-| Port    | Protocol | Purpose                 |
-| ------- | -------- | ----------------------- |
-| `27015` | TCP/UDP  | Game server traffic     |
-| `26900` | UDP      | Steam master server     |
+| Port    | Protocol | Purpose             |
+| ------- | -------- | ------------------- |
+| `27015` | TCP/UDP  | Game server traffic |
+| `26900` | UDP      | Steam master server |
 
 ## Entrypoint Behavior 🚪
 

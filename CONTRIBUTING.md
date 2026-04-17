@@ -1,5 +1,7 @@
 # Contributing
 
+<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 Thank you for your interest in contributing to this project! Please review the general process and scope before starting a contribution.
 
 ## Scope 📋

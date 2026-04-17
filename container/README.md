@@ -1,5 +1,7 @@
 # Building an Image
 
+<img align="right" width="180" height="auto"  src="../.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 If you want to build an image yourself, follow the steps below. This can be useful in cases where you want to make changes to the build scripts or add custom functionality. It is also useful for testing changes before submitting a contribution to the project.
 
 1. Clone this project locally.

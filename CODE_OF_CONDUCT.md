@@ -1,5 +1,7 @@
 # Contributor Covenant Code of Conduct
 
+<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 ## Our Pledge 🤝
 
 We as members, contributors, and leaders pledge to make participation in our

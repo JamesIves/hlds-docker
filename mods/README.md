@@ -1,5 +1,7 @@
 # Custom Mods
 
+<img align="right" width="180" height="auto"  src="../.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 If you want to run a custom mod, you can do so with the `mods` directory. Your directory setup should look something like the following where you're running either `docker run` or `docker compose` next to where the `mods` directory is located.
 
 ```

@@ -1,5 +1,7 @@
 # Architecture
 
+<img align="right" width="180" height="auto"  src="./.github/docs/docker.svg" alt="Docker in the Half-Life Colours">
+
 This document describes the architecture of the hlds-docker project using diagrams to illustrate the build process, runtime behavior, CI/CD pipeline, and file system layout.
 
 ## High-Level Overview 🌍
