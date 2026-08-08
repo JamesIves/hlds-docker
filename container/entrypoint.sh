@@ -62,4 +62,6 @@ echo "
 echo "\e[32mStarting Half-Life Dedicated Server...\e[0m"
 
 # Start the server with the specified game and any additional arguments.
-./hlds_run "-game $GAME $@"
+# Uses exec so hlds_run replaces this script as PID 1, allowing it to receive
+# SIGTERM directly from `docker stop` instead of being orphaned when the shell exits.
+exec ./hlds_run "-game $GAME $@"
