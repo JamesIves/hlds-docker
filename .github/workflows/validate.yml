@@ -38,11 +38,7 @@ jobs:
       - name: Set up Docker Buildx 🛠️
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
 
-      # -legacy matrix entries are our own naming convention for "install the
-      # legacy steamcmd beta branch of this game" - they were never meant to
-      # be passed as a literal GAME value. hlds.txt does
-      # `app_set_config 90 mod $GAME`, so an unstripped "czero-legacy" gets
-      # passed straight through as an unrecognized mod name to steamcmd.
+      # -legacy is our own naming convention, not a literal GAME/mod value.
       - name: Set GAME environment variable 🎮
         run: |
           GAME=${{ matrix.game }}
@@ -70,9 +66,7 @@ jobs:
         id: get_image_id
         run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
 
-      # Report-only for now: severity/fixable-CVE noise on the base image hasn't
-      # been baselined against a live scan yet. Once the Security tab shows a
-      # clean run, flip exit-code to "1" to make this a blocking gate.
+      # Report-only until the Security tab has a baseline; then flip exit-code to "1".
       - name: Scan Image for Vulnerabilities 🔍
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
@@ -97,9 +91,7 @@ jobs:
           image: ${{ env.image_id }}
           container-name: hlds-${{ matrix.game }}
 
-      # Only needs to run once, not once per matrix leg: proves the entrypoint
-      # fails observably instead of reporting healthy when handed a GAME
-      # value that was never installed into the image at build time.
+      # Only needs to run once, not once per matrix leg.
       - name: Validate Invalid GAME Fails Safely 🚫
         if: matrix.game == 'valve'
         run: |

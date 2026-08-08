@@ -65,16 +65,8 @@ RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | 
     file /opt/steam/linux32/steamcmd && \
     ./steamcmd.sh +runscript /opt/steam/hlds.txt
 
-# Removes the old libstdc++.so.6/libgcc_s.so.1 that SteamCMD bundles in the
-# hlds root. hlds_run puts the current directory first in LD_LIBRARY_PATH,
-# so these bundled copies shadow the lib32stdc++6 package (and its own
-# libgcc_s.so.1 dependency) installed above. That's fine for mod DLLs built
-# against an older ABI, but it breaks any mod .so rebuilt against a newer
-# libstdc++ (tfc's legacy branch needs a symbol only the system copy has) -
-# and removing just libstdc++.so.6 alone isn't enough, since the system's
-# newer libstdc++.so.6 in turn needs a newer libgcc_s.so.1 than the other
-# bundled shim still shadowing it. Removing both lets the loader fall
-# through to the system's mutually-compatible pair instead.
+# Removes SteamCMD's bundled libstdc++.so.6/libgcc_s.so.1, which shadow the
+# system libs above via LD_LIBRARY_PATH and break newer-ABI mods (tfc-legacy).
 RUN rm -f /opt/steam/hlds/libstdc++.so.6 /opt/steam/hlds/libgcc_s.so.1
 
 # Writes the steam_appid.txt file to the hlds directory with the title id for Half-Life.
@@ -94,10 +86,6 @@ COPY --chown=steam:steam mods .
 RUN chmod +x ./entrypoint.sh
 
 
-# Uses tini as the real PID 1. hlds_run (which entrypoint.sh execs into)
-# comments out its own signal trap and auto-restarts hlds_linux on crash, so
-# SIGTERM from `docker stop` would otherwise be silently ignored (PID 1 gets
-# no default disposition for untrapped signals) until Docker force-kills the
-# container. tini forwards the signal and exits when its child does, which
-# tears down the rest of the process tree cleanly.
+# tini is PID 1 so docker stop's SIGTERM is actually handled - hlds_run
+# doesn't trap it, and untrapped signals are ignored by default for PID 1.
 ENTRYPOINT ["/usr/bin/tini", "--", "./entrypoint.sh"]

@@ -1,8 +1,5 @@
 name: Test HLDS Image
-description: >
-  Boots a built hlds-docker image, validates config/mod volume mappings, and
-  smoke-tests the live GoldSrc server over its real query/RCON protocols
-  instead of only checking that setup files were copied into place.
+description: Boots a built hlds-docker image and smoke-tests the live server over its real query/RCON protocols.
 inputs:
   game:
     description: The GAME value the image was built with (e.g. valve, cstrike-legacy).
@@ -25,12 +22,8 @@ runs:
 
         mkdir -p ./config/maps
 
-        # liblist.gam tells the engine which gamedll .so to dlopen, so it's
-        # load-bearing at boot. Overwriting it with placeholder junk (as this
-        # step used to) proves the rsync-override mechanism works, but then
-        # breaks every check below that boots the live server in the same
-        # container. Pull the real one out of the image and just append a
-        # marker line, so the override is realistic AND still detectable.
+        # liblist.gam is load-bearing at boot, so append a marker instead of
+        # replacing it outright - keeps the override real but still detectable.
         docker run --rm --entrypoint sh "${{ inputs.image }}" \
           -c "cat /opt/steam/hlds/${{ inputs.game }}/liblist.gam 2>/dev/null" \
           > ./config/liblist.gam || true
