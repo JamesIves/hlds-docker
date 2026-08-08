@@ -15,12 +15,21 @@ jobs:
       contents: read
       security-events: write
     strategy:
-      # TEMPORARY: trimmed to one game while diagnosing the "Couldn't get DLL
-      # API" startup crash. Restore the full list before merging.
       matrix:
         game:
           [
             cstrike,
+            cstrike-legacy,
+            valve,
+            valve-legacy,
+            czero,
+            czero-legacy,
+            dmc,
+            gearbox,
+            ricochet,
+            dod,
+            tfc,
+            tfc-legacy,
           ]
     env:
       GAME: ${{ matrix.game }}
@@ -45,56 +54,6 @@ jobs:
       - name: Get Docker Image ID 🆔
         id: get_image_id
         run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
-
-      # TEMPORARY: diagnosing why the engine crashes with
-      # "Host_Error: Couldn't get DLL API from ..." before the server ever
-      # opens its port. Remove this step once root-caused.
-      - name: Diagnose DLL Loading Failure 🩺
-        timeout-minutes: 4
-        run: |
-          IMAGE="${{ env.image_id }}"
-
-          echo "::group::Architecture and OS"
-          timeout 15 docker run --rm --entrypoint sh "$IMAGE" -c "uname -m; cat /etc/os-release | head -5" < /dev/null || true
-          echo "::endgroup::"
-
-          echo "::group::steam user, sdk32 symlink, linux32 contents"
-          timeout 15 docker run --rm --entrypoint sh "$IMAGE" -c "id; ls -la /opt/steam/.steam 2>&1; readlink -f /opt/steam/.steam/sdk32 2>&1; ls -la /opt/steam/linux32 2>&1 | head -40" < /dev/null || true
-          echo "::endgroup::"
-
-          echo "::group::Installed i386 runtime library packages"
-          timeout 15 docker run --rm --entrypoint sh "$IMAGE" -c "dpkg -l | grep -iE 'libc6|stdc\+\+'" < /dev/null || true
-          echo "::endgroup::"
-
-          echo "::group::ldd on every .so shipped with the game (first 20)"
-          timeout 30 docker run --rm --entrypoint sh "$IMAGE" -c '
-            find /opt/steam/hlds -iname "*.so" 2>/dev/null | head -20 | while read -r f; do
-              echo "== $f ==";
-              file "$f" || true;
-              ldd "$f" 2>&1 || true;
-              echo;
-            done
-          ' < /dev/null || true
-          echo "::endgroup::"
-
-          echo "::group::hlds_run launcher script"
-          timeout 15 docker run --rm --entrypoint sh "$IMAGE" -c "cat /opt/steam/hlds/hlds_run 2>&1 | head -150" < /dev/null || true
-          echo "::endgroup::"
-
-          echo "::group::Raw launch attempt (detached, -norestart, forced cleanup)"
-          # hlds_run auto-restarts the engine forever on crash and its own
-          # SIGTERM trap is commented out in the script, so a foreground
-          # `docker run | head` here hangs indefinitely instead of exiting on
-          # crash. Run detached with -norestart (so it crashes once and
-          # stays stopped), then pull logs and force-remove regardless.
-          docker run -d --name diag-launch "$IMAGE" "-norestart +log on +maxplayers 1 +map cs_italy" || true
-          sleep 10
-          echo "--- container state ---"
-          docker inspect diag-launch --format='Status: {{.State.Status}}, ExitCode: {{.State.ExitCode}}' 2>&1 || true
-          echo "--- container logs ---"
-          docker logs diag-launch 2>&1 | head -200 || true
-          docker rm -f diag-launch >/dev/null 2>&1 || true
-          echo "::endgroup::"
 
       # Report-only for now: severity/fixable-CVE noise on the base image hasn't
       # been baselined against a live scan yet. Once the Security tab shows a
