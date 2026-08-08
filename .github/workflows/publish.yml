@@ -178,9 +178,7 @@ jobs:
         id: get_image_id
         run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
 
-      # Report-only for now: severity/fixable-CVE noise on the base image hasn't
-      # been baselined against a live scan yet. Once the Security tab shows a
-      # clean run, flip exit-code to "1" to make this a blocking gate.
+      # Report-only until the Security tab has a baseline; then flip exit-code to "1".
       - name: Scan Image for Vulnerabilities 🔍
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:

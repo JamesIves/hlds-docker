@@ -34,7 +34,7 @@ LABEL org.opencontainers.image.version="${VERSION}"
 # Installs the necessary dependencies for the SteamCMD installer.
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends curl rsync file libc6:i386 lib32stdc++6 ca-certificates && \
+    apt-get install -y --no-install-recommends curl rsync file tini libc6:i386 lib32stdc++6 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Creates a new user and group for the SteamCMD installer.
@@ -65,6 +65,10 @@ RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | 
     file /opt/steam/linux32/steamcmd && \
     ./steamcmd.sh +runscript /opt/steam/hlds.txt
 
+# Removes SteamCMD's bundled libstdc++.so.6/libgcc_s.so.1, which shadow the
+# system libs above via LD_LIBRARY_PATH and break newer-ABI mods (tfc-legacy).
+RUN rm -f /opt/steam/hlds/libstdc++.so.6 /opt/steam/hlds/libgcc_s.so.1
+
 # Writes the steam_appid.txt file to the hlds directory with the title id for Half-Life.
 # Patches a known issue with the Steam client.
 RUN mkdir -p $HOME/.steam \
@@ -82,4 +86,6 @@ COPY --chown=steam:steam mods .
 RUN chmod +x ./entrypoint.sh
 
 
-ENTRYPOINT ["./entrypoint.sh"]
+# tini is PID 1 so docker stop's SIGTERM is actually handled - hlds_run
+# doesn't trap it, and untrapped signals are ignored by default for PID 1.
+ENTRYPOINT ["/usr/bin/tini", "--", "./entrypoint.sh"]

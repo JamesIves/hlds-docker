@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Performs a real RCON round-trip against a running GoldSrc server.
-
-GoldSrc RCON is UDP-based challenge/response (not the TCP protocol used by
-newer Source games). A successful exchange proves the engine has finished
-initializing its console and command systems, not just that the process
-is alive and answering basic queries.
-"""
+"""Performs a UDP challenge/response RCON round-trip against a running GoldSrc server."""
 
 import re
 import socket

@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""Polls a GoldSrc server for a valid A2S_INFO response.
-
-Used two ways:
-  - By default, confirms the engine has finished booting and is answering
-    the real query protocol on its UDP port, rather than just checking that
-    setup files were copied into place before the engine was ever started.
-  - With --expect-no-response, confirms a server that was intentionally
-    given bad configuration (e.g. an unsupported GAME value) fails
-    observably instead of silently reporting itself as healthy.
-"""
+"""Polls a GoldSrc server for an A2S_INFO response; --expect-no-response inverts the check."""
 
 import argparse
 import socket

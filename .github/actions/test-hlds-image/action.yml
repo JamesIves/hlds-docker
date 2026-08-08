@@ -1,8 +1,5 @@
 name: Test HLDS Image
-description: >
-  Boots a built hlds-docker image, validates config/mod volume mappings, and
-  smoke-tests the live GoldSrc server over its real query/RCON protocols
-  instead of only checking that setup files were copied into place.
+description: Boots a built hlds-docker image and smoke-tests the live server over its real query/RCON protocols.
 inputs:
   game:
     description: The GAME value the image was built with (e.g. valve, cstrike-legacy).
@@ -24,7 +21,14 @@ runs:
         touch ./mods/decay/plugin.ini
 
         mkdir -p ./config/maps
-        echo "custom-liblist" > ./config/liblist.gam
+
+        # liblist.gam is load-bearing at boot, so append a marker instead of
+        # replacing it outright - keeps the override real but still detectable.
+        docker run --rm --entrypoint sh "${{ inputs.image }}" \
+          -c "cat /opt/steam/hlds/${{ inputs.game }}/liblist.gam 2>/dev/null" \
+          > ./config/liblist.gam || true
+        echo '// custom-liblist-override-marker' >> ./config/liblist.gam
+
         echo "custom-mapcycle" > ./config/mapcycle.txt
         touch ./config/test.cfg
         touch ./config/maps/crazytank.bsp
@@ -104,7 +108,7 @@ runs:
         # Check that liblist.gam was overwritten (if present)
         if docker exec "${{ inputs.container-name }}" test -f "$GAME_DIR/liblist.gam"; then
           LIBLIST_CONTENT=$(docker exec "${{ inputs.container-name }}" cat "$GAME_DIR/liblist.gam")
-          if [ "$LIBLIST_CONTENT" != "custom-liblist" ]; then
+          if ! grep -q 'custom-liblist-override-marker' <<< "$LIBLIST_CONTENT"; then
             echo "liblist.gam was not overwritten!"
             exit 1
           fi
