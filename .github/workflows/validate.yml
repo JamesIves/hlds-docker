@@ -81,8 +81,19 @@ jobs:
           timeout 15 docker run --rm --entrypoint sh "$IMAGE" -c "cat /opt/steam/hlds/hlds_run 2>&1 | head -150" < /dev/null || true
           echo "::endgroup::"
 
-          echo "::group::Raw entrypoint output on a real launch attempt"
-          timeout 30 docker run --rm "$IMAGE" "+log on +maxplayers 1" < /dev/null 2>&1 | head -200 || true
+          echo "::group::Raw launch attempt (detached, -norestart, forced cleanup)"
+          # hlds_run auto-restarts the engine forever on crash and its own
+          # SIGTERM trap is commented out in the script, so a foreground
+          # `docker run | head` here hangs indefinitely instead of exiting on
+          # crash. Run detached with -norestart (so it crashes once and
+          # stays stopped), then pull logs and force-remove regardless.
+          docker run -d --name diag-launch "$IMAGE" "-norestart +log on +maxplayers 1 +map cs_italy" || true
+          sleep 10
+          echo "--- container state ---"
+          docker inspect diag-launch --format='Status: {{.State.Status}}, ExitCode: {{.State.ExitCode}}' 2>&1 || true
+          echo "--- container logs ---"
+          docker logs diag-launch 2>&1 | head -200 || true
+          docker rm -f diag-launch >/dev/null 2>&1 || true
           echo "::endgroup::"
 
       # Report-only for now: severity/fixable-CVE noise on the base image hasn't
