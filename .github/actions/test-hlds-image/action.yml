@@ -1,0 +1,164 @@
+name: Test HLDS Image
+description: >
+  Boots a built hlds-docker image, validates config/mod volume mappings, and
+  smoke-tests the live GoldSrc server over its real query/RCON protocols
+  instead of only checking that setup files were copied into place.
+inputs:
+  game:
+    description: The GAME value the image was built with (e.g. valve, cstrike-legacy).
+    required: true
+  image:
+    description: The image ID or tag to run.
+    required: true
+  container-name:
+    description: Name to give the running container.
+    required: false
+    default: hlds
+runs:
+  using: composite
+  steps:
+    - name: Add Configuration 📂
+      shell: bash
+      run: |
+        mkdir -p ./mods/decay
+        touch ./mods/decay/plugin.ini
+
+        mkdir -p ./config/maps
+        echo "custom-liblist" > ./config/liblist.gam
+        echo "custom-mapcycle" > ./config/mapcycle.txt
+        touch ./config/test.cfg
+        touch ./config/maps/crazytank.bsp
+
+        # Set old timestamps on liblist.gam and mapcycle.txt to simulate the
+        # real-world scenario where user-provided config files have older
+        # modification times than files generated during the Docker build.
+        touch -t 202001010000 ./config/liblist.gam
+        touch -t 202001010000 ./config/mapcycle.txt
+
+    - name: Determine Start Map 🗺️
+      id: map
+      shell: bash
+      run: |
+        declare -A MAPS
+        MAPS[valve]=bounce
+        MAPS[valve-legacy]=bounce
+        MAPS[cstrike]=cs_italy
+        MAPS[cstrike-legacy]=cs_italy
+        MAPS[czero]=cs_italy
+        MAPS[czero-legacy]=cs_italy
+        MAPS[dmc]=dmc_dm2
+        MAPS[gearbox]=op4_bootcamp
+        MAPS[ricochet]=rc_arena
+        MAPS[dod]=dod_anzio
+        MAPS[tfc]=2fort
+        MAPS[tfc-legacy]=2fort
+
+        echo "start_map=${MAPS["${{ inputs.game }}"]:-crazytank}" >> "$GITHUB_OUTPUT"
+
+    - name: Run Docker Container 🐳
+      shell: bash
+      run: |
+        docker run -d -ti \
+          --name "${{ inputs.container-name }}" \
+          -v "$PWD/config:/temp/config" \
+          -v "$PWD/mods:/temp/mods" \
+          -p 27015:27015/udp \
+          -p 27015:27015 \
+          -p 26900:26900/udp \
+          -e GAME="${{ inputs.game }}" \
+          "${{ inputs.image }}" \
+          "+log on +rcon_password changeme +maxplayers 12 +map ${{ steps.map.outputs.start_map }}"
+
+    - name: Wait for Container Readiness ⏳
+      shell: bash
+      run: |
+        echo "Waiting for the container entrypoint to finish setup..."
+        for i in $(seq 1 30); do
+          if docker exec "${{ inputs.container-name }}" test -f /opt/steam/hlds/decay/plugin.ini 2>/dev/null; then
+            echo "Container is ready!"
+            break
+          fi
+          echo "Attempt $i: Container not ready yet, waiting..."
+          sleep 2
+        done
+
+    - name: Validate Directory Mappings 📂
+      shell: bash
+      run: |
+        GAME_DIR="/opt/steam/hlds/${{ inputs.game }}"
+        # Check if plugin.ini exists in the decay directory
+        if [ "$(docker exec "${{ inputs.container-name }}" ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
+          echo "plugin.ini file is missing in the decay directory!"
+          exit 1
+        fi
+        # Check if test.cfg exists in the game directory
+        if [ "$(docker exec "${{ inputs.container-name }}" ls "$GAME_DIR" | grep -c 'test.cfg')" -eq 0 ]; then
+          echo "test.cfg file is missing in the $GAME_DIR directory!"
+          exit 1
+        fi
+        # Check if crazytank.bsp exists in the maps directory
+        if [ "$(docker exec "${{ inputs.container-name }}" ls "$GAME_DIR/maps" | grep -c 'crazytank.bsp')" -eq 0 ]; then
+          echo "crazytank.bsp file is missing in the $GAME_DIR/maps directory!"
+          exit 1
+        fi
+        # Check that liblist.gam was overwritten (if present)
+        if docker exec "${{ inputs.container-name }}" test -f "$GAME_DIR/liblist.gam"; then
+          LIBLIST_CONTENT=$(docker exec "${{ inputs.container-name }}" cat "$GAME_DIR/liblist.gam")
+          if [ "$LIBLIST_CONTENT" != "custom-liblist" ]; then
+            echo "liblist.gam was not overwritten!"
+            exit 1
+          fi
+        fi
+        # Check that mapcycle.txt was overwritten (if present)
+        if docker exec "${{ inputs.container-name }}" test -f "$GAME_DIR/mapcycle.txt"; then
+          MAPCYCLE_CONTENT=$(docker exec "${{ inputs.container-name }}" cat "$GAME_DIR/mapcycle.txt")
+          if [ "$MAPCYCLE_CONTENT" != "custom-mapcycle" ]; then
+            echo "mapcycle.txt was not overwritten!"
+            exit 1
+          fi
+        fi
+        echo "All config and mod file mappings work as expected!"
+
+    - name: Validate Game Data Is Available 📂
+      shell: bash
+      run: |
+        GAME_NAME=$(echo "${{ inputs.game }}" | sed 's/-legacy//')
+        if [ "$(docker exec "${{ inputs.container-name }}" ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then
+          echo "$GAME_NAME directory is missing!"
+          exit 1
+        fi
+
+    - name: Validate Engine Runs As Non-Root 🔒
+      shell: bash
+      run: |
+        OWNER=$(docker exec "${{ inputs.container-name }}" sh -c "ps -eo user,comm | grep hlds_linux | awk '{print \$1}' | head -n1" || true)
+        if [ -z "$OWNER" ]; then
+          echo "::warning::Could not find an hlds_linux process to verify its owning user; skipping this check."
+        elif [ "$OWNER" != "steam" ]; then
+          echo "hlds_linux is running as '$OWNER', expected the unprivileged 'steam' user!"
+          exit 1
+        else
+          echo "hlds_linux is running as the unprivileged 'steam' user."
+        fi
+
+    - name: Validate Live Server Responds to A2S_INFO 🎮
+      shell: bash
+      run: python3 "${{ github.action_path }}/check_a2s_info.py"
+
+    - name: Validate RCON Authentication 🔑
+      shell: bash
+      run: python3 "${{ github.action_path }}/check_rcon.py"
+
+    - name: Validate Graceful Shutdown 🛑
+      shell: bash
+      run: |
+        START=$(date +%s)
+        docker stop --time 15 "${{ inputs.container-name }}"
+        END=$(date +%s)
+        ELAPSED=$((END - START))
+        EXIT_CODE=$(docker inspect "${{ inputs.container-name }}" --format='{{.State.ExitCode}}')
+        echo "Container stopped in ${ELAPSED}s with exit code $EXIT_CODE"
+        if [ "$ELAPSED" -ge 15 ]; then
+          echo "Container did not shut down gracefully within its 15s grace period and had to be force-killed!"
+          exit 1
+        fi
