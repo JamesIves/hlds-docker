@@ -24,7 +24,18 @@ runs:
         touch ./mods/decay/plugin.ini
 
         mkdir -p ./config/maps
-        echo "custom-liblist" > ./config/liblist.gam
+
+        # liblist.gam tells the engine which gamedll .so to dlopen, so it's
+        # load-bearing at boot. Overwriting it with placeholder junk (as this
+        # step used to) proves the rsync-override mechanism works, but then
+        # breaks every check below that boots the live server in the same
+        # container. Pull the real one out of the image and just append a
+        # marker line, so the override is realistic AND still detectable.
+        docker run --rm --entrypoint sh "${{ inputs.image }}" \
+          -c "cat /opt/steam/hlds/${{ inputs.game }}/liblist.gam 2>/dev/null" \
+          > ./config/liblist.gam || true
+        echo '// custom-liblist-override-marker' >> ./config/liblist.gam
+
         echo "custom-mapcycle" > ./config/mapcycle.txt
         touch ./config/test.cfg
         touch ./config/maps/crazytank.bsp
@@ -104,7 +115,7 @@ runs:
         # Check that liblist.gam was overwritten (if present)
         if docker exec "${{ inputs.container-name }}" test -f "$GAME_DIR/liblist.gam"; then
           LIBLIST_CONTENT=$(docker exec "${{ inputs.container-name }}" cat "$GAME_DIR/liblist.gam")
-          if [ "$LIBLIST_CONTENT" != "custom-liblist" ]; then
+          if ! grep -q 'custom-liblist-override-marker' <<< "$LIBLIST_CONTENT"; then
             echo "liblist.gam was not overwritten!"
             exit 1
           fi
