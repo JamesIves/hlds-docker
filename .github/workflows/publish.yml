@@ -178,7 +178,6 @@ jobs:
         id: get_image_id
         run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
 
-      # Report-only until the Security tab has a baseline; then flip exit-code to "1".
       - name: Scan Image for Vulnerabilities 🔍
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
@@ -187,7 +186,7 @@ jobs:
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          exit-code: "0"
+          exit-code: "1"
 
       - name: Upload Vulnerability Scan Results 📤
         if: always()
