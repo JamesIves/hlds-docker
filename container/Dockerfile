@@ -65,6 +65,15 @@ RUN curl -v -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | 
     file /opt/steam/linux32/steamcmd && \
     ./steamcmd.sh +runscript /opt/steam/hlds.txt
 
+# Removes the old libstdc++.so.6 that SteamCMD bundles in the hlds root.
+# hlds_run puts the current directory first in LD_LIBRARY_PATH, so this
+# bundled copy shadows the newer lib32stdc++6 package installed above - fine
+# for mod DLLs built against an older ABI, but it breaks any mod .so that
+# was rebuilt against a newer libstdc++ (e.g. tfc's legacy branch needs a
+# symbol the bundled copy doesn't have). Removing it just falls through to
+# the system copy, which satisfies both older and newer ABI requirements.
+RUN rm -f /opt/steam/hlds/libstdc++.so.6
+
 # Writes the steam_appid.txt file to the hlds directory with the title id for Half-Life.
 # Patches a known issue with the Steam client.
 RUN mkdir -p $HOME/.steam \
