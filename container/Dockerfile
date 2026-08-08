@@ -34,7 +34,7 @@ LABEL org.opencontainers.image.version="${VERSION}"
 # Installs the necessary dependencies for the SteamCMD installer.
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends curl rsync file libc6:i386 lib32stdc++6 ca-certificates && \
+    apt-get install -y --no-install-recommends curl rsync file tini libc6:i386 lib32stdc++6 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Creates a new user and group for the SteamCMD installer.
@@ -82,4 +82,10 @@ COPY --chown=steam:steam mods .
 RUN chmod +x ./entrypoint.sh
 
 
-ENTRYPOINT ["./entrypoint.sh"]
+# Uses tini as the real PID 1. hlds_run (which entrypoint.sh execs into)
+# comments out its own signal trap and auto-restarts hlds_linux on crash, so
+# SIGTERM from `docker stop` would otherwise be silently ignored (PID 1 gets
+# no default disposition for untrapped signals) until Docker force-kills the
+# container. tini forwards the signal and exits when its child does, which
+# tears down the rest of the process tree cleanly.
+ENTRYPOINT ["/usr/bin/tini", "--", "./entrypoint.sh"]
