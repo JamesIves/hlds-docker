@@ -38,6 +38,11 @@
       "description": "Half-Life Dedicated Server powered by Docker, supporting all the classic GoldSrc Half-Life games and mods-including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more. Easily extendable with custom configurations and plugins.",
       "url": "https://jamesiv.es/hlds-docker/",
       "image": "https://jamesiv.es/hlds-docker/meta.png",
+      "author": {
+        "@type": "Person",
+        "name": "James Ives",
+        "url": "https://jamesiv.es"
+      },
       "applicationCategory": "Utility",
       "operatingSystem": "Docker",
       "offers": {
@@ -944,21 +949,21 @@
         });
       }
 
-      function updateCommand() {
-        const game = document.getElementById("game").value;
-        const servername = document.getElementById("servername").value;
-        const map = document.getElementById("map").value;
-        const maxplayersInput = document.getElementById("maxplayers");
-        let maxplayers = parseInt(maxplayersInput.value, 10);
-        const rcon = document.getElementById("rcon").value;
-        const password = document.getElementById("password").value;
-        const lanmode = document.getElementById("lanmode").checked;
-        const cheats = document.getElementById("cheats").checked;
-
-        // Ensure maxplayers has a minimum value of 1 and keep the input field in sync
-        if (!Number.isFinite(maxplayers) || maxplayers < 1) {
-          maxplayers = 1;
-          maxplayersInput.value = String(maxplayers);
+      // Pure command builder, shared by the form UI and the WebMCP tool below.
+      function buildDockerCommand({
+        game,
+        servername = "Half-Life Dedicated Server",
+        map,
+        maxplayers = 12,
+        rcon = "",
+        password = "",
+        lanmode = false,
+        cheats = false,
+      }) {
+        const resolvedMap = map || (mapData[game] && mapData[game][0]) || "";
+        let players = parseInt(maxplayers, 10);
+        if (!Number.isFinite(players) || players < 1) {
+          players = 1;
         }
 
         let command = `docker run -d -ti \\
@@ -974,7 +979,7 @@
           command += ` +rcon_password ${rcon}`;
         }
 
-        command += ` +hostname "${servername}" +maxplayers ${maxplayers}`;
+        command += ` +hostname "${servername}" +maxplayers ${players}`;
 
         if (password) {
           command += ` +sv_password "${password}"`;
@@ -988,9 +993,99 @@
           command += ` +sv_cheats 1`;
         }
 
-        command += ` +map ${map}`;
+        if (resolvedMap) {
+          command += ` +map ${resolvedMap}`;
+        }
 
-        document.getElementById("output").textContent = command;
+        return command;
+      }
+
+      function updateCommand() {
+        const game = document.getElementById("game").value;
+        const servername = document.getElementById("servername").value;
+        const map = document.getElementById("map").value;
+        const maxplayersInput = document.getElementById("maxplayers");
+        const rcon = document.getElementById("rcon").value;
+        const password = document.getElementById("password").value;
+        const lanmode = document.getElementById("lanmode").checked;
+        const cheats = document.getElementById("cheats").checked;
+
+        // Ensure maxplayers has a minimum value of 1 and keep the input field in sync
+        let maxplayers = parseInt(maxplayersInput.value, 10);
+        if (!Number.isFinite(maxplayers) || maxplayers < 1) {
+          maxplayers = 1;
+          maxplayersInput.value = String(maxplayers);
+        }
+
+        document.getElementById("output").textContent = buildDockerCommand({
+          game,
+          servername,
+          map,
+          maxplayers,
+          rcon,
+          password,
+          lanmode,
+          cheats,
+        });
+      }
+
+      // Expose the same command generation as a WebMCP tool for supporting
+      // agents (Chrome 146+ behind the WebMCP flag). No-ops elsewhere.
+      if (document.modelContext) {
+        try {
+          document.modelContext.registerTool({
+            name: "generate_docker_run_command",
+            description:
+              "Generates a docker run command to start a Half-Life Dedicated Server for a given GoldSrc game and settings.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                game: {
+                  type: "string",
+                  description: "The game/mod to run.",
+                  enum: Object.keys(mapData),
+                },
+                map: {
+                  type: "string",
+                  description:
+                    "Starting map. Defaults to the game's first map if omitted.",
+                },
+                servername: {
+                  type: "string",
+                  description: "Server hostname shown in the server browser.",
+                },
+                maxplayers: {
+                  type: "integer",
+                  description: "Maximum number of players (1-32).",
+                  minimum: 1,
+                  maximum: 32,
+                },
+                rcon: {
+                  type: "string",
+                  description:
+                    "RCON password for remote console access. Omit to disable RCON.",
+                },
+                password: {
+                  type: "string",
+                  description:
+                    "Password required to join the server. Omit for a public server.",
+                },
+                lanmode: {
+                  type: "boolean",
+                  description: "Restrict the server to LAN-only (sv_lan 1).",
+                },
+                cheats: {
+                  type: "boolean",
+                  description: "Enable cheats (sv_cheats 1).",
+                },
+              },
+              required: ["game"],
+            },
+            execute: async (input) => buildDockerCommand(input),
+          });
+        } catch (e) {
+          console.log("WebMCP tool registration failed:", e);
+        }
       }
 
       function copyToClipboard() {
