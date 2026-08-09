@@ -6,11 +6,20 @@ on:
     branches-ignore:
       - main
       - beta
+  # beta itself is excluded above, so a beta->main promotion PR would
+  # otherwise never get these checks run against it. This targets only
+  # that case - normal feature-branch PRs already get checks via push.
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 jobs:
   build:
     name: Build and Validate 🏁
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     strategy:
       matrix:
         game:
@@ -28,134 +37,89 @@ jobs:
             tfc,
             tfc-legacy,
           ]
-    env:
-      GAME: ${{ matrix.game }}
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up Docker Buildx 🛠️
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      # -legacy is our own naming convention, not a literal GAME/mod value.
+      - name: Set GAME environment variable 🎮
+        run: |
+          GAME=${{ matrix.game }}
+          GAME=${GAME%-legacy}
+          echo "GAME=$GAME" >> "$GITHUB_ENV"
+
+      - name: Configure SteamCMD to install the legacy engine version 🚒
+        if: contains(matrix.game, 'legacy')
+        run: echo "FLAG=-beta steam_legacy" >> "$GITHUB_ENV"
 
       - name: Build Docker Image 🐳
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         env:
           GAME: ${{ env.GAME }}
+          FLAG: ${{ env.FLAG }}
         with:
           context: ./container
           build-args: |
             GAME=${{ env.GAME }}
+            FLAG=${{ env.FLAG }}
           load: true
+          tags: hlds-validate:${{ matrix.game }}
 
       - name: Get Docker Image ID 🆔
         id: get_image_id
-        run: echo "image_id=$(docker images -q | head -n 1)" >> $GITHUB_ENV
+        run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
 
-      - name: Add Configuration 📂
+      - name: Scan Image for Vulnerabilities 🔍
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.image_id }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Upload Vulnerability Scan Results 📤
+        if: always()
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-${{ matrix.game }}
+
+      - name: Test Image 🧪
+        uses: ./.github/actions/test-hlds-image
+        with:
+          game: ${{ env.GAME }}
+          image: ${{ env.image_id }}
+          container-name: hlds-${{ matrix.game }}
+
+      # Only needs to run once, not once per matrix leg.
+      - name: Validate Invalid GAME Fails Safely 🚫
+        if: matrix.game == 'valve'
         run: |
-          mkdir -p ./mods/decay
-          touch ./mods/decay/plugin.ini
-
-          mkdir -p ./config/maps
-          echo "custom-liblist" > ./config/liblist.gam
-          echo "custom-mapcycle" > ./config/mapcycle.txt
-          touch ./config/test.cfg
-          touch ./config/maps/crazytank.bsp
-
-          # Set old timestamps on liblist.gam and mapcycle.txt to simulate the
-          # real-world scenario where user-provided config files have older
-          # modification times than files generated during the Docker build.
-          touch -t 202001010000 ./config/liblist.gam
-          touch -t 202001010000 ./config/mapcycle.txt
-
-      - name: Run Docker Container 🐳
-        run: |
-          declare -A MAPS
-          MAPS[valve]=bounce
-          MAPS[valve-legacy]=bounce
-          MAPS[cstrike]=cs_italy
-          MAPS[cstrike-legacy]=cs_italy
-          MAPS[czero]=cs_italy
-          MAPS[czero-legacy]=cs_italy
-          MAPS[dmc]=dmc_dm2
-          MAPS[gearbox]=op4_bootcamp
-          MAPS[ricochet]=rc_arena
-          MAPS[dod]=dod_anzio
-          MAPS[tfc]=2fort
-          MAPS[tfc-legacy]=2fort
-
-          START_MAP=${MAPS[${{ matrix.game }}]}
-
           docker run -d -ti \
-            --name hlds-${{ matrix.game }} \
-            -v "./config:/temp/config" \
-            -v "./mods:/temp/mods" \
-            -p 27015:27015/udp \
-            -p 27015:27015 \
-            -p 26900:26900/udp \
-            -e GAME=${{ matrix.game }} \
+            --name hlds-invalid-game \
+            -p 27016:27015/udp \
+            -e GAME=totally-not-a-real-game \
             ${{ env.image_id }} \
-            "+log on +rcon_password changeme +maxplayers 12 +map $START_MAP"
+            "+log on +maxplayers 12 +map crazytank"
 
-      - name: Wait for Container Readiness ⏳
-        run: |
-          echo "Waiting for the container entrypoint to finish setup..."
-          for i in $(seq 1 30); do
-            if docker exec hlds-${{ matrix.game }} test -f /opt/steam/hlds/decay/plugin.ini 2>/dev/null; then
-              echo "Container is ready!"
-              break
-            fi
-            echo "Attempt $i: Container not ready yet, waiting..."
-            sleep 2
-          done
+          python3 .github/actions/test-hlds-image/check_a2s_info.py \
+            --port 27016 --timeout 20 --expect-no-response
 
-      - name: Validate Directory Mappings 📂
-        run: |
-          GAME_DIR=/opt/steam/hlds/${{ matrix.game }}
-          # Check if plugin.ini exists in the decay directory
-          if [ "$(docker exec hlds-${{ matrix.game }} ls /opt/steam/hlds/decay | grep -c 'plugin.ini')" -eq 0 ]; then
-            echo "plugin.ini file is missing in the decay directory!"
-            exit 1
-          fi
-          # Check if test.cfg exists in the game directory
-          if [ "$(docker exec hlds-${{ matrix.game }} ls $GAME_DIR | grep -c 'test.cfg')" -eq 0 ]; then
-            echo "test.cfg file is missing in the $GAME_DIR directory!"
-            exit 1
-          fi
-          # Check if crazytank.bsp exists in the maps directory
-          if [ "$(docker exec hlds-${{ matrix.game }} ls $GAME_DIR/maps | grep -c 'crazytank.bsp')" -eq 0 ]; then
-            echo "crazytank.bsp file is missing in the $GAME_DIR/maps directory!"
-            exit 1
-          fi
-          # Check that liblist.gam was overwritten (if present)
-          if docker exec hlds-${{ matrix.game }} test -f $GAME_DIR/liblist.gam; then
-            LIBLIST_CONTENT=$(docker exec hlds-${{ matrix.game }} cat $GAME_DIR/liblist.gam)
-            if [ "$LIBLIST_CONTENT" != "custom-liblist" ]; then
-              echo "liblist.gam was not overwritten!"
-              exit 1
-            fi
-          fi
-          # Check that mapcycle.txt was overwritten (if present)
-          if docker exec hlds-${{ matrix.game }} test -f $GAME_DIR/mapcycle.txt; then
-            MAPCYCLE_CONTENT=$(docker exec hlds-${{ matrix.game }} cat $GAME_DIR/mapcycle.txt)
-            if [ "$MAPCYCLE_CONTENT" != "custom-mapcycle" ]; then
-              echo "mapcycle.txt was not overwritten!"
-              exit 1
-            fi
-          fi
-          echo "All config and mod file mappings work as expected!"
-
-      - name: Validate Game Data Is Available 📂
-        run: |
-          GAME_NAME=$(echo "${{ matrix.game }}" | sed 's/-legacy//')
-          if [ "$(docker exec hlds-${{ matrix.game }} ls /opt/steam/hlds | grep -c "$GAME_NAME")" -eq 0 ]; then
-            echo "$GAME_NAME directory is missing!"
-            exit 1
-          fi
+          echo "--- Container status/logs for the invalid GAME run ---"
+          docker inspect hlds-invalid-game --format='Status: {{.State.Status}}, ExitCode: {{.State.ExitCode}}'
+          docker logs hlds-invalid-game || true
 
       - name: Cleanup 🧹
         if: always()
         run: |
+          docker logs hlds-${{ matrix.game }} || true
           docker stop hlds-${{ matrix.game }} || true
           docker rm hlds-${{ matrix.game }} || true
+          docker stop hlds-invalid-game || true
+          docker rm hlds-invalid-game || true
           docker system prune --all --force

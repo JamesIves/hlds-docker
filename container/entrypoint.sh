@@ -62,4 +62,5 @@ echo "
 echo "\e[32mStarting Half-Life Dedicated Server...\e[0m"
 
 # Start the server with the specified game and any additional arguments.
-./hlds_run "-game $GAME $@"
+# exec avoids wrapping hlds_run in an extra shell layer.
+exec ./hlds_run "-game $GAME $@"
