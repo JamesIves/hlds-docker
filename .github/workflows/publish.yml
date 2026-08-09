@@ -300,6 +300,8 @@ jobs:
       - name: Docker Metadata 🏷️
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
           images: |
             jives/hlds
