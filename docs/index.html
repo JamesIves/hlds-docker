@@ -258,6 +258,15 @@
         text-decoration: none;
       }
 
+      .action-button svg,
+      .action-button img {
+        fill: currentColor;
+        height: 12px;
+        margin-right: 5px;
+        vertical-align: -1px;
+        width: 12px;
+      }
+
       .action-buttons {
         display: flex;
         gap: 6px;
@@ -317,15 +326,6 @@
         padding-bottom: 8px;
       }
 
-      .footer-container {
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        justify-content: center;
-        margin-top: 8px;
-      }
-
       .footer-divider {
         align-items: center;
         color: var(--text-secondary);
@@ -333,19 +333,6 @@
         font-size: 14px;
         line-height: 1;
         opacity: 0.5;
-      }
-
-      .footer-link {
-        color: var(--text-secondary);
-        font-size: 10px;
-        text-align: center;
-      }
-
-      .footer-link img {
-        border: none;
-        display: block;
-        height: 16px;
-        width: 16px;
       }
 
       .footer-links {
@@ -702,10 +689,12 @@
               <legend>Learn More</legend>
               <div class="action-buttons-column">
                 <a
+                  id="blog-link"
                   href="https://jamesiv.es/blog/experiment/docker/2024/06/20/half-life-dedicated-server-with-docker"
                   target="_blank"
                   class="action-button"
                 >
+                  <img src="icon.png" alt="" aria-hidden="true" />
                   Read Blog Post
                 </a>
                 <a
@@ -713,6 +702,11 @@
                   target="_blank"
                   class="action-button"
                 >
+                  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path
+                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                    />
+                  </svg>
                   Contribute on GitHub
                 </a>
               </div>
@@ -740,16 +734,6 @@
       </div>
     </div>
 
-      <div class="footer-container">
-        <a
-          href="https://jamesiv.es"
-          target="_blank"
-          title="Built by Jives"
-          class="footer-link"
-        >
-          <img width="16" height="16" src="icon.png" alt="James Ives" />
-        </a>
-      </div>
     </main>
 
     <script>
@@ -1043,7 +1027,7 @@
       updateCommand();
 
       const interactiveElements = document.querySelectorAll(
-        "button:not(.close), a, select, input[type='radio']"
+        "button:not(.close), a:not(#blog-link), select, input[type='radio']"
       );
       interactiveElements.forEach((element) => {
         element.addEventListener("mousedown", playButtonSound);
@@ -1076,14 +1060,14 @@
         });
       }
       
-      // Attach wise sound to footer icon
+      // Attach wise sound to the blog post link's jives face
       const wiseSound = new Audio("wise.mp3");
       wiseSound.volume = 0.6;
-      const footerLink = document.querySelector(".footer-link");
-      if (footerLink) {
-        footerLink.addEventListener("click", (e) => {
+      const blogLink = document.getElementById("blog-link");
+      if (blogLink) {
+        blogLink.addEventListener("click", () => {
           wiseSound.currentTime = 0;
-          wiseSound.play().catch(e => console.log("Audio play failed:", e));
+          wiseSound.play().catch((e) => console.log("Audio play failed:", e));
         });
       }
 
