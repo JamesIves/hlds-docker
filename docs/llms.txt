@@ -1,0 +1,38 @@
+# Half-Life Dedicated Server with Docker
+
+> Half-Life Dedicated Server powered by Docker, supporting all the classic GoldSrc Half-Life games and mods - including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more. Easily extendable with custom configurations and plugins.
+
+## Docs
+
+- [README](https://github.com/JamesIves/hlds-docker/blob/beta/README.md): Project overview, supported games, and quick start
+- [Server Configs and Plugins](https://github.com/JamesIves/hlds-docker/blob/beta/config/README.md): Mounting a custom server.cfg, motd, and admin plugins
+- [Running Custom Mods](https://github.com/JamesIves/hlds-docker/blob/beta/mods/README.md): Adding your own GoldSrc mod content
+- [Build a Custom Image](https://github.com/JamesIves/hlds-docker/blob/beta/container/README.md): Building the Docker image yourself instead of using the published tags
+
+## Supported games
+
+Pass one of these as the image tag (e.g. `jives/hlds:cstrike`): valve (Half-Life), cstrike (Counter-Strike), czero (Counter-Strike: Condition Zero), dmc (Deathmatch Classic), gearbox (Half-Life: Opposing Force), ricochet (Ricochet), dod (Day of Defeat), tfc (Team Fortress Classic). Append `-legacy` to valve/cstrike/czero/tfc for the pre-25th-anniversary engine build.
+
+## Example: run a server
+
+```
+docker run -d -ti \
+  --name hlds \
+  -v "$(pwd)/config:/temp/config" \
+  -v "$(pwd)/mods:/temp/mods" \
+  -p 27015:27015/udp \
+  -p 27015:27015 \
+  jives/hlds:cstrike \
+  +log on +hostname "My Server" +maxplayers 12 +map cs_italy
+```
+
+Replace `cstrike` with any supported game tag and `cs_italy` with a valid map for that game. Add `+rcon_password <password>` for remote console access, `+sv_password <password>` to require a password to join, or `+sv_lan 1` for LAN-only mode.
+
+## Images
+
+- DockerHub: https://hub.docker.com/r/jives/hlds
+- GHCR: https://github.com/JamesIves/hlds-docker/pkgs/container/hlds
+
+## Optional
+
+- [Interactive command builder](https://jamesiv.es/hlds-docker/): pick a game, map, and server settings in the browser and copy the generated docker run command. Exposes the same command generation as a WebMCP tool (`generate_docker_run_command`) for supporting agents.
