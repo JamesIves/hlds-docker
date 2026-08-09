@@ -21,11 +21,21 @@ jobs:
       contents: read
       security-events: write
     strategy:
-      # TEMPORARY: trimmed to verify the sv_tags diagnostic. Restore before merging.
       matrix:
         game:
           [
             cstrike,
+            cstrike-legacy,
+            valve,
+            valve-legacy,
+            czero,
+            czero-legacy,
+            dmc,
+            gearbox,
+            ricochet,
+            dod,
+            tfc,
+            tfc-legacy,
           ]
     steps:
       - name: Checkout 🛎️
@@ -85,22 +95,6 @@ jobs:
           game: ${{ env.GAME }}
           image: ${{ env.image_id }}
           container-name: hlds-${{ matrix.game }}
-
-      - name: DEBUG Validate sv_tags Override 🏷️
-        if: matrix.game == 'cstrike'
-        run: |
-          docker run -d -ti \
-            --name hlds-tags-override \
-            -p 27018:27015/udp \
-            -e GAME=${{ env.GAME }} \
-            ${{ env.image_id }} \
-            "+log on +sv_tags custom-override-tag +maxplayers 12 +map crazytank"
-
-          python3 .github/actions/test-hlds-image/check_a2s_info.py --port 27018 --timeout 30
-
-          docker logs hlds-tags-override || true
-          docker stop hlds-tags-override || true
-          docker rm hlds-tags-override || true
 
       # Only needs to run once, not once per matrix leg.
       - name: Validate Invalid GAME Fails Safely 🚫

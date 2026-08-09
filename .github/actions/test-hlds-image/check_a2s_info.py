@@ -60,7 +60,6 @@ def main() -> int:
         return 1
 
     print(f"A2S_INFO response received ({len(data)} bytes), response type byte: {hex(data[4])}")
-    print(f"TEMP DEBUG raw response: {data!r}")
     return 0
 
 
