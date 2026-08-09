@@ -21,21 +21,11 @@ jobs:
       contents: read
       security-events: write
     strategy:
+      # TEMPORARY: trimmed to verify the sv_tags diagnostic. Restore before merging.
       matrix:
         game:
           [
             cstrike,
-            cstrike-legacy,
-            valve,
-            valve-legacy,
-            czero,
-            czero-legacy,
-            dmc,
-            gearbox,
-            ricochet,
-            dod,
-            tfc,
-            tfc-legacy,
           ]
     steps:
       - name: Checkout 🛎️
