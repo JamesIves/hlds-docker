@@ -1,4 +1,4 @@
-name: Publish Docker Images 🐋 📦
+name: Release 🚀
 concurrency: ci-${{ github.ref }}
 on:
   workflow_dispatch:
@@ -12,6 +12,8 @@ on:
           - minor
           - major
         default: patch
+env:
+  CANDIDATE_REF: release-candidate
 jobs:
   version:
     name: Compute Release Version 🔢
@@ -58,16 +60,169 @@ jobs:
 
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
-  build:
-    name: Build Docker Image 🐳
+  prepare:
+    name: Prepare Release Candidate 🔀
     needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: "0"
+
+      # Merges beta into main exactly once, and pushes the result to a
+      # scratch ref instead of main itself. Every downstream job builds from
+      # this one commit, so a conflict fails once and clearly here instead of
+      # noisily across all 12 matrix legs, and nothing gets pushed to a
+      # registry or released until this exact commit has been proven to
+      # build and pass its smoke tests.
+      - name: Merge beta into a release candidate 🔀
+        run: |
+          git fetch origin beta
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            merge origin/beta --no-edit
+          git push --force origin "HEAD:refs/heads/${{ env.CANDIDATE_REF }}"
+
+  test:
+    name: Test Candidate 🧪
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      matrix:
+        game:
+          [
+            cstrike,
+            cstrike-legacy,
+            valve,
+            valve-legacy,
+            czero,
+            czero-legacy,
+            dmc,
+            gearbox,
+            ricochet,
+            dod,
+            tfc,
+            tfc-legacy,
+          ]
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.CANDIDATE_REF }}
+
+      - name: Set up Docker Buildx 🛠️
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      - name: Set GAME environment variable 🎮
+        working-directory: ./container
+        run: |
+          GAME=${{ matrix.game }}
+          GAME=${GAME%-legacy}
+          echo "GAME=$GAME" >> "$GITHUB_ENV"
+
+      - name: Replace fallback value in Dockerfile and entrypoint.sh 📝
+        working-directory: ./container
+        run: |
+          sed -i "s/\${GAME:-valve}/\${GAME:-${{ env.GAME }}}/g" Dockerfile
+          sed -i "s/\${GAME:-valve}/\${GAME:-${{ env.GAME }}}/g" entrypoint.sh
+
+      - name: Configure SteamCMD to install the legacy engine version 🚒
+        if: contains(matrix.game, 'legacy')
+        run: echo "FLAG=-beta steam_legacy" >> "$GITHUB_ENV"
+
+      - name: Build Docker Image 🐳
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        env:
+          GAME: ${{ env.GAME }}
+          FLAG: ${{ env.FLAG }}
+        with:
+          context: ./container
+          push: false
+          load: true
+          tags: hlds-release-candidate:${{ matrix.game }}
+          build-args: |
+            GAME=${{ env.GAME }}
+            FLAG=${{ env.FLAG }}
+          cache-from: type=gha,scope=release-${{ matrix.game }}
+          cache-to: type=gha,mode=max,scope=release-${{ matrix.game }}
+
+      - name: Get Docker Image ID 🆔
+        id: get_image_id
+        run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
+
+      - name: Scan Image for Vulnerabilities 🔍
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.image_id }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Upload Vulnerability Scan Results 📤
+        if: always()
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-release-${{ matrix.game }}
+
+      - name: Test Image 🧪
+        uses: ./.github/actions/test-hlds-image
+        with:
+          game: ${{ env.GAME }}
+          image: ${{ env.image_id }}
+          container-name: hlds
+
+      - name: Cleanup 🧹
+        if: always()
+        run: |
+          docker logs hlds || true
+          docker stop hlds || true
+          docker rm hlds || true
+          docker system prune --all --force
+
+  merge:
+    name: Merge Candidate into main 🔀
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: "0"
+
+      # Fast-forward only: the candidate ref is already proven to build and
+      # pass every test, so this is guaranteed conflict-free and doesn't need
+      # to redo the merge - it's just moving the main ref forward.
+      - name: Fast-forward main to the tested candidate 🔀
+        run: |
+          git fetch origin "${{ env.CANDIDATE_REF }}"
+          git merge --ff-only "origin/${{ env.CANDIDATE_REF }}"
+          git push origin main
+
+      - name: Delete the release candidate ref 🧹
+        if: always()
+        run: git push origin --delete "${{ env.CANDIDATE_REF }}" || true
+
+  release:
+    name: Build and Publish Image 🐳
+    needs: [version, merge]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
-      security-events: write
     strategy:
       matrix:
         game:
@@ -92,15 +247,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: main
-          fetch-depth: "0"
-
-      # Tests this leg builds below run against the actual merge result, not
-      # just main on its own - this is local to the runner and isn't pushed.
-      - name: Merge beta into main (local, not pushed) 🔀
-        run: |
-          git fetch origin beta
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            merge origin/beta --no-edit
 
       - name: Set up Docker Buildx  🛠️
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
@@ -182,53 +328,6 @@ jobs:
             org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.version=${{ env.VERSION }}
 
-      - name: Build Docker Image 🐳
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
-        env:
-          GAME: ${{ env.GAME }}
-          FLAG: ${{ env.FLAG }}
-          IMAGE: jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
-        with:
-          context: ./container
-          push: false
-          load: true
-          tags: |
-            jives/hlds:${{ matrix.game }}
-            jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
-          build-args: |
-            GAME=${{ env.GAME }}
-            FLAG=${{ env.FLAG }}
-            VERSION=${{ env.VERSION }}
-            IMAGE=jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
-
-      - name: Get Docker Image ID 🆔
-        id: get_image_id
-        run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
-
-      - name: Scan Image for Vulnerabilities 🔍
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: ${{ env.image_id }}
-          format: sarif
-          output: trivy-results.sarif
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: "1"
-
-      - name: Upload Vulnerability Scan Results 📤
-        if: always()
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
-        with:
-          sarif_file: trivy-results.sarif
-          category: trivy-release-${{ matrix.game }}
-
-      - name: Test Image 🧪
-        uses: ./.github/actions/test-hlds-image
-        with:
-          game: ${{ env.GAME }}
-          image: ${{ env.image_id }}
-          container-name: hlds
-
       - name: Build and Push Docker Image to DockerHub 🐳
         id: push_dockerhub
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
@@ -249,6 +348,7 @@ jobs:
             FLAG=${{ env.FLAG }}
             VERSION=${{ env.VERSION }}
             IMAGE=jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
+          cache-from: type=gha,scope=release-${{ matrix.game }}
 
       - name: Attest DockerHub Image Provenance 📜
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
@@ -282,6 +382,7 @@ jobs:
             FLAG=${{ env.FLAG }}
             VERSION=${{ env.VERSION }}
             IMAGE=ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ env.VERSION }}
+          cache-from: type=gha,scope=release-${{ matrix.game }}
 
       - name: Attest GHCR Image Provenance 📜
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
@@ -290,40 +391,9 @@ jobs:
           subject-digest: ${{ steps.push_ghcr.outputs.digest }}
           push-to-registry: true
 
-      - name: Cleanup 🧹
-        if: always()
-        run: |
-          docker logs hlds || true
-          docker stop hlds || true
-          docker rm hlds || true
-          docker system prune --all --force
-
-  merge:
-    name: Merge beta into main 🔀
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: main
-          fetch-depth: "0"
-
-      # Every build leg already proved this exact merge builds, scans, and
-      # passes the live-server smoke tests - this is the only step that
-      # actually pushes it.
-      - name: Merge and push 🔀
-        run: |
-          git fetch origin beta
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            merge origin/beta --no-edit
-          git push origin main
-
   publish:
     name: Publish GitHub Release 🚀
-    needs: [version, merge]
+    needs: [version, release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
