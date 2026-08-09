@@ -6,6 +6,12 @@ on:
     branches-ignore:
       - main
       - beta
+  # beta itself is excluded above, so a beta->main promotion PR would
+  # otherwise never get these checks run against it. This targets only
+  # that case - normal feature-branch PRs already get checks via push.
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 jobs:
   build:

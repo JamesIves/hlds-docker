@@ -3,47 +3,64 @@ concurrency: ci-${{ github.ref }}
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "The version number to publish (e.g. v1.0.0)"
+      bump:
+        description: "Version component to bump"
         required: true
-        type: string
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
 jobs:
-  validate-inputs:
-    name: Validate Release Inputs 🔎
+  version:
+    name: Compute Release Version 🔢
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: "0"
 
       - name: Validate Dispatch Branch 🌿
         run: |
-          if [ "${{ github.ref_name }}" != "main" ]; then
-            echo "::error::Releases must be published from 'main' (got '${{ github.ref_name }}'). Re-run this workflow from the main branch."
+          if [ "${{ github.ref_name }}" != "beta" ]; then
+            echo "::error::Releases must be dispatched from 'beta' (got '${{ github.ref_name }}')."
             exit 1
           fi
 
-      - name: Validate Version Format 🔢
-        run: |
-          VERSION="${{ inputs.version }}"
-          if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::Version '$VERSION' is not a valid semantic version (expected format: vX.Y.Z)."
-            exit 1
-          fi
-
-      - name: Validate Version Is Not Already Released 🔍
+      - name: Compute Next Version 🔢
+        id: version
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh release view "${{ inputs.version }}" >/dev/null 2>&1; then
-            echo "::error::A release for '${{ inputs.version }}' already exists. Choose a new version or delete the existing release first."
+          LATEST=$(gh release view --json tagName --jq .tagName 2>/dev/null || echo "v0.0.0")
+          VERSION="${LATEST#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          case "${{ inputs.bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "Bumping $LATEST -> $NEW_VERSION (${{ inputs.bump }})"
+
+          if gh release view "$NEW_VERSION" >/dev/null 2>&1; then
+            echo "::error::A release for '$NEW_VERSION' already exists."
             exit 1
           fi
 
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build Docker Image 🐳
-    needs: validate-inputs
+    needs: version
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -68,11 +85,22 @@ jobs:
             tfc,
             tfc-legacy,
           ]
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: main
           fetch-depth: "0"
+
+      # Tests this leg builds below run against the actual merge result, not
+      # just main on its own - this is local to the runner and isn't pushed.
+      - name: Merge beta into main (local, not pushed) 🔀
+        run: |
+          git fetch origin beta
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            merge origin/beta --no-edit
 
       - name: Set up Docker Buildx  🛠️
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
@@ -132,7 +160,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/hlds
           tags: |
             type=raw,value=${{ matrix.game }}
-            type=raw,value=${{ matrix.game }}-${{ inputs.version }}
+            type=raw,value=${{ matrix.game }}-${{ env.VERSION }}
           labels: |
             org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }}
             org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
@@ -142,7 +170,7 @@ jobs:
             org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
-            org.opencontainers.image.version=${{ inputs.version }}
+            org.opencontainers.image.version=${{ env.VERSION }}
           annotations: |
             org.opencontainers.image.title=Half Life Dedicated Server for ${{ env.game_title }}
             org.opencontainers.image.description=🐋 📦 Half Life Dedicated Server for ${{ env.game_title }}. Supports all the classic GoldSrc Half-Life games and mods, including the ability to add custom configurations and plugins.
@@ -152,27 +180,26 @@ jobs:
             org.opencontainers.image.url=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.documentation=https://github.com/jamesives/hlds-docker
             org.opencontainers.image.source=https://github.com/jamesives/hlds-docker
-            org.opencontainers.image.version=${{ inputs.version }}
+            org.opencontainers.image.version=${{ env.VERSION }}
 
       - name: Build Docker Image 🐳
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ inputs.version }}
-          IMAGE: jives/hlds:${{ matrix.game }}-${{ inputs.version }}
+          IMAGE: jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
         with:
           context: ./container
           push: false
           load: true
           tags: |
             jives/hlds:${{ matrix.game }}
-            jives/hlds:${{ matrix.game }}-${{ inputs.version }}
+            jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ inputs.version }}
-            IMAGE=jives/hlds:${{ matrix.game }}-${{ inputs.version }}
+            VERSION=${{ env.VERSION }}
+            IMAGE=jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
 
       - name: Get Docker Image ID 🆔
         id: get_image_id
@@ -208,21 +235,20 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ inputs.version }}
-          IMAGE: jives/hlds:${{ matrix.game }}-${{ inputs.version }}
+          IMAGE: jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
         with:
           context: ./container
           push: true
           tags: |
             jives/hlds:${{ matrix.game }}
-            jives/hlds:${{ matrix.game }}-${{ inputs.version }}
+            jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ inputs.version }}
-            IMAGE=jives/hlds:${{ matrix.game }}-${{ inputs.version }}
+            VERSION=${{ env.VERSION }}
+            IMAGE=jives/hlds:${{ matrix.game }}-${{ env.VERSION }}
 
       - name: Attest DockerHub Image Provenance 📜
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
@@ -242,21 +268,20 @@ jobs:
         env:
           GAME: ${{ env.GAME }}
           FLAG: ${{ env.FLAG }}
-          VERSION: ${{ inputs.version }}
-          IMAGE: ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ inputs.version }}
+          IMAGE: ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ env.VERSION }}
         with:
           context: ./container
           push: true
           tags: |
             ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}
-            ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ inputs.version }}
+            ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ env.VERSION }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             GAME=${{ env.GAME }}
             FLAG=${{ env.FLAG }}
-            VERSION=${{ inputs.version }}
-            IMAGE=ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ inputs.version }}
+            VERSION=${{ env.VERSION }}
+            IMAGE=ghcr.io/${{ env.repo_owner }}/hlds:${{ matrix.game }}-${{ env.VERSION }}
 
       - name: Attest GHCR Image Provenance 📜
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
@@ -273,8 +298,8 @@ jobs:
           docker rm hlds || true
           docker system prune --all --force
 
-  publish:
-    name: Publish GitHub Release 🚀
+  merge:
+    name: Merge beta into main 🔀
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -283,9 +308,37 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: main
+          fetch-depth: "0"
+
+      # Every build leg already proved this exact merge builds, scans, and
+      # passes the live-server smoke tests - this is the only step that
+      # actually pushes it.
+      - name: Merge and push 🔀
+        run: |
+          git fetch origin beta
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            merge origin/beta --no-edit
+          git push origin main
+
+  publish:
+    name: Publish GitHub Release 🚀
+    needs: [version, merge]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
           fetch-depth: "0"
 
       - name: Create Release 🚀
-        run: gh release create "${{ inputs.version }}" --generate-notes --title "${{ inputs.version }}"
+        run: |
+          gh release create "${{ needs.version.outputs.version }}" \
+            --generate-notes \
+            --title "${{ needs.version.outputs.version }}" \
+            --target main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
