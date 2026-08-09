@@ -13,12 +13,11 @@ on:
           - major
         default: patch
 jobs:
-  promote:
-    name: Promote beta to main 🚀
+  version:
+    name: Compute Release Version 🔢
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -59,68 +58,9 @@ jobs:
 
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Promote beta to main 🚀
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          git fetch origin main beta
-
-          if git merge-base --is-ancestor origin/beta origin/main; then
-            echo "main is already up to date with beta - nothing to promote."
-            exit 0
-          fi
-
-          PREVIOUS=$(gh release view --json tagName --jq .tagName 2>/dev/null || echo "")
-          NOTES=$(gh api "repos/${{ github.repository }}/releases/generate-notes" \
-            -f tag_name="$VERSION" \
-            -f target_commitish=main \
-            -f previous_tag_name="$PREVIOUS" \
-            --jq .body)
-
-          PR_URL=$(gh pr list --base main --head beta --json url --jq '.[0].url')
-          if [ -z "$PR_URL" ]; then
-            PR_URL=$(gh pr create --base main --head beta \
-              --title "Release $VERSION: sync beta into main" \
-              --body "$NOTES")
-          fi
-          echo "Promotion PR: $PR_URL"
-
-          echo "Waiting for required checks..."
-          for _ in $(seq 1 40); do
-            VIEW=$(gh pr view "$PR_URL" --json mergeable,mergeStateStatus,statusCheckRollup)
-            MERGEABLE=$(echo "$VIEW" | jq -r '.mergeable')
-            MERGE_STATE=$(echo "$VIEW" | jq -r '.mergeStateStatus')
-
-            if [ "$MERGEABLE" = "CONFLICTING" ]; then
-              echo "::error::$PR_URL has merge conflicts and can't be promoted automatically. Resolve it manually."
-              exit 1
-            fi
-
-            FAILED=$(echo "$VIEW" | jq -r '[.statusCheckRollup[]? | select(((.conclusion // "") | ascii_downcase) as $c | $c == "failure" or $c == "cancelled" or $c == "timed_out")] | length')
-            if [ "$FAILED" -gt 0 ]; then
-              echo "::error::One or more checks failed on $PR_URL."
-              exit 1
-            fi
-
-            case "$MERGE_STATE" in
-              CLEAN|UNSTABLE|HAS_HOOKS)
-                echo "Checks passed, merging..."
-                gh pr merge "$PR_URL" --merge
-                exit 0
-                ;;
-            esac
-
-            echo "Still waiting (mergeStateStatus=$MERGE_STATE)..."
-            sleep 15
-          done
-
-          echo "::error::Timed out waiting for $PR_URL to become mergeable."
-          exit 1
-
   build:
     name: Build Docker Image 🐳
-    needs: promote
+    needs: version
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -146,13 +86,21 @@ jobs:
             tfc-legacy,
           ]
     env:
-      VERSION: ${{ needs.promote.outputs.version }}
+      VERSION: ${{ needs.version.outputs.version }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: main
           fetch-depth: "0"
+
+      # Tests this leg builds below run against the actual merge result, not
+      # just main on its own - this is local to the runner and isn't pushed.
+      - name: Merge beta into main (local, not pushed) 🔀
+        run: |
+          git fetch origin beta
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            merge origin/beta --no-edit
 
       - name: Set up Docker Buildx  🛠️
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
@@ -350,9 +298,32 @@ jobs:
           docker rm hlds || true
           docker system prune --all --force
 
+  merge:
+    name: Merge beta into main 🔀
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: "0"
+
+      # Every build leg already proved this exact merge builds, scans, and
+      # passes the live-server smoke tests - this is the only step that
+      # actually pushes it.
+      - name: Merge and push 🔀
+        run: |
+          git fetch origin beta
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            merge origin/beta --no-edit
+          git push origin main
+
   publish:
     name: Publish GitHub Release 🚀
-    needs: [promote, build]
+    needs: [version, merge]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -365,9 +336,9 @@ jobs:
 
       - name: Create Release 🚀
         run: |
-          gh release create "${{ needs.promote.outputs.version }}" \
+          gh release create "${{ needs.version.outputs.version }}" \
             --generate-notes \
-            --title "${{ needs.promote.outputs.version }}" \
+            --title "${{ needs.version.outputs.version }}" \
             --target main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
