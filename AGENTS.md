@@ -11,11 +11,11 @@ This repository provides a Dockerized solution for running the **Half-Life Dedic
 
 ## Technologies 🔧
 
-- **Docker** — Containerizes the HLDS server. The [`Dockerfile`](container/Dockerfile) lives in `container/` and supports build arguments (`GAME`, `FLAG`, `VERSION`, `IMAGE`).
-- **Docker Compose** — Two compose files: [`docker-compose.yml`](docker-compose.yml) (root, for end-users pulling pre-built images) and [`container/docker-compose.yml`](container/docker-compose.yml) (for building custom images locally).
-- **GitHub Actions** — CI/CD workflows in `.github/workflows/` for validation, beta publishing, production publishing, sponsor management, and PR labeling.
-- **Shell Scripting** — [`container/entrypoint.sh`](container/entrypoint.sh) handles runtime initialization (mod syncing, config syncing, server startup).
-- **SteamCMD** — Downloads HLDS game files during the Docker build via the [`container/hlds.txt`](container/hlds.txt) script.
+- **Docker**: Containerizes the HLDS server. The [`Dockerfile`](container/Dockerfile) lives in `container/` and supports build arguments (`GAME`, `FLAG`, `VERSION`, `IMAGE`).
+- **Docker Compose**: Two compose files: [`docker-compose.yml`](docker-compose.yml) (root, for end-users pulling pre-built images) and [`container/docker-compose.yml`](container/docker-compose.yml) (for building custom images locally).
+- **GitHub Actions**: CI/CD workflows in `.github/workflows/` for validation, beta publishing, production publishing, sponsor management, and PR labeling.
+- **Shell Scripting**: [`container/entrypoint.sh`](container/entrypoint.sh) handles runtime initialization (mod syncing, config syncing, server startup).
+- **SteamCMD**: Downloads HLDS game files during the Docker build via the [`container/hlds.txt`](container/hlds.txt) script.
 
 ## Project Structure 📂
 
@@ -108,31 +108,31 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 ## CI/CD Workflows 🔄
 
-### [`validate.yml`](.github/workflows/validate.yml) — Validation
+### [`validate.yml`](.github/workflows/validate.yml): Validation
 
 - **Trigger**: Push to any branch except `main` and `beta`, or manual dispatch.
 - **Matrix**: All 12 game variants (8 games + 4 legacy).
 - **Steps**: Build image → create test config/mod files → run container → validate directory mappings and game data → cleanup.
 
-### [`beta.yml`](.github/workflows/beta.yml) — Beta Publishing
+### [`beta.yml`](.github/workflows/beta.yml): Beta Publishing
 
 - **Trigger**: Push to `beta` branch.
 - **Matrix**: All 12 game variants.
 - **Steps**: Build → validate → push to Docker Hub (`jives/hlds:<game>-beta`) and GHCR (`ghcr.io/jamesives/hlds:<game>-beta`).
 
-### [`publish.yml`](.github/workflows/publish.yml) — Production Publishing
+### [`publish.yml`](.github/workflows/publish.yml): Production Publishing
 
 - **Trigger**: Manual dispatch (`workflow_dispatch`) with a required `version` input.
 - **Jobs**:
-  1. `build` — For each game variant: build → validate → push to Docker Hub and GHCR with both `<game>` and `<game>-<version>` tags.
-  2. `publish` — Creates the GitHub Release and associated version tag from the supplied `version` input.
+  1. `build`: For each game variant: build → validate → push to Docker Hub and GHCR with both `<game>` and `<game>-<version>` tags.
+  2. `publish`: Creates the GitHub Release and associated version tag from the supplied `version` input.
 
-### [`sponsors.yml`](.github/workflows/sponsors.yml) — Sponsor Management
+### [`sponsors.yml`](.github/workflows/sponsors.yml): Sponsor Management
 
 - **Trigger**: Daily cron + manual dispatch.
 - **Steps**: Generates sponsor avatars in [`README.md`](README.md), deploys to `beta` branch.
 
-### [`label.yml`](.github/workflows/label.yml) — PR Labeling
+### [`label.yml`](.github/workflows/label.yml): PR Labeling
 
 - **Trigger**: Pull request events.
 - **Steps**: Auto-assigns labels based on conventional commit prefixes in PR titles.
