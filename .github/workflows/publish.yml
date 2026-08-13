@@ -12,11 +12,64 @@ on:
           - minor
           - major
         default: patch
+  # Keeps published images from going stale between manual releases - GoldSrc
+  # game files rarely change, so weekly is enough. This path only rebuilds
+  # main's already-released code against the current Steam depot and cuts a
+  # patch release; it never touches the beta -> main promotion below, so a
+  # work-in-progress commit on beta can't get shipped by the timer.
+  schedule:
+    - cron: "0 6 * * 0"
 env:
   CANDIDATE_REF: release-candidate
 jobs:
+  check-for-updates:
+    name: Check Steam For Updates 🔍
+    # Manual dispatches are always an intentional decision to ship - only the
+    # weekly timer needs to ask "is there anything new to publish?" first.
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install SteamCMD 🎮
+        run: |
+          mkdir -p /tmp/steamcmd
+          curl -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - -C /tmp/steamcmd
+
+      # app_info_update forces a fresh fetch from Steam instead of using a
+      # local cache; app_info_print then dumps everything SteamCMD knows
+      # about app 90, including each branch's last-updated timestamp.
+      - name: Query Steam App Info 🔍
+        run: |
+          /tmp/steamcmd/steamcmd.sh \
+            +@ShutdownOnFailedCommand 0 \
+            +@NoPromptForPassword 1 \
+            +login anonymous \
+            +app_info_update 1 \
+            +app_info_print 90 \
+            +quit > /tmp/app_info.txt
+
+      - name: Compare Against Last Release 🔍
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/check_steam_updates.py /tmp/app_info.txt
+
   version:
     name: Compute Release Version 🔢
+    needs: check-for-updates
+    # check-for-updates is skipped (not failed) on a manual dispatch, and a
+    # skipped need would skip this job too by default - override that. A
+    # manual dispatch always proceeds; a scheduled run only proceeds if Steam
+    # actually has something new.
+    if: |
+      always() &&
+      (github.event_name == 'workflow_dispatch' || needs.check-for-updates.outputs.changed == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,7 +81,11 @@ jobs:
         with:
           fetch-depth: "0"
 
+      # Only applies to manual dispatches - a scheduled run doesn't go through
+      # the beta -> main promotion at all, so there's no "wrong branch" to
+      # guard against.
       - name: Validate Dispatch Branch 🌿
+        if: github.event_name == 'workflow_dispatch'
         run: |
           if [ "${{ github.ref_name }}" != "beta" ]; then
             echo "::error::Releases must be dispatched from 'beta' (got '${{ github.ref_name }}')."
@@ -44,14 +101,19 @@ jobs:
           VERSION="${LATEST#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
 
-          case "${{ inputs.bump }}" in
+          # workflow_dispatch supplies inputs.bump; scheduled runs have no
+          # inputs context, so default to a patch bump for those.
+          BUMP="${{ inputs.bump }}"
+          BUMP="${BUMP:-patch}"
+
+          case "$BUMP" in
             major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
             minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
             patch) PATCH=$((PATCH + 1)) ;;
           esac
 
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-          echo "Bumping $LATEST -> $NEW_VERSION (${{ inputs.bump }})"
+          echo "Bumping $LATEST -> $NEW_VERSION ($BUMP)"
 
           if gh release view "$NEW_VERSION" >/dev/null 2>&1; then
             echo "::error::A release for '$NEW_VERSION' already exists."
@@ -63,6 +125,9 @@ jobs:
   prepare:
     name: Prepare Release Candidate 🔀
     needs: version
+    # Scheduled runs only refresh game files against main's current code -
+    # they never promote new commits from beta, so there's nothing to merge.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -88,7 +153,14 @@ jobs:
 
   test:
     name: Test Candidate 🧪
-    needs: prepare
+    needs: [version, prepare]
+    # prepare is skipped (not failed) on a scheduled run, and a skipped need
+    # would skip this job too by default - override that, but still require
+    # version to have succeeded, and prepare to have succeeded on the manual
+    # path.
+    if: |
+      always() && needs.version.result == 'success' &&
+      (github.event_name == 'schedule' || needs.prepare.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -111,10 +183,12 @@ jobs:
             tfc-legacy,
           ]
     steps:
+      # Scheduled runs test main's current code as-is; manual dispatches test
+      # the merged-but-not-yet-promoted candidate from the prepare job.
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ env.CANDIDATE_REF }}
+          ref: ${{ github.event_name == 'schedule' && 'main' || env.CANDIDATE_REF }}
 
       - name: Set up Docker Buildx 🛠️
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
@@ -191,6 +265,9 @@ jobs:
   merge:
     name: Merge Candidate into main 🔀
     needs: test
+    # No candidate ref exists on the scheduled path (prepare didn't run), and
+    # there's nothing to promote - main's code hasn't changed.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -216,7 +293,13 @@ jobs:
 
   release:
     name: Build and Publish Image 🐳
-    needs: [version, merge]
+    needs: [version, merge, test]
+    # merge is skipped (not failed) on a scheduled run - override the default
+    # skip-propagation, but still require version and test to have succeeded,
+    # and merge to have succeeded on the manual path.
+    if: |
+      always() && needs.version.result == 'success' && needs.test.result == 'success' &&
+      (github.event_name == 'schedule' || needs.merge.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -408,9 +491,16 @@ jobs:
 
       - name: Create Release 🚀
         run: |
-          gh release create "${{ needs.version.outputs.version }}" \
-            --generate-notes \
-            --title "${{ needs.version.outputs.version }}" \
-            --target main
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            gh release create "${{ needs.version.outputs.version }}" \
+              --notes "Automated weekly release to keep published game files current with Steam. No code changes." \
+              --title "${{ needs.version.outputs.version }}" \
+              --target main
+          else
+            gh release create "${{ needs.version.outputs.version }}" \
+              --generate-notes \
+              --title "${{ needs.version.outputs.version }}" \
+              --target main
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
