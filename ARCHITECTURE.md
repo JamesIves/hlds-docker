@@ -49,10 +49,11 @@ flowchart TD
     G --> H["app_set_config 90 mod $GAME"]
     H --> I["app_update 90 $FLAG validate<br>(runs 3x for reliability)"]
     I --> J[Patch steam_appid.txt = 70]
-    J --> K[Copy entrypoint.sh]
+    J --> K[Copy entrypoint.sh<br>and healthcheck.sh]
     K --> L[Copy Default Configs<br>into $GAME directory]
     L --> M[Copy Mods into<br>HLDS root]
-    M --> N[Set Entrypoint]
+    M --> HC[Set HEALTHCHECK]
+    HC --> N[Set Entrypoint]
 
     style A fill:#2d5aa0,color:#fff
     style N fill:#2d8a4e,color:#fff
@@ -60,14 +61,18 @@ flowchart TD
 
 ## Container Runtime Flow ▶️
 
-When the container starts, `entrypoint.sh` runs before the HLDS server binary. It first checks whether a `+map` argument was provided (warning the user if not, as the server won't be joinable without one). It then syncs any user-provided mods and config files from their temporary volume mount locations into the correct HLDS directories using `rsync`. Finally, it prints a branded startup banner and launches `hlds_run`.
+When the container starts, `entrypoint.sh` runs before the HLDS server binary. It first checks whether a `+map` argument was provided (warning the user if not, as the server won't be joinable without one). If `AUTO_UPDATE` is set, it re-runs SteamCMD against the persisted install directory to pick up any Valve patches before proceeding. It then syncs any user-provided mods and config files from their temporary volume mount locations into the correct HLDS directories using `rsync` - after the update, so user files still win if it restores a default. Finally, it prints a branded startup banner and launches `hlds_run`. Independently of this flow, Docker periodically runs `healthcheck.sh` against the live server - see the Health Check Flow section below.
 
 ```mermaid
 flowchart TD
     START([Container Starts]) --> CHECK{"+map" in args?}
     CHECK -->|No| WARN[Print Warning:<br>Server may not be joinable]
-    CHECK -->|Yes| MODS
-    WARN --> MODS
+    CHECK -->|Yes| UPDATE
+    WARN --> UPDATE
+
+    UPDATE{"AUTO_UPDATE<br>set?"} -->|Yes| STEAMCMD["Re-run SteamCMD<br>app_update against<br>/opt/steam/hlds"]
+    UPDATE -->|No| MODS
+    STEAMCMD --> MODS
 
     MODS{"/temp/mods<br>exists?"} -->|Yes| SYNC_MODS["rsync /temp/mods/*<br>→ /opt/steam/hlds/"]
     MODS -->|No| CFG
@@ -84,6 +89,30 @@ flowchart TD
     style START fill:#2d5aa0,color:#fff
     style LAUNCH fill:#2d8a4e,color:#fff
     style WARN fill:#c9a227,color:#000
+```
+
+## Health Check Flow 🩺
+
+Independently of `entrypoint.sh`, the Docker daemon runs `healthcheck.sh` on a fixed schedule (every 30s, 5s timeout, 60s start period, 3 retries) for as long as the container is running. The script sends a raw `A2S_INFO` query over UDP to `127.0.0.1:$PORT` (default `27015`) using bash's built-in `/dev/udp` - no extra dependencies - and succeeds only if the response starts with the expected `0xFFFFFFFF` header.
+
+```mermaid
+sequenceDiagram
+    participant Docker as Docker Daemon
+    participant HC as healthcheck.sh
+    participant HLDS as hlds_run
+
+    loop Every 30s
+        Docker->>HC: exec ./healthcheck.sh
+        HC->>HLDS: A2S_INFO query (UDP 127.0.0.1:$PORT)
+        alt Server responds
+            HLDS-->>HC: 0xFFFFFFFF + info payload
+            HC-->>Docker: exit 0 (healthy)
+        else No response within 3s
+            HC-->>Docker: exit 1 (unhealthy)
+        end
+    end
+
+    Note over Docker,HLDS: 3 consecutive failures after the<br>60s start period marks the container unhealthy
 ```
 
 ## Volume Mapping Architecture 💾
@@ -138,7 +167,7 @@ Host: ./mods/                      Container: /opt/steam/hlds/
 
 ## CI/CD Pipeline 🔄
 
-The project uses a three-branch workflow. Feature branches trigger validation only. The `beta` branch triggers beta image publishing for testing. Production releases are triggered manually via `workflow_dispatch` on `publish.yml`, which bumps the version, builds and validates all 12 game variants, pushes to both registries, and creates a GitHub Release.
+The project uses a three-branch workflow. Feature branches trigger validation only. The `beta` branch triggers beta image publishing for testing. Production releases happen two ways on `publish.yml`: manually via `workflow_dispatch`, which merges `beta` into `main`, bumps the version, builds and validates all 12 game variants, pushes to both registries, and creates a GitHub Release; or automatically on a weekly `schedule`, which skips the `beta` merge entirely and just rebuilds `main`'s already-released code against the current Steam depot, so published images don't go stale between manual releases without ever auto-promoting unreviewed code.
 
 ### Branch Strategy
 
@@ -158,7 +187,7 @@ gitGraph
 
 ### Workflow Triggers
 
-Each workflow is triggered by a specific event. Feature branch pushes run validation, beta branch pushes build and publish beta images, production releases are manually dispatched, pull requests get auto-labeled, and sponsor data is refreshed on a daily cron schedule.
+Each workflow is triggered by a specific event. Feature branch pushes run validation, beta branch pushes build and publish beta images, production releases are dispatched manually or fire weekly on a cron schedule, pull requests get auto-labeled, and sponsor data is refreshed on a daily cron schedule.
 
 ```mermaid
 flowchart TD
@@ -166,6 +195,7 @@ flowchart TD
         PUSH_FEAT["Push to feature branch"]
         PUSH_BETA["Push to beta"]
         DISPATCH["Manual Dispatch"]
+        WEEKLY["Weekly Cron"]
         PR["Pull Request"]
         CRON["Daily Cron"]
     end
@@ -181,6 +211,7 @@ flowchart TD
     PUSH_FEAT --> VAL
     PUSH_BETA --> BETA_WF
     DISPATCH --> PUB
+    WEEKLY --> PUB
     PR --> LABEL
     CRON --> SPONSOR
 
@@ -193,31 +224,41 @@ flowchart TD
 
 ### Production Publish Pipeline Detail
 
-The production publish workflow is the most complex pipeline. It is triggered manually via `workflow_dispatch` with a required `version` input, and runs a build matrix for all 12 game variants. For each variant, it strips the `-legacy` suffix from the game name (if present) and sets the appropriate SteamCMD beta flag. After building, it runs the container with test configurations to validate that volume mappings and game data are correct before pushing to both Docker Hub and GitHub Container Registry. Once all builds pass, the publish job creates the GitHub Release and version tag from the supplied `version` input.
+The production publish workflow can start two ways: manually via `workflow_dispatch` with a `bump` choice (patch/minor/major), or automatically every week via `schedule`. The scheduled path runs one extra gate first: it queries Steam's `app_info` for HLDS's `public` and `steam_legacy` branch update timestamps and compares them against the last release's publish time, stopping immediately (no version bump, no build, no new tags) if nothing changed - GoldSrc games are rarely patched, so most weekly ticks are expected to stop here rather than publish 12 near-duplicate tags for nothing. A manual dispatch always skips this check and proceeds, since a human explicitly asking for a release is reason enough. Both paths that do proceed compute the next version and run the same 12-variant test matrix (build, Trivy scan, and the shared smoke test action) before anything is pushed. The manual path first merges `beta` into a scratch `release-candidate` ref and, once tests pass, fast-forwards `main` to it - promoting new code. The scheduled path skips that merge entirely: it tests and rebuilds `main`'s already-released code as-is, so a fresh SteamCMD download against the current Steam depot is the only thing that changes. Once tests pass, both paths build and push all 12 variants to Docker Hub and GHCR, attest provenance, and create a GitHub Release.
 
 ```mermaid
 flowchart TD
-    A[Manual Dispatch<br>with version input] --> D[Build Job - Matrix x12]
+    A[Manual Dispatch<br>bump: patch/minor/major] --> V[Compute Next Version]
+    B[Weekly Schedule] --> CHECK{Steam depot changed<br>since last release?}
+    CHECK -->|No| STOP[Stop -<br>nothing to publish]
+    CHECK -->|Yes| V
 
-    D --> E[Login to Docker Hub + GHCR]
-    E --> F[Set GAME env var<br>Strip -legacy suffix]
-    F --> G{Legacy variant?}
-    G -->|Yes| H["Set FLAG=-beta steam_legacy"]
-    G -->|No| I[FLAG empty]
-    H --> J
-    I --> J[Build Image Locally]
-    J --> K[Run Container with Test Config]
-    K --> L{Validate Directory<br>Mappings}
-    L -->|Pass| M[Push to Docker Hub<br>jives/hlds:game<br>jives/hlds:game-version]
-    L -->|Fail| X[❌ Build Fails]
-    M --> N[Push to GHCR<br>ghcr.io/jamesives/hlds:game<br>ghcr.io/jamesives/hlds:game-version]
+    V --> BRANCH{Triggered by?}
+    BRANCH -->|Manual| PREP["Merge beta into<br>release-candidate ref"]
+    BRANCH -->|Schedule| SKIP1["Skip merge -<br>main unchanged"]
 
-    N --> O[Publish Job]
-    O --> Q[Create GitHub Release<br>from version input]
+    PREP --> TEST
+    SKIP1 --> TEST
+
+    TEST["Test Job - Matrix x12<br>Build · Trivy Scan · Smoke Test"]
+
+    TEST --> BRANCH2{Triggered by?}
+    BRANCH2 -->|Manual| MERGE["Fast-forward main<br>to tested candidate"]
+    BRANCH2 -->|Schedule| SKIP2["Skip merge -<br>main already correct"]
+
+    MERGE --> RELEASE
+    SKIP2 --> RELEASE
+
+    RELEASE["Release Job - Matrix x12<br>Fresh SteamCMD download<br>Push to Docker Hub + GHCR<br>Attest Provenance"]
+
+    RELEASE --> PUBLISH[Publish Job<br>Create GitHub Release + Tag]
 
     style A fill:#2d5aa0,color:#fff
-    style Q fill:#2d8a4e,color:#fff
-    style X fill:#cc3333,color:#fff
+    style B fill:#2d5aa0,color:#fff
+    style PUBLISH fill:#2d8a4e,color:#fff
+    style SKIP1 fill:#c9a227,color:#000
+    style SKIP2 fill:#c9a227,color:#000
+    style STOP fill:#c9a227,color:#000
 ```
 
 ## Validation Test Matrix ✅
