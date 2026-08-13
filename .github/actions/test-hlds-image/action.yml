@@ -86,9 +86,7 @@ runs:
           sleep 2
         done
 
-    # This action always boots with +rcon_password changeme (see Run Docker
-    # Container above), so the warning should always fire - this is the
-    # trigger condition every single test run already exercises.
+    # This action always boots with +rcon_password changeme, so the warning should always fire.
     - name: Validate rcon_password Warning Is Printed 🔑
       shell: bash
       run: |

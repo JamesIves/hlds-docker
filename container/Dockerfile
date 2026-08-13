@@ -86,9 +86,7 @@ COPY --chown=steam:steam mods .
 # Sets the entrypoint and healthcheck scripts as executable.
 RUN chmod +x ./entrypoint.sh ./healthcheck.sh
 
-# Polls the server with a real A2S_INFO query so Docker (and orchestrators
-# reading the container health status) can tell a hung/crashed hlds_run apart
-# from one that's just still loading the map.
+# Polls with a real A2S_INFO query so a hung/crashed server is distinguishable from a healthy one.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
     CMD ["./healthcheck.sh"]
 

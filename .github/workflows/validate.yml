@@ -122,9 +122,7 @@ jobs:
           docker inspect hlds-invalid-game --format='Status: {{.State.Status}}, ExitCode: {{.State.ExitCode}}'
           docker logs hlds-invalid-game || true
 
-      # Only needs to run once, not once per matrix leg. Covers the other
-      # half of the rcon_password warning: the shared test action always
-      # triggers it (changeme), this confirms a real password suppresses it.
+      # Only needs to run once. Covers the other half - a real password suppresses the warning.
       - name: Validate rcon_password Warning Is Not Printed For A Real Password 🔑
         if: matrix.game == 'valve'
         run: |
@@ -149,11 +147,7 @@ jobs:
           fi
           echo "rcon_password warning correctly suppressed for a real password."
 
-      # Only needs to run once, not once per matrix leg. Real network call to
-      # Steam (app_update validate against files already baked into the
-      # image, so no fresh download - just checksum validation), confirming
-      # AUTO_UPDATE actually runs and the server still starts normally
-      # afterward, not just that entrypoint.sh's conditional doesn't crash.
+      # Only needs to run once. Real Steam call, confirming AUTO_UPDATE runs and the server still starts.
       - name: Validate AUTO_UPDATE Runs And The Server Still Starts 🔄
         if: matrix.game == 'valve'
         run: |
@@ -183,16 +177,12 @@ jobs:
           python3 .github/actions/test-hlds-image/check_a2s_info.py --port 27019 --timeout 30
           echo "Server responded normally after an AUTO_UPDATE pass."
 
-      # Only needs to run once, not once per matrix leg - and doesn't touch
-      # Docker at all, so it can run independently of the rest of this job.
+      # Only needs to run once - doesn't touch Docker at all.
       - name: Test Steam Update Checker Parser (Fixture) 🧪
         if: matrix.game == 'valve'
         run: python3 .github/scripts/check_steam_updates_test.py
 
-      # Same script, but against a live steamcmd dump instead of the bundled
-      # fixture - the fixture only proves our parser handles the VDF shape
-      # we *think* Steam returns; this proves it still matches what Steam
-      # actually returns today.
+      # Live steamcmd dump instead of the fixture - proves it matches what Steam actually returns.
       - name: Smoke Test Steam Update Checker (Live) 🧪
         if: matrix.game == 'valve'
         run: |

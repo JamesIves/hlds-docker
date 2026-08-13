@@ -1,16 +1,5 @@
 #!/usr/bin/env python3
-"""Asserts that check_steam_updates.py's parser can extract both relevant
-branches with valid timestamps from an app_info_print dump.
-
-Run with no arguments to regression-test the parser against a bundled,
-offline fixture. Run with a path to a freshly-fetched `steamcmd ...
-+app_info_print 90` dump to smoke test against real, live Steam output -
-see validate.yml, which does this once per run.
-
-Unlike check_steam_updates.py's own main(), this does NOT fail safe: a
-parse problem here should fail loudly so CI catches it, rather than
-silently falling back to "publish anyway" the way the production path does.
-"""
+"""Asserts the parser extracts valid branch timestamps; fails loudly (unlike production's fail-safe) so CI catches regressions."""
 
 import sys
 from pathlib import Path

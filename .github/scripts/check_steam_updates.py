@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Decides whether the scheduled release has anything new to publish.
-
-Compares Steam's last-updated timestamp for HLDS (app 90)'s relevant
-branches against the last GitHub release's publish time. Writes
-changed=true/false to $GITHUB_OUTPUT so the workflow can skip an entire
-rebuild-and-republish cycle when nothing changed upstream.
-"""
+"""Decides whether the scheduled release has anything new to publish; writes changed=true/false to $GITHUB_OUTPUT."""
 
 import os
 import re
@@ -14,8 +8,7 @@ import sys
 from datetime import datetime, timezone
 
 APP_ID = "90"
-# "public" backs the modern (non -legacy) images, "steam_legacy" backs the
-# *-legacy images pinned to the pre-25th-anniversary build.
+# "public" backs modern images, "steam_legacy" backs *-legacy images pinned to the pre-25th build.
 RELEVANT_BRANCHES = ["public", "steam_legacy"]
 
 TOKEN_RE = re.compile(r'"((?:[^"\\]|\\.)*)"|(\{)|(\})')
@@ -26,9 +19,7 @@ def tokenize(text: str) -> list:
 
 
 def parse_kv(tokens: list, pos: int = 0) -> tuple:
-    """Minimal recursive-descent parser for Valve's KeyValues (VDF) text
-    format - just enough to walk the nested "key" { ... } blocks that
-    app_info_print emits, without pulling in a third-party dependency."""
+    """Minimal recursive-descent VDF parser - just enough to walk app_info_print's nested blocks."""
     result = {}
     while pos < len(tokens):
         key, open_brace, close_brace = tokens[pos]
@@ -51,8 +42,7 @@ def branch_timestamps(app_info_path: str) -> dict:
     with open(app_info_path) as f:
         text = f.read()
 
-    # app_info_print's output has SteamCMD log lines before the VDF block -
-    # the block itself starts at the appid key.
+    # SteamCMD prints log lines before the VDF block - it starts at the appid key.
     start = text.find(f'"{APP_ID}"')
     if start == -1:
         raise ValueError("could not find app info block in SteamCMD output")
