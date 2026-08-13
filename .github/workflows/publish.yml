@@ -36,7 +36,11 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      # continue-on-error here too: a failure downloading SteamCMD itself
+      # must not stop this job before check_steam_updates.py's fail-safe
+      # gets a chance to run (see the note on the next step).
       - name: Install SteamCMD 🎮
+        continue-on-error: true
         run: |
           mkdir -p /tmp/steamcmd
           curl -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - -C /tmp/steamcmd
@@ -44,6 +48,11 @@ jobs:
       # app_info_update forces a fresh fetch from Steam instead of using a
       # local cache; app_info_print then dumps everything SteamCMD knows
       # about app 90, including each branch's last-updated timestamp.
+      # The || true matters: if this fails outright (Steam's flaky, anonymous
+      # login gets rate-limited, whatever), the next step must still run so
+      # check_steam_updates.py's own fail-safe (publish rather than silently
+      # skip) actually gets a chance to kick in, instead of the job just
+      # dying here with no output set at all.
       - name: Query Steam App Info 🔍
         run: |
           /tmp/steamcmd/steamcmd.sh \
@@ -52,7 +61,7 @@ jobs:
             +login anonymous \
             +app_info_update 1 \
             +app_info_print 90 \
-            +quit > /tmp/app_info.txt
+            +quit > /tmp/app_info.txt || true
 
       - name: Compare Against Last Release 🔍
         id: check
