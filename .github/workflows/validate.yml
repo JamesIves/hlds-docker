@@ -110,9 +110,42 @@ jobs:
           python3 .github/actions/test-hlds-image/check_a2s_info.py \
             --port 27016 --timeout 20 --expect-no-response
 
+          echo "Confirming healthcheck.sh agrees the server is unhealthy..."
+          if docker exec hlds-invalid-game ./healthcheck.sh; then
+            echo "healthcheck.sh reported healthy for a server that never started!"
+            exit 1
+          fi
+          echo "healthcheck.sh correctly reported the server as unhealthy."
+
           echo "--- Container status/logs for the invalid GAME run ---"
           docker inspect hlds-invalid-game --format='Status: {{.State.Status}}, ExitCode: {{.State.ExitCode}}'
           docker logs hlds-invalid-game || true
+
+      # Only needs to run once, not once per matrix leg - and doesn't touch
+      # Docker at all, so it can run independently of the rest of this job.
+      - name: Test Steam Update Checker Parser (Fixture) 🧪
+        if: matrix.game == 'valve'
+        run: python3 .github/scripts/check_steam_updates_test.py
+
+      # Same script, but against a live steamcmd dump instead of the bundled
+      # fixture - the fixture only proves our parser handles the VDF shape
+      # we *think* Steam returns; this proves it still matches what Steam
+      # actually returns today.
+      - name: Smoke Test Steam Update Checker (Live) 🧪
+        if: matrix.game == 'valve'
+        run: |
+          mkdir -p /tmp/steamcmd
+          curl -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - -C /tmp/steamcmd
+
+          /tmp/steamcmd/steamcmd.sh \
+            +@ShutdownOnFailedCommand 0 \
+            +@NoPromptForPassword 1 \
+            +login anonymous \
+            +app_info_update 1 \
+            +app_info_print 90 \
+            +quit > /tmp/live_app_info.txt
+
+          python3 .github/scripts/check_steam_updates_test.py /tmp/live_app_info.txt
 
       - name: Cleanup 🧹
         if: always()
