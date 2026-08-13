@@ -86,6 +86,19 @@ runs:
           sleep 2
         done
 
+    # This action always boots with +rcon_password changeme (see Run Docker
+    # Container above), so the warning should always fire - this is the
+    # trigger condition every single test run already exercises.
+    - name: Validate rcon_password Warning Is Printed 🔑
+      shell: bash
+      run: |
+        if ! docker logs "${{ inputs.container-name }}" 2>&1 | grep -q "rcon_password is still set to the example default"; then
+          echo "Expected rcon_password warning was not printed for the default 'changeme' password!"
+          docker logs "${{ inputs.container-name }}" || true
+          exit 1
+        fi
+        echo "rcon_password warning correctly printed for the default password."
+
     - name: Validate Directory Mappings 📂
       shell: bash
       run: |

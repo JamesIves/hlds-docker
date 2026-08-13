@@ -122,6 +122,33 @@ jobs:
           docker inspect hlds-invalid-game --format='Status: {{.State.Status}}, ExitCode: {{.State.ExitCode}}'
           docker logs hlds-invalid-game || true
 
+      # Only needs to run once, not once per matrix leg. Covers the other
+      # half of the rcon_password warning: the shared test action always
+      # triggers it (changeme), this confirms a real password suppresses it.
+      - name: Validate rcon_password Warning Is Not Printed For A Real Password 🔑
+        if: matrix.game == 'valve'
+        run: |
+          docker run -d -ti \
+            --name hlds-custom-rcon \
+            -p 27018:27015/udp \
+            ${{ env.image_id }} \
+            "+log on +rcon_password a-real-secret-password +maxplayers 12 +map bounce"
+
+          echo "Waiting for the container entrypoint to finish its startup checks..."
+          for i in $(seq 1 15); do
+            if docker logs hlds-custom-rcon 2>&1 | grep -q "Starting Half-Life Dedicated Server"; then
+              break
+            fi
+            sleep 1
+          done
+
+          if docker logs hlds-custom-rcon 2>&1 | grep -q "rcon_password is still set to the example default"; then
+            echo "rcon_password warning printed even though a real password was set!"
+            docker logs hlds-custom-rcon || true
+            exit 1
+          fi
+          echo "rcon_password warning correctly suppressed for a real password."
+
       # Only needs to run once, not once per matrix leg - and doesn't touch
       # Docker at all, so it can run independently of the rest of this job.
       - name: Test Steam Update Checker Parser (Fixture) 🧪
@@ -156,4 +183,6 @@ jobs:
           docker rm hlds-${{ matrix.game }} || true
           docker stop hlds-invalid-game || true
           docker rm hlds-invalid-game || true
+          docker stop hlds-custom-rcon || true
+          docker rm hlds-custom-rcon || true
           docker system prune --all --force
