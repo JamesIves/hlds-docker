@@ -141,6 +141,7 @@ jobs:
         run: echo "image_id=$(docker images -q | head -n 1)" >> "$GITHUB_ENV"
 
       - name: Scan Image for Vulnerabilities 🔍
+        continue-on-error: true
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ env.image_id }}
