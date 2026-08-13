@@ -12,11 +12,7 @@ on:
           - minor
           - major
         default: patch
-  # Keeps published images from going stale between manual releases - GoldSrc
-  # game files rarely change, so weekly is enough. This path only rebuilds
-  # main's already-released code against the current Steam depot and cuts a
-  # patch release; it never touches the beta -> main promotion below, so a
-  # work-in-progress commit on beta can't get shipped by the timer.
+  # Rebuilds main against the current Steam depot weekly - never touches the beta -> main promotion.
   schedule:
     - cron: "0 6 * * 0"
 env:
@@ -24,8 +20,7 @@ env:
 jobs:
   check-for-updates:
     name: Check Steam For Updates 🔍
-    # Manual dispatches are always an intentional decision to ship - only the
-    # weekly timer needs to ask "is there anything new to publish?" first.
+    # Manual dispatch is always intentional; only the weekly timer needs to check first.
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
@@ -36,23 +31,14 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      # continue-on-error here too: a failure downloading SteamCMD itself
-      # must not stop this job before check_steam_updates.py's fail-safe
-      # gets a chance to run (see the note on the next step).
+      # continue-on-error so a download failure still lets the fail-safe below run.
       - name: Install SteamCMD 🎮
         continue-on-error: true
         run: |
           mkdir -p /tmp/steamcmd
           curl -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - -C /tmp/steamcmd
 
-      # app_info_update forces a fresh fetch from Steam instead of using a
-      # local cache; app_info_print then dumps everything SteamCMD knows
-      # about app 90, including each branch's last-updated timestamp.
-      # The || true matters: if this fails outright (Steam's flaky, anonymous
-      # login gets rate-limited, whatever), the next step must still run so
-      # check_steam_updates.py's own fail-safe (publish rather than silently
-      # skip) actually gets a chance to kick in, instead of the job just
-      # dying here with no output set at all.
+      # || true: same fail-safe reasoning as the step above.
       - name: Query Steam App Info 🔍
         run: |
           /tmp/steamcmd/steamcmd.sh \
@@ -72,10 +58,7 @@ jobs:
   version:
     name: Compute Release Version 🔢
     needs: check-for-updates
-    # check-for-updates is skipped (not failed) on a manual dispatch, and a
-    # skipped need would skip this job too by default - override that. A
-    # manual dispatch always proceeds; a scheduled run only proceeds if Steam
-    # actually has something new.
+    # always() overrides default skip-propagation from check-for-updates being skipped on dispatch.
     if: |
       always() &&
       (github.event_name == 'workflow_dispatch' || needs.check-for-updates.outputs.changed == 'true')
@@ -90,9 +73,7 @@ jobs:
         with:
           fetch-depth: "0"
 
-      # Only applies to manual dispatches - a scheduled run doesn't go through
-      # the beta -> main promotion at all, so there's no "wrong branch" to
-      # guard against.
+      # Scheduled runs never touch the beta -> main promotion, so there's no branch to guard here.
       - name: Validate Dispatch Branch 🌿
         if: github.event_name == 'workflow_dispatch'
         run: |
@@ -110,8 +91,7 @@ jobs:
           VERSION="${LATEST#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
 
-          # workflow_dispatch supplies inputs.bump; scheduled runs have no
-          # inputs context, so default to a patch bump for those.
+          # Scheduled runs have no inputs context, so default to patch.
           BUMP="${{ inputs.bump }}"
           BUMP="${BUMP:-patch}"
 
@@ -134,8 +114,7 @@ jobs:
   prepare:
     name: Prepare Release Candidate 🔀
     needs: version
-    # Scheduled runs only refresh game files against main's current code -
-    # they never promote new commits from beta, so there's nothing to merge.
+    # Scheduled runs never promote new commits from beta, so there's nothing to merge.
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
@@ -147,12 +126,7 @@ jobs:
           ref: main
           fetch-depth: "0"
 
-      # Merges beta into main exactly once, and pushes the result to a
-      # scratch ref instead of main itself. Every downstream job builds from
-      # this one commit, so a conflict fails once and clearly here instead of
-      # noisily across all 12 matrix legs, and nothing gets pushed to a
-      # registry or released until this exact commit has been proven to
-      # build and pass its smoke tests.
+      # Pushed to a scratch ref, not main directly, so nothing ships until this commit passes tests.
       - name: Merge beta into a release candidate 🔀
         run: |
           git fetch origin beta
@@ -163,10 +137,7 @@ jobs:
   test:
     name: Test Candidate 🧪
     needs: [version, prepare]
-    # prepare is skipped (not failed) on a scheduled run, and a skipped need
-    # would skip this job too by default - override that, but still require
-    # version to have succeeded, and prepare to have succeeded on the manual
-    # path.
+    # always() overrides default skip-propagation from prepare being skipped on schedule.
     if: |
       always() && needs.version.result == 'success' &&
       (github.event_name == 'schedule' || needs.prepare.result == 'success')
@@ -192,8 +163,7 @@ jobs:
             tfc-legacy,
           ]
     steps:
-      # Scheduled runs test main's current code as-is; manual dispatches test
-      # the merged-but-not-yet-promoted candidate from the prepare job.
+      # Schedule tests main as-is; dispatch tests the not-yet-promoted candidate from prepare.
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -275,8 +245,7 @@ jobs:
   merge:
     name: Merge Candidate into main 🔀
     needs: test
-    # No candidate ref exists on the scheduled path (prepare didn't run), and
-    # there's nothing to promote - main's code hasn't changed.
+    # No candidate ref on the scheduled path (prepare didn't run) - nothing to promote.
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
@@ -288,9 +257,7 @@ jobs:
           ref: main
           fetch-depth: "0"
 
-      # Fast-forward only: the candidate ref is already proven to build and
-      # pass every test, so this is guaranteed conflict-free and doesn't need
-      # to redo the merge - it's just moving the main ref forward.
+      # Fast-forward only - the candidate is already proven, so this is just moving main forward.
       - name: Fast-forward main to the tested candidate 🔀
         run: |
           git fetch origin "${{ env.CANDIDATE_REF }}"
@@ -304,9 +271,7 @@ jobs:
   release:
     name: Build and Publish Image 🐳
     needs: [version, merge, test]
-    # merge is skipped (not failed) on a scheduled run - override the default
-    # skip-propagation, but still require version and test to have succeeded,
-    # and merge to have succeeded on the manual path.
+    # always() overrides default skip-propagation from merge being skipped on schedule.
     if: |
       always() && needs.version.result == 'success' && needs.test.result == 'success' &&
       (github.event_name == 'schedule' || needs.merge.result == 'success')

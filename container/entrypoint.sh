@@ -8,17 +8,12 @@ if echo "$@" | grep -qv "+map"; then
   echo -e "\e[33mWarning: No +map specified in the command. Server will start but may not be joinable.\e[0m"
 fi
 
-# Every example in the docs/compose files uses "changeme" as a placeholder -
-# warn if it looks like it was never actually changed, since RCON grants
-# full remote admin control over the server.
+# Every doc/compose example uses "changeme" - warn if it was never changed.
 if echo "$@" | grep -Eqi '\+rcon_password[[:space:]]+"?changeme"?([[:space:]]|$)'; then
   echo -e "\e[33mWarning: rcon_password is still set to the example default 'changeme'. Anyone can use RCON to administer your server - change it to something private.\e[0m"
 fi
 
-# Opt-in: re-run SteamCMD against the persisted install dir before launch so
-# a container restart can pick up Valve patches without an image rebuild.
-# Runs before the mods/config sync below so user-provided files still win if
-# an update restores a default (e.g. motd.txt, mapcycle.txt).
+# Opt-in game file refresh - runs before the mods/config sync so user files still win.
 if [ "$AUTO_UPDATE" = "1" ] || [ "$AUTO_UPDATE" = "true" ]; then
   echo "AUTO_UPDATE is enabled, checking Steam for updated $GAME game files..."
   /opt/steam/steamcmd.sh \
