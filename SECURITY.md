@@ -6,7 +6,7 @@ This project only supports the legal usage of Steam and Valve's titles. It will 
 
 ## Vulnerability Scanning 🔍
 
-Every image is scanned with [Trivy](https://trivy.dev) before publishing, and builds fail on any CRITICAL or HIGH severity vulnerability with an available fix. Results are uploaded to this repository's [Security tab](https://github.com/JamesIves/hlds-docker/security/code-scanning).
+Every image is scanned before publishing, and builds fail on any CRITICAL or HIGH severity vulnerability with an available fix. Results are uploaded to this repository's [Security tab](https://github.com/JamesIves/hlds-docker/security/code-scanning).
 
 ## Reporting a Vulnerability 🔒
 
