@@ -37,6 +37,10 @@ RUN dpkg --add-architecture i386 && \
     apt-get install -y --no-install-recommends curl rsync file tini libc6:i386 lib32stdc++6 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
+# Removes the base image's bundled Pebble service manager - unused here since
+# tini is PID 1, and its Go stdlib gets flagged by vulnerability scans.
+RUN rm -f /usr/bin/pebble
+
 # Creates a new user and group for the SteamCMD installer.
 RUN groupadd -r steam && \
     useradd -r -g steam -m -d /opt/steam steam
