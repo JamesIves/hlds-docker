@@ -44,5 +44,5 @@ For a list of all the available server configuration types, [refer to the Valve 
 - [Getting Started and Usage](../README.md)
 - [Custom Mods](../mods/README.md)
 - [Building a Custom Image](../container/README.md)
-- [Maintenance](../MAINTENANCE.md)
+- [Server Maintenance](../MAINTENANCE.md)
 - [Contributing](../CONTRIBUTING.md)

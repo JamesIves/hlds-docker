@@ -65,4 +65,4 @@ To customise the server client further, please check out the following advanced 
 - [Server Configs and Plugins](config/README.md)
 - [Custom Mods](mods/README.md)
 - [Building a Custom Image](container/README.md)
-- [Maintenance](MAINTENANCE.md)
+- [Server Maintenance](MAINTENANCE.md)

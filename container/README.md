@@ -65,5 +65,5 @@ $ docker compose up
 - [Getting Started and Usage](../README.md)
 - [Server Configs and Plugins](../config/README.md)
 - [Custom Mods](../mods/README.md)
-- [Maintenance](../MAINTENANCE.md)
+- [Server Maintenance](../MAINTENANCE.md)
 - [Contributing](../CONTRIBUTING.md)

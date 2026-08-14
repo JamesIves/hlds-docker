@@ -190,6 +190,6 @@ Independently of the entrypoint, Docker polls [`healthcheck.sh`](container/healt
 - [Server Configs and Plugins](config/README.md)
 - [Custom Mods](mods/README.md)
 - [Building a Custom Image](container/README.md)
-- [Maintenance](MAINTENANCE.md)
+- [Server Maintenance](MAINTENANCE.md)
 - [Security Policy](SECURITY.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
