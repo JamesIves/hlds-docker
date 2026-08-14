@@ -9,8 +9,10 @@ if echo "$@" | grep -qv "+map"; then
 fi
 
 # Every doc/compose example uses "changeme" - warn if it was never changed.
+# Also drops a sentinel file: CI checks that instead of docker logs, which can lag under load.
 if echo "$@" | grep -Eqi '\+rcon_password[[:space:]]+"?changeme"?([[:space:]]|$)'; then
   printf '\033[33mWarning: rcon_password is still set to the example default '"'"'changeme'"'"'. Anyone can use RCON to administer your server - change it to something private.\033[0m\n'
+  touch /tmp/.rcon-default-password-warning-shown
 fi
 
 # Opt-in game file refresh - runs before the mods/config sync so user files still win.
@@ -24,6 +26,7 @@ if [ "$AUTO_UPDATE" = "1" ] || [ "$AUTO_UPDATE" = "true" ]; then
     +app_set_config 90 mod "$GAME" \
     +app_update 90 $FLAG validate \
     +quit
+  touch /tmp/.auto-update-ran
 fi
 
 # Push mods and config files from their temp directories to the server directories.

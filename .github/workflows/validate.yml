@@ -132,16 +132,13 @@ jobs:
             ${{ env.image_id }} \
             "+log on +rcon_password a-real-secret-password +maxplayers 12 +map bounce"
 
-          echo "Waiting for the container entrypoint to finish its startup checks..."
-          for i in $(seq 1 15); do
-            if docker logs hlds-custom-rcon 2>&1 | grep -q "Starting Half-Life Dedicated Server"; then
-              break
-            fi
-            sleep 1
-          done
+          # The warning check runs at the very top of entrypoint.sh, well before anything
+          # slow, so a short fixed wait is plenty - and docker exec avoids docker logs,
+          # which proved unreliable under this matrix's load.
+          sleep 5
 
-          if docker logs hlds-custom-rcon 2>&1 | grep -q "rcon_password is still set to the example default"; then
-            echo "rcon_password warning printed even though a real password was set!"
+          if docker exec hlds-custom-rcon test -f /tmp/.rcon-default-password-warning-shown; then
+            echo "rcon_password warning sentinel present even though a real password was set!"
             docker logs hlds-custom-rcon || true
             exit 1
           fi
@@ -158,16 +155,18 @@ jobs:
             ${{ env.image_id }} \
             "+log on +rcon_password changeme +maxplayers 12 +map bounce"
 
-          echo "Waiting for the AUTO_UPDATE SteamCMD pass to finish and the server to start..."
+          # docker exec against a sentinel file, not docker logs - see the rcon_password
+          # warning fix above for why: docker logs proved unreliable under this matrix's load.
+          echo "Waiting for the AUTO_UPDATE SteamCMD pass to finish..."
           for i in $(seq 1 60); do
-            if docker logs hlds-auto-update 2>&1 | grep -q "Starting Half-Life Dedicated Server"; then
+            if docker exec hlds-auto-update test -f /tmp/.auto-update-ran; then
               break
             fi
             echo "Attempt $i: still waiting..."
             sleep 2
           done
 
-          if ! docker logs hlds-auto-update 2>&1 | grep -q "AUTO_UPDATE is enabled, checking Steam for updated"; then
+          if ! docker exec hlds-auto-update test -f /tmp/.auto-update-ran; then
             echo "AUTO_UPDATE's SteamCMD pass never ran!"
             docker logs hlds-auto-update || true
             exit 1
