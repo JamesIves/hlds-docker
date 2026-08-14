@@ -147,6 +147,7 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 ## Coding Conventions 📏
 
+- Code comments must use British English spelling (e.g., `colour`, `behaviour`, `licence` as a noun, `synchronise`). This doesn't apply to identifiers, fixed spec fields, or external API names that are spelled in American English (e.g., the OCI `org.opencontainers.image.licenses` label, or the `synchronize` pull request event type) - those must stay as-is to remain valid.
 - The [`Dockerfile`](container/Dockerfile) runs as a non-root `steam` user for security.
 - SteamCMD `app_update` runs 3 times in [`hlds.txt`](container/hlds.txt) for download reliability.
 - Config files use `rsync` for syncing to preserve directory structure and handle overwrites.

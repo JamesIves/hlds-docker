@@ -44,7 +44,7 @@ docker inspect --format='{{.State.Health.Status}}' hlds
 
 ## Forwarding Logs 📊
 
-To feed server logs into an external stats tracker (like HLstatsX:CE), add `+logaddress <ip> <port>` to your startup command alongside `+log on` - HLDS will UDP-broadcast its log lines to that address.
+To feed server logs into an external stats tracker, add `+logaddress <ip> <port>` to your startup command alongside `+log on` - HLDS will UDP-broadcast its log lines to that address.
 
 ```bash
 "+log on +logaddress 203.0.113.10 27500 +rcon_password changeme +maxplayers 12 +map crossfire"
