@@ -79,6 +79,7 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
+          limit-severities-for-sarif: true
           ignore-unfixed: true
           exit-code: "1"
 
@@ -110,9 +111,92 @@ jobs:
           python3 .github/actions/test-hlds-image/check_a2s_info.py \
             --port 27016 --timeout 20 --expect-no-response
 
+          echo "Confirming healthcheck.sh agrees the server is unhealthy..."
+          if docker exec hlds-invalid-game ./healthcheck.sh; then
+            echo "healthcheck.sh reported healthy for a server that never started!"
+            exit 1
+          fi
+          echo "healthcheck.sh correctly reported the server as unhealthy."
+
           echo "--- Container status/logs for the invalid GAME run ---"
           docker inspect hlds-invalid-game --format='Status: {{.State.Status}}, ExitCode: {{.State.ExitCode}}'
           docker logs hlds-invalid-game || true
+
+      # Only needs to run once. Covers the other half - a real password suppresses the warning.
+      - name: Validate rcon_password Warning Is Not Printed For A Real Password 🔑
+        if: matrix.game == 'valve'
+        run: |
+          docker run -d -ti \
+            --name hlds-custom-rcon \
+            -p 27018:27015/udp \
+            ${{ env.image_id }} \
+            "+log on +rcon_password a-real-secret-password +maxplayers 12 +map bounce"
+
+          # The warning check runs at the very top of entrypoint.sh, well before anything
+          # slow, so a short fixed wait is plenty - and docker exec avoids docker logs,
+          # which proved unreliable under this matrix's load.
+          sleep 5
+
+          if docker exec hlds-custom-rcon test -f /tmp/.rcon-default-password-warning-shown; then
+            echo "rcon_password warning sentinel present even though a real password was set!"
+            docker logs hlds-custom-rcon || true
+            exit 1
+          fi
+          echo "rcon_password warning correctly suppressed for a real password."
+
+      # Only needs to run once. Real Steam call, confirming AUTO_UPDATE runs and the server still starts.
+      - name: Validate AUTO_UPDATE Runs And The Server Still Starts 🔄
+        if: matrix.game == 'valve'
+        run: |
+          docker run -d -ti \
+            --name hlds-auto-update \
+            -p 27019:27015/udp \
+            -e AUTO_UPDATE=true \
+            ${{ env.image_id }} \
+            "+log on +rcon_password changeme +maxplayers 12 +map bounce"
+
+          # docker exec against a sentinel file, not docker logs - see the rcon_password
+          # warning fix above for why: docker logs proved unreliable under this matrix's load.
+          echo "Waiting for the AUTO_UPDATE SteamCMD pass to finish..."
+          for i in $(seq 1 60); do
+            if docker exec hlds-auto-update test -f /tmp/.auto-update-ran; then
+              break
+            fi
+            echo "Attempt $i: still waiting..."
+            sleep 2
+          done
+
+          if ! docker exec hlds-auto-update test -f /tmp/.auto-update-ran; then
+            echo "AUTO_UPDATE's SteamCMD pass never ran!"
+            docker logs hlds-auto-update || true
+            exit 1
+          fi
+          echo "AUTO_UPDATE correctly ran its SteamCMD pass."
+
+          python3 .github/actions/test-hlds-image/check_a2s_info.py --port 27019 --timeout 30
+          echo "Server responded normally after an AUTO_UPDATE pass."
+
+      # Only needs to run once - doesn't touch Docker at all.
+      - name: Test Steam Update Checker Parser (Fixture) 🧪
+        if: matrix.game == 'valve'
+        run: python3 .github/scripts/check_steam_updates_test.py
+
+      # Live steamcmd dump instead of the fixture - proves it matches what Steam actually returns.
+      - name: Smoke Test Steam Update Checker (Live) 🧪
+        if: matrix.game == 'valve'
+        run: |
+          mkdir -p /tmp/steamcmd
+          curl -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - -C /tmp/steamcmd
+
+          /tmp/steamcmd/steamcmd.sh \
+            +@ShutdownOnFailedCommand 0 \
+            +@NoPromptForPassword 1 \
+            +login anonymous \
+            +app_info_update 1 \
+            +app_info_print 90 \
+            +quit > /tmp/live_app_info.txt
+
+          python3 .github/scripts/check_steam_updates_test.py /tmp/live_app_info.txt
 
       - name: Cleanup 🧹
         if: always()
@@ -122,4 +206,8 @@ jobs:
           docker rm hlds-${{ matrix.game }} || true
           docker stop hlds-invalid-game || true
           docker rm hlds-invalid-game || true
+          docker stop hlds-custom-rcon || true
+          docker rm hlds-custom-rcon || true
+          docker stop hlds-auto-update || true
+          docker rm hlds-auto-update || true
           docker system prune --all --force

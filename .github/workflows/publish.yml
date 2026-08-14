@@ -12,11 +12,56 @@ on:
           - minor
           - major
         default: patch
+  # Rebuilds main against the current Steam depot weekly - never touches the beta -> main promotion.
+  schedule:
+    - cron: "0 6 * * 0"
 env:
   CANDIDATE_REF: release-candidate
 jobs:
+  check-for-updates:
+    name: Check Steam For Updates 🔍
+    # Manual dispatch is always intentional; only the weekly timer needs to check first.
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # continue-on-error so a download failure still lets the fail-safe below run.
+      - name: Install SteamCMD 🎮
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/steamcmd
+          curl -sL media.steampowered.com/client/installer/steamcmd_linux.tar.gz | tar xzvf - -C /tmp/steamcmd
+
+      # || true: same fail-safe reasoning as the step above.
+      - name: Query Steam App Info 🔍
+        run: |
+          /tmp/steamcmd/steamcmd.sh \
+            +@ShutdownOnFailedCommand 0 \
+            +@NoPromptForPassword 1 \
+            +login anonymous \
+            +app_info_update 1 \
+            +app_info_print 90 \
+            +quit > /tmp/app_info.txt || true
+
+      - name: Compare Against Last Release 🔍
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/check_steam_updates.py /tmp/app_info.txt
+
   version:
     name: Compute Release Version 🔢
+    needs: check-for-updates
+    # always() overrides default skip-propagation from check-for-updates being skipped on dispatch.
+    if: |
+      always() &&
+      (github.event_name == 'workflow_dispatch' || needs.check-for-updates.outputs.changed == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,7 +73,9 @@ jobs:
         with:
           fetch-depth: "0"
 
+      # Scheduled runs never touch the beta -> main promotion, so there's no branch to guard here.
       - name: Validate Dispatch Branch 🌿
+        if: github.event_name == 'workflow_dispatch'
         run: |
           if [ "${{ github.ref_name }}" != "beta" ]; then
             echo "::error::Releases must be dispatched from 'beta' (got '${{ github.ref_name }}')."
@@ -44,14 +91,18 @@ jobs:
           VERSION="${LATEST#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
 
-          case "${{ inputs.bump }}" in
+          # Scheduled runs have no inputs context, so default to patch.
+          BUMP="${{ inputs.bump }}"
+          BUMP="${BUMP:-patch}"
+
+          case "$BUMP" in
             major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
             minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
             patch) PATCH=$((PATCH + 1)) ;;
           esac
 
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-          echo "Bumping $LATEST -> $NEW_VERSION (${{ inputs.bump }})"
+          echo "Bumping $LATEST -> $NEW_VERSION ($BUMP)"
 
           if gh release view "$NEW_VERSION" >/dev/null 2>&1; then
             echo "::error::A release for '$NEW_VERSION' already exists."
@@ -63,6 +114,10 @@ jobs:
   prepare:
     name: Prepare Release Candidate 🔀
     needs: version
+    # Scheduled runs never promote new commits from beta, so there's nothing to merge.
+    if: |
+      always() && needs.version.result == 'success' &&
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -73,12 +128,7 @@ jobs:
           ref: main
           fetch-depth: "0"
 
-      # Merges beta into main exactly once, and pushes the result to a
-      # scratch ref instead of main itself. Every downstream job builds from
-      # this one commit, so a conflict fails once and clearly here instead of
-      # noisily across all 12 matrix legs, and nothing gets pushed to a
-      # registry or released until this exact commit has been proven to
-      # build and pass its smoke tests.
+      # Pushed to a scratch ref, not main directly, so nothing ships until this commit passes tests.
       - name: Merge beta into a release candidate 🔀
         run: |
           git fetch origin beta
@@ -88,7 +138,11 @@ jobs:
 
   test:
     name: Test Candidate 🧪
-    needs: prepare
+    needs: [version, prepare]
+    # always() overrides default skip-propagation from prepare being skipped on schedule.
+    if: |
+      always() && needs.version.result == 'success' &&
+      (github.event_name == 'schedule' || needs.prepare.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -111,10 +165,11 @@ jobs:
             tfc-legacy,
           ]
     steps:
+      # Schedule tests main as-is; dispatch tests the not-yet-promoted candidate from prepare.
       - name: Checkout 🛎️
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ env.CANDIDATE_REF }}
+          ref: ${{ github.event_name == 'schedule' && 'main' || env.CANDIDATE_REF }}
 
       - name: Set up Docker Buildx 🛠️
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
@@ -163,6 +218,7 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
+          limit-severities-for-sarif: true
           ignore-unfixed: true
           exit-code: "1"
 
@@ -191,6 +247,10 @@ jobs:
   merge:
     name: Merge Candidate into main 🔀
     needs: test
+    # No candidate ref on the scheduled path (prepare didn't run) - nothing to promote.
+    if: |
+      always() && needs.test.result == 'success' &&
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -201,9 +261,7 @@ jobs:
           ref: main
           fetch-depth: "0"
 
-      # Fast-forward only: the candidate ref is already proven to build and
-      # pass every test, so this is guaranteed conflict-free and doesn't need
-      # to redo the merge - it's just moving the main ref forward.
+      # Fast-forward only - the candidate is already proven, so this is just moving main forward.
       - name: Fast-forward main to the tested candidate 🔀
         run: |
           git fetch origin "${{ env.CANDIDATE_REF }}"
@@ -216,7 +274,11 @@ jobs:
 
   release:
     name: Build and Publish Image 🐳
-    needs: [version, merge]
+    needs: [version, merge, test]
+    # always() overrides default skip-propagation from merge being skipped on schedule.
+    if: |
+      always() && needs.version.result == 'success' && needs.test.result == 'success' &&
+      (github.event_name == 'schedule' || needs.merge.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -353,7 +415,7 @@ jobs:
           cache-from: type=gha,scope=release-${{ matrix.game }}
 
       - name: Attest DockerHub Image Provenance 📜
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-name: index.docker.io/jives/hlds
           subject-digest: ${{ steps.push_dockerhub.outputs.digest }}
@@ -387,7 +449,7 @@ jobs:
           cache-from: type=gha,scope=release-${{ matrix.game }}
 
       - name: Attest GHCR Image Provenance 📜
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-name: ghcr.io/${{ env.repo_owner }}/hlds
           subject-digest: ${{ steps.push_ghcr.outputs.digest }}
@@ -396,6 +458,7 @@ jobs:
   publish:
     name: Publish GitHub Release 🚀
     needs: [version, release]
+    if: always() && needs.version.result == 'success' && needs.release.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -408,9 +471,16 @@ jobs:
 
       - name: Create Release 🚀
         run: |
-          gh release create "${{ needs.version.outputs.version }}" \
-            --generate-notes \
-            --title "${{ needs.version.outputs.version }}" \
-            --target main
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            gh release create "${{ needs.version.outputs.version }}" \
+              --notes "Automated weekly release to keep published game files current with Steam. No code changes." \
+              --title "${{ needs.version.outputs.version }}" \
+              --target main
+          else
+            gh release create "${{ needs.version.outputs.version }}" \
+              --generate-notes \
+              --title "${{ needs.version.outputs.version }}" \
+              --target main
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

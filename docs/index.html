@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://jamesiv.es/hlds-docker/" />
     <meta property="og:image" content="https://jamesiv.es/hlds-docker/meta.png" />
     <meta property="og:image:alt" content="Half-Life Dedicated Server with Docker" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content="en_GB" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Half-Life Dedicated Server with Docker" />
     <meta name="twitter:description" content="Half-Life Dedicated Server powered by Docker, supporting all the classic GoldSrc Half-Life games and mods-including Counter-Strike 1.6, Team Fortress Classic, Day of Defeat and more." />
@@ -42,6 +42,17 @@
         "@type": "Person",
         "name": "James Ives",
         "url": "https://jamesiv.es"
+      },
+      "sameAs": [
+        "https://github.com/JamesIves/hlds-docker",
+        "https://hub.docker.com/repository/docker/jives/hlds/general",
+        "https://github.com/JamesIves/hlds-docker/pkgs/container/hlds"
+      ],
+      "subjectOf": {
+        "@type": "BlogPosting",
+        "headline": "Half-Life Dedicated Server with Docker",
+        "url": "https://jamesiv.es/blog/experiment/docker/2024/06/20/half-life-dedicated-server-with-docker",
+        "datePublished": "2024-06-20"
       },
       "applicationCategory": "Utility",
       "operatingSystem": "Docker",
@@ -659,6 +670,13 @@
                   Enable Cheats (sv_cheats 1)
                 </label>
               </div>
+
+              <div class="checkbox-row">
+                <label>
+                  <input type="checkbox" id="autoupdate" />
+                  Auto-Update Game Files (AUTO_UPDATE)
+                </label>
+              </div>
             </fieldset>
 
             <fieldset>
@@ -685,6 +703,13 @@
                   class="action-button"
                 >
                   Build a Custom Image
+                </a>
+                <a
+                  href="https://github.com/JamesIves/hlds-docker/blob/beta/MAINTENANCE.md"
+                  target="_blank"
+                  class="action-button"
+                >
+                  Maintenance
                 </a>
               </div>
             </fieldset>
@@ -959,6 +984,7 @@
         password = "",
         lanmode = false,
         cheats = false,
+        autoupdate = false,
       }) {
         const resolvedMap = map || (mapData[game] && mapData[game][0]) || "";
         let players = parseInt(maxplayers, 10);
@@ -968,11 +994,18 @@
 
         let command = `docker run -d -ti \\
   --name hlds \\
+  --restart unless-stopped \\
   -v "$(pwd)/config:/temp/config" \\
   -v "$(pwd)/mods:/temp/mods" \\
   -p 27015:27015/udp \\
   -p 27015:27015 \\
-  jives/hlds:${game} \\
+  -p 26900:26900/udp \\`;
+
+        if (autoupdate) {
+          command += `\n  -e AUTO_UPDATE=true \\`;
+        }
+
+        command += `\n  jives/hlds:${game} \\
   +log on`;
 
         if (rcon) {
@@ -1009,6 +1042,7 @@
         const password = document.getElementById("password").value;
         const lanmode = document.getElementById("lanmode").checked;
         const cheats = document.getElementById("cheats").checked;
+        const autoupdate = document.getElementById("autoupdate").checked;
 
         // Ensure maxplayers has a minimum value of 1 and keep the input field in sync
         let maxplayers = parseInt(maxplayersInput.value, 10);
@@ -1026,6 +1060,7 @@
           password,
           lanmode,
           cheats,
+          autoupdate,
         });
       }
 
@@ -1078,6 +1113,11 @@
                   type: "boolean",
                   description: "Enable cheats (sv_cheats 1).",
                 },
+                autoupdate: {
+                  type: "boolean",
+                  description:
+                    "Re-check Steam for updated game files on every container start (AUTO_UPDATE).",
+                },
               },
               required: ["game"],
             },
@@ -1115,6 +1155,9 @@
         .addEventListener("change", updateCommand);
       document
         .getElementById("cheats")
+        .addEventListener("change", updateCommand);
+      document
+        .getElementById("autoupdate")
         .addEventListener("change", updateCommand);
 
       // Initial setup

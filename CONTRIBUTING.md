@@ -25,7 +25,7 @@ The core requirements for this project are:
 
 ## Architecture 🏛️
 
-Before making changes, it's recommended to review the [Architecture](ARCHITECTURE.md) document for an overview of the build process, runtime behavior, CI/CD pipeline, and container file system layout. If your changes affect any of these areas, please update [`ARCHITECTURE.md`](ARCHITECTURE.md) and [`AGENTS.md`](AGENTS.md) to reflect the current state of the project.
+Before making changes, it's recommended to review the [Architecture](ARCHITECTURE.md) document for an overview of the build process, runtime behaviour, CI/CD pipeline, and container file system layout. If your changes affect any of these areas, please update [`ARCHITECTURE.md`](ARCHITECTURE.md) and [`AGENTS.md`](AGENTS.md) to reflect the current state of the project.
 
 ## Resources 📚
 
@@ -33,5 +33,6 @@ Before making changes, it's recommended to review the [Architecture](ARCHITECTUR
 - [Server Configs and Plugins](config/README.md)
 - [Custom Mods](mods/README.md)
 - [Building a Custom Image](container/README.md)
+- [Maintenance](MAINTENANCE.md)
 - [Security Policy](SECURITY.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)

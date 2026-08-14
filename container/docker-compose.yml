@@ -7,16 +7,19 @@ services:
         - FLAG=${FLAG}
         - VERSION=${VERSION}
         - IMAGE=${IMAGE}
+    restart: unless-stopped
     volumes:
       - "./config:/temp/config"
       - "./mods:/temp/mods"
     ports:
       - "27015:27015/udp"
       - "27015:27015"
-      - "26900:2690/udp"
+      - "26900:26900/udp"
     environment:
       - GAME=${GAME}
       - FLAG=${FLAG}
       - VERSION=${VERSION}
       - IMAGE=${IMAGE}
+      # 📣 Uncomment to have the container re-check Steam for game file updates on every start.
+      # - AUTO_UPDATE=true
     command: +maxplayers 12 +log on +rcon_password "changeme" +map crossfire
