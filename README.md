@@ -20,6 +20,7 @@ You can run the following in your terminal to get started as quickly as possible
 ```bash
 docker run -d -ti \
   --name hlds \
+  --restart unless-stopped \
   -v "$(pwd)/config:/temp/config" \
   -v "$(pwd)/mods:/temp/mods" \
   -p 27015:27015/udp \
@@ -81,6 +82,7 @@ Game files are only installed at build time, so restarting a container won't pic
 ```bash
 docker run -d -ti \
   --name hlds \
+  --restart unless-stopped \
   -e AUTO_UPDATE=true \
   -v "$(pwd)/config:/temp/config" \
   -v "$(pwd)/mods:/temp/mods" \

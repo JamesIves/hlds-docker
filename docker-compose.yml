@@ -14,6 +14,7 @@ services:
     # 🔧 jives/hlds:czero-legacy (Counter-Strike: Condition Zero) (Pre 25th Anniversary Edition)
     # 🔧 jives/hlds:tfc-legacy (Team Fortress Classic) (Pre 25th Anniversary Edition)
     image: jives/hlds:valve
+    restart: unless-stopped
     # 📣 Learn more about these volumes in the advanced setup guides: https://github.com/JamesIves/hlds-docker?tab=readme-ov-file#advanced-setup-%EF%B8%8F
     volumes:
       - "./config:/temp/config"
