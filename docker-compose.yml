@@ -22,7 +22,7 @@ services:
     ports:
       - "27015:27015/udp"
       - "27015:27015"
-      - "26900:2690/udp"
+      - "26900:26900/udp"
     environment:
       - GAME=${GAME}
       # 📣 Uncomment to have the container re-check Steam for game file updates on every start.
