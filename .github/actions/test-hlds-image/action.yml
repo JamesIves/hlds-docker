@@ -86,6 +86,18 @@ runs:
           sleep 2
         done
 
+    # This action always boots with +rcon_password changeme, so the warning should always fire.
+    # Checks the sentinel file entrypoint.sh drops, not docker logs, which proved unreliable under load.
+    - name: Validate rcon_password Warning Is Printed 🔑
+      shell: bash
+      run: |
+        if ! docker exec "${{ inputs.container-name }}" test -f /tmp/.rcon-default-password-warning-shown; then
+          echo "Expected rcon_password warning was not printed for the default 'changeme' password!"
+          docker logs "${{ inputs.container-name }}" || true
+          exit 1
+        fi
+        echo "rcon_password warning correctly printed for the default password."
+
     - name: Validate Directory Mappings 📂
       shell: bash
       run: |
@@ -148,6 +160,34 @@ runs:
     - name: Validate Live Server Responds to A2S_INFO 🎮
       shell: bash
       run: python3 "${{ github.action_path }}/check_a2s_info.py"
+
+    - name: Validate healthcheck.sh Reports The Server As Healthy 🩺
+      shell: bash
+      run: |
+        if ! docker exec "${{ inputs.container-name }}" ./healthcheck.sh; then
+          echo "healthcheck.sh reported the running server as unhealthy!"
+          exit 1
+        fi
+        echo "healthcheck.sh reported the running server as healthy."
+
+    - name: Validate Docker Reports The Container As Healthy 🩺
+      shell: bash
+      run: |
+        echo "Waiting for the container's HEALTHCHECK to report healthy..."
+        for i in $(seq 1 20); do
+          STATUS=$(docker inspect "${{ inputs.container-name }}" --format='{{.State.Health.Status}}' 2>/dev/null || echo "unknown")
+          if [ "$STATUS" = "healthy" ]; then
+            echo "Container reported healthy after ~$((i * 3))s."
+            break
+          fi
+          if [ "$i" -eq 20 ]; then
+            echo "Container did not report healthy within 60s (last status: $STATUS)!"
+            docker inspect "${{ inputs.container-name }}" --format='{{json .State.Health}}' || true
+            exit 1
+          fi
+          echo "Attempt $i: status is '$STATUS', waiting..."
+          sleep 3
+        done
 
     - name: Validate RCON Authentication 🔑
       shell: bash

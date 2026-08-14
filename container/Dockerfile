@@ -77,14 +77,18 @@ RUN mkdir -p $HOME/.steam \
 
 WORKDIR /opt/steam/hlds
 
-# Copies the entrypoint script to the container and sets the necessary permissions.
+# Copies the entrypoint and healthcheck scripts to the container and sets the necessary permissions.
 COPY --chown=steam:steam ./entrypoint.sh ./entrypoint.sh
+COPY --chown=steam:steam ./healthcheck.sh ./healthcheck.sh
 COPY --chown=steam:steam config $GAME
 COPY --chown=steam:steam mods .
 
-# Sets the entrypoint script as executable.
-RUN chmod +x ./entrypoint.sh
+# Sets the entrypoint and healthcheck scripts as executable.
+RUN chmod +x ./entrypoint.sh ./healthcheck.sh
 
+# Polls with a real A2S_INFO query so a hung/crashed server is distinguishable from a healthy one.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD ["./healthcheck.sh"]
 
 # tini is PID 1 so docker stop's SIGTERM is actually handled - hlds_run
 # doesn't trap it, and untrapped signals are ignored by default for PID 1.

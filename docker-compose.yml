@@ -14,6 +14,7 @@ services:
     # 🔧 jives/hlds:czero-legacy (Counter-Strike: Condition Zero) (Pre 25th Anniversary Edition)
     # 🔧 jives/hlds:tfc-legacy (Team Fortress Classic) (Pre 25th Anniversary Edition)
     image: jives/hlds:valve
+    restart: unless-stopped
     # 📣 Learn more about these volumes in the advanced setup guides: https://github.com/JamesIves/hlds-docker?tab=readme-ov-file#advanced-setup-%EF%B8%8F
     volumes:
       - "./config:/temp/config"
@@ -24,6 +25,8 @@ services:
       - "26900:2690/udp"
     environment:
       - GAME=${GAME}
+      # 📣 Uncomment to have the container re-check Steam for game file updates on every start.
+      # - AUTO_UPDATE=true
     # 📣 Modify your server startup commands here, you can add more flags as needed (see: https://developer.valvesoftware.com/wiki/Half-Life_Dedicated_Server),
     # 📣 Remember: Stating map is based on the game, and will likely be different between images.
     # 📣 You should also modify the rcon_password value so you can use server admin commands.

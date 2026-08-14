@@ -1,0 +1,46 @@
+Connecting anonymously to Steam Public...OK
+Waiting for client config...OK
+Waiting for user info...OK
+AppID : 90, ChangeNumber : 12345678, LastChangeNumber : 12300000, change list : ...
+"90"
+{
+	"common"
+	{
+		"name"		"Half-Life Dedicated Server"
+		"type"		"Tool"
+	}
+	"extended"
+	{
+		"developer"		"Valve"
+	}
+	"config"
+	{
+		"launch"
+		{
+		}
+	}
+	"depots"
+	{
+		"branches"
+		{
+			"public"
+			{
+				"buildid"		"11111111"
+				"timeupdated"		"1717000000"
+			}
+			"steam_legacy"
+			{
+				"buildid"		"22222222"
+				"description"		"Pre-25th Anniversary Build"
+				"timeupdated"		"1600000000"
+			}
+			"beta"
+			{
+				"buildid"		"33333333"
+				"description"		"Unrelated branch that should be ignored"
+				"timeupdated"		"1717500000"
+			}
+		}
+	}
+}
+ConVars.txt not found

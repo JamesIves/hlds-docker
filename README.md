@@ -20,6 +20,7 @@ You can run the following in your terminal to get started as quickly as possible
 ```bash
 docker run -d -ti \
   --name hlds \
+  --restart unless-stopped \
   -v "$(pwd)/config:/temp/config" \
   -v "$(pwd)/mods:/temp/mods" \
   -p 27015:27015/udp \
@@ -56,6 +57,44 @@ Once the command finishes, you can connect to your server via the public IP addr
 ### Docker Compose
 
 If you'd prefer to configure your server using [Docker Compose](https://docs.docker.com/compose/), you can pull down the project repository to your system and run `docker compose up` from the root. Make any modifications you need, such as changing the game image and server startup commands in [docker-compose.yml](docker-compose.yml) before running `docker compose up`.
+
+### Health Checks 🩺
+
+The image ships with a Docker [`HEALTHCHECK`](https://docs.docker.com/reference/dockerfile/#healthcheck) that polls the running server every 30 seconds with a real `A2S_INFO` query - the same query Steam's own server browser uses - so Docker (and anything watching container health, like `docker ps`, Compose, Swarm, or Kubernetes) can tell a hung or crashed server apart from one that's just still loading a map. The status shows up next to your container:
+
+```bash
+docker ps
+```
+
+Or you can inspect it directly:
+
+```bash
+docker inspect --format='{{.State.Health.Status}}' hlds
+```
+
+> [!NOTE]  
+> The health check queries port `27015` by default. If you've changed the server's port with `+port`, set a matching `PORT` environment variable (e.g. `-e PORT=27016`) so it checks the right one.
+
+### Keeping Game Files Updated 🔄
+
+Game files are only installed at build time, so restarting a container won't pick up a new Valve patch on its own. Set the `AUTO_UPDATE` environment variable to have the container re-check Steam for updates every time it starts:
+
+```bash
+docker run -d -ti \
+  --name hlds \
+  --restart unless-stopped \
+  -e AUTO_UPDATE=true \
+  -v "$(pwd)/config:/temp/config" \
+  -v "$(pwd)/mods:/temp/mods" \
+  -p 27015:27015/udp \
+  -p 27015:27015 \
+  -p 26900:26900/udp \
+  jives/hlds:valve \
+  "+log on +rcon_password changeme +maxplayers 12 +map crossfire"
+```
+
+> [!NOTE]  
+> This adds a SteamCMD check to every container start (slower boot, and requires outbound network access), and means the same running container can end up on different game binaries over time. Published images already get refreshed weekly (in addition to whenever a manual release ships), so most people don't need this - `AUTO_UPDATE` is for when even a week of staleness isn't acceptable, or you're building your own image and want it to self-update rather than rebuilding it yourself. On a slow connection it can also outrun the default `HEALTHCHECK` start-period budget, flagging the container unhealthy before the server has even launched - override the timing at runtime if you hit this: `docker run --health-start-period=180s ...`.
 
 ## Advanced Setup ⚙️
 
