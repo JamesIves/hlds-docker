@@ -94,7 +94,7 @@ docker run -d -ti \
 ```
 
 > [!NOTE]  
-> This adds a SteamCMD check to every container start (slower boot, and requires outbound network access), and means the same running container can end up on different game binaries over time. Published images already get refreshed weekly (in addition to whenever a manual release ships), so most people don't need this - `AUTO_UPDATE` is for when even a week of staleness isn't acceptable, or you're building your own image and want it to self-update rather than rebuilding it yourself. On a slow connection it can also outrun the default `HEALTHCHECK` start-period budget, flagging the container unhealthy before the server has even launched - override the timing at runtime if you hit this: `docker run --health-start-period=180s ...`.
+> This adds a SteamCMD check to every container start, and means the same running container can end up on different game binaries over time. Most people don't need this - published images already refresh weekly if there's an update.
 
 ## Advanced Setup ⚙️
 
