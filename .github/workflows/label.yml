@@ -45,7 +45,7 @@ jobs:
                 labels: ['chore 🧹']
               - type: 'dependencies'
                 nouns: ['dependency', 'dependencies', 'package', 'packages', 'bump', 'dependabot']
-                labels: ['dependencies 🤖']
+                labels: ['dependencies']
               - type: 'duplicate'
                 nouns: ['duplicate', 'dupe', 'copy']
                 labels: ['duplicate 2️⃣']
@@ -78,7 +78,7 @@ jobs:
                 labels: ['security 🔒']
               - type: 'performance'
                 nouns: ['performance', 'speed', 'optimization']
-                labels: ['performance 🚀']
+                labels: ['performance ⚡']
               - type: 'refactor'
                 nouns: ['refactor', 'refactoring', 'rework']
                 labels: ['refactor 🛠']

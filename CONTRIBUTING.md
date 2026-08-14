@@ -33,5 +33,6 @@ Before making changes, it's recommended to review the [Architecture](ARCHITECTUR
 - [Server Configs and Plugins](config/README.md)
 - [Custom Mods](mods/README.md)
 - [Building a Custom Image](container/README.md)
+- [Maintenance](MAINTENANCE.md)
 - [Security Policy](SECURITY.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)

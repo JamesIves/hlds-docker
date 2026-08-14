@@ -19,7 +19,7 @@ The `config` directory is volume-mapped within the directory for the game for wh
 The config directory should be volume mapped to `/temp/config`, for example `./config:/temp/config`, once the container starts it will re-write the files into the correct place so the Half-Life Dedicated Server client recognises them.
 
 > [!NOTE]  
-> The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, [please refer back to it to get started](../../README.md).
+> The startup examples posted in the project README already have this directory volume mapped accordingly. If you've strayed from the suggested setup, [please refer back to it to get started](../README.md).
 
 ```
 ├── 📦 hlds
