@@ -60,7 +60,7 @@ If you'd prefer to configure your server using [Docker Compose](https://docs.doc
 
 ### Health Checks 🩺
 
-The image ships with a Docker [`HEALTHCHECK`](https://docs.docker.com/reference/dockerfile/#healthcheck) that polls the running server every 30 seconds with a real `A2S_INFO` query - the same query Steam's own server browser uses - so Docker (and anything watching container health, like `docker ps`, Compose, Swarm, or Kubernetes) can tell a hung or crashed server apart from one that's just still loading a map. The status shows up next to your container:
+The image ships with a Docker [`HEALTHCHECK`](https://docs.docker.com/reference/dockerfile/#healthcheck) that polls the running server every 30 seconds so Docker (and anything watching container health, like `docker ps`, Compose, Swarm, or Kubernetes) can tell a hung or crashed server apart from one that's just still loading a map. The status shows up next to your container:
 
 ```bash
 docker ps
@@ -94,7 +94,7 @@ docker run -d -ti \
 ```
 
 > [!NOTE]  
-> This adds a SteamCMD check to every container start, and means the same running container can end up on different game binaries over time. Most people don't need this - published images already refresh weekly if there's an update.
+> This adds a network dependent SteamCMD check to every container start, and means the same running container can end up on different game binaries over time. Container registry images are checked on a weekly schedule and refreshed if an update is released by Valve.
 
 ## Advanced Setup ⚙️
 
