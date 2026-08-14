@@ -60,4 +60,5 @@ export GAME=decay
 - [Getting Started and Usage](../README.md)
 - [Server Configs and Plugins](../config/README.md)
 - [Building a Custom Image](../container/README.md)
+- [Maintenance](../MAINTENANCE.md)
 - [Contributing](../CONTRIBUTING.md)

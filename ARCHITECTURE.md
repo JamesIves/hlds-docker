@@ -6,7 +6,7 @@ This document describes the architecture of the hlds-docker project using diagra
 
 ## High-Level Overview 🌍
 
-The project has two primary user paths: end users pull pre-built images from Docker Hub or GitHub Container Registry, while developers clone the repository and build custom images locally. Both paths result in a running HLDS container. GitHub Actions workflows handle validation, beta publishing, and production releases across all 12 supported game variants.
+End users pull pre-built images from Docker Hub or GitHub Container Registry; developers clone the repository and build locally. Both converge on a running HLDS container. GitHub Actions handles validation, beta publishing, and production releases across all 12 supported game variants.
 
 ```mermaid
 graph TB
@@ -36,7 +36,7 @@ graph TB
 
 ## Docker Build Process 📦
 
-The `Dockerfile` in `container/` uses a single-stage build on Ubuntu. SteamCMD downloads the requested game files during the image build.
+The `Dockerfile` in `container/` uses a single-stage build on Ubuntu. SteamCMD downloads the requested game files during the image build, running `app_update` three times with `validate` since SteamCMD downloads can be unreliable on flaky connections.
 
 ```mermaid
 flowchart TD
@@ -61,7 +61,7 @@ flowchart TD
 
 ## Container Runtime Flow ▶️
 
-When the container starts, `entrypoint.sh` runs before the HLDS server binary. It first checks whether a `+map` argument was provided (warning the user if not, as the server won't be joinable without one). If `AUTO_UPDATE` is set, it re-runs SteamCMD against the persisted install directory to pick up any Valve patches before proceeding. It then syncs any user-provided mods and config files from their temporary volume mount locations into the correct HLDS directories using `rsync` - after the update, so user files still win if it restores a default. Finally, it prints a branded startup banner and launches `hlds_run`. Independently of this flow, Docker periodically runs `healthcheck.sh` against the live server - see the Health Check Flow section below.
+`entrypoint.sh` runs before the HLDS binary starts. It warns if no `+map` was provided, re-runs SteamCMD if `AUTO_UPDATE` is set, then syncs mods and config files via `rsync` - after the update, so user files still win. It prints a startup banner and launches `hlds_run`. Docker separately polls `healthcheck.sh` against the live server - see Health Check Flow below.
 
 ```mermaid
 flowchart TD
@@ -93,7 +93,7 @@ flowchart TD
 
 ## Health Check Flow 🩺
 
-Independently of `entrypoint.sh`, the Docker daemon runs `healthcheck.sh` on a fixed schedule (every 30s, 5s timeout, 60s start period, 3 retries) for as long as the container is running. The script sends a raw `A2S_INFO` query over UDP to `127.0.0.1:$PORT` (default `27015`) using bash's built-in `/dev/udp` - no extra dependencies - and succeeds only if the response starts with the expected `0xFFFFFFFF` header.
+Independently of `entrypoint.sh`, Docker runs `healthcheck.sh` on a fixed schedule (30s interval, 5s timeout, 60s start period, 3 retries). The script sends a raw `A2S_INFO` query over UDP to `127.0.0.1:$PORT` (default `27015`) using bash's built-in `/dev/udp`, and succeeds only if the response starts with the expected `0xFFFFFFFF` header.
 
 ```mermaid
 sequenceDiagram
@@ -117,7 +117,7 @@ sequenceDiagram
 
 ## Volume Mapping Architecture 💾
 
-Users provide custom configurations and mods by placing files in `./config/` and `./mods/` on the host. These directories are volume-mounted into temporary locations inside the container (`/temp/config` and `/temp/mods`). On startup, the entrypoint script uses `rsync` to copy them into the correct HLDS directories: configs go into the game-specific folder (`/opt/steam/hlds/$GAME/`) and mods go into the HLDS root (`/opt/steam/hlds/`). This two-step approach ensures files are synced with correct ownership and directory structure, even when overwriting existing files from the base image.
+Users place custom configs and mods in `./config/` and `./mods/` on the host, which are volume-mounted to `/temp/config` and `/temp/mods`. On startup, `entrypoint.sh` uses `rsync` to move them into place with correct ownership: configs into `/opt/steam/hlds/$GAME/`, mods into `/opt/steam/hlds/`.
 
 ```mermaid
 flowchart LR
@@ -142,32 +142,9 @@ flowchart LR
     TM -->|"rsync by entrypoint.sh"| HR
 ```
 
-### Config Sync Example
-
-```
-Host: ./config/                    Container: /opt/steam/hlds/cstrike/
-├── mapcycle.txt          ──→      ├── mapcycle.txt
-├── motd.txt              ──→      ├── motd.txt
-├── maps/                          ├── maps/
-│   └── crazytank.bsp     ──→     │   └── crazytank.bsp
-└── addons/                        └── addons/
-    └── amxmodx/           ──→         └── amxmodx/
-```
-
-### Mods Sync Example
-
-```
-Host: ./mods/                      Container: /opt/steam/hlds/
-├── decay/                ──→      ├── decay/
-│   ├── autoexec.cfg               │   ├── autoexec.cfg
-│   ├── models/                    │   ├── models/
-│   └── maps/                      │   └── maps/
-└── svencoop/             ──→      └── svencoop/
-```
-
 ## CI/CD Pipeline 🔄
 
-The project uses a three-branch workflow. Feature branches trigger validation only. The `beta` branch triggers beta image publishing for testing. Production releases happen two ways on `publish.yml`: manually via `workflow_dispatch`, which merges `beta` into `main`, bumps the version, builds and validates all 12 game variants, pushes to both registries, and creates a GitHub Release; or automatically on a weekly `schedule`, which skips the `beta` merge entirely and just rebuilds `main`'s already-released code against the current Steam depot, so published images don't go stale between manual releases without ever auto-promoting unreviewed code.
+The project uses a three-branch workflow. Feature branches trigger validation only. `beta` triggers beta image publishing for testing. Production releases happen via `publish.yml`, either manually (`workflow_dispatch`, merging `beta` into `main`) or weekly on a `schedule`, which rebuilds `main`'s already-released code against the current Steam depot without promoting unreviewed code.
 
 ### Branch Strategy
 
@@ -187,7 +164,7 @@ gitGraph
 
 ### Workflow Triggers
 
-Each workflow is triggered by a specific event. Feature branch pushes run validation, beta branch pushes build and publish beta images, production releases are dispatched manually or fire weekly on a cron schedule, pull requests get auto-labeled, and sponsor data is refreshed on a daily cron schedule.
+Feature branch pushes run validation, `beta` pushes build and publish beta images, production releases dispatch manually or fire weekly, pull requests get auto-labeled, and sponsor data refreshes daily.
 
 ```mermaid
 flowchart TD
@@ -224,7 +201,7 @@ flowchart TD
 
 ### Production Publish Pipeline Detail
 
-The production publish workflow can start two ways: manually via `workflow_dispatch` with a `bump` choice (patch/minor/major), or automatically every week via `schedule`. The scheduled path runs one extra gate first: it queries Steam's `app_info` for HLDS's `public` and `steam_legacy` branch update timestamps and compares them against the last release's publish time, stopping immediately (no version bump, no build, no new tags) if nothing changed - GoldSrc games are rarely patched, so most weekly ticks are expected to stop here rather than publish 12 near-duplicate tags for nothing. A manual dispatch always skips this check and proceeds, since a human explicitly asking for a release is reason enough. Both paths that do proceed compute the next version and run the same 12-variant test matrix (build, Trivy scan, and the shared smoke test action) before anything is pushed. The manual path first merges `beta` into a scratch `release-candidate` ref and, once tests pass, fast-forwards `main` to it - promoting new code. The scheduled path skips that merge entirely: it tests and rebuilds `main`'s already-released code as-is, so a fresh SteamCMD download against the current Steam depot is the only thing that changes. Once tests pass, both paths build and push all 12 variants to Docker Hub and GHCR, attest provenance, and create a GitHub Release.
+Publish starts either manually via `workflow_dispatch` with a `bump` choice, or weekly via `schedule`. The scheduled path gates on Steam first: it compares `app_info` branch timestamps against the last release and stops immediately if nothing changed, since GoldSrc games are rarely patched and most weekly ticks shouldn't publish 12 near-duplicate tags for nothing. Manual dispatch always skips that gate. Both paths that proceed compute the next version and run the same 12-variant test matrix (build, Trivy scan, smoke test). The manual path merges `beta` into a scratch `release-candidate` ref and fast-forwards `main` to it once tests pass, promoting new code; the scheduled path skips that merge and just rebuilds `main`'s already-released code against the current Steam depot. Either way, passing tests trigger a push of all 12 variants to Docker Hub and GHCR, provenance attestation, and a GitHub Release.
 
 ```mermaid
 flowchart TD
@@ -263,7 +240,7 @@ flowchart TD
 
 ## Validation Test Matrix ✅
 
-The validation workflow runs against all 12 supported game variants in parallel (8 modern + 4 legacy). For each variant, it builds the Docker image, creates mock config and mod files, starts the container, then validates that mods sync to the HLDS root, configs sync to the game directory, and the correct game data is present. This ensures that volume mapping and the entrypoint sync logic work correctly for every supported game.
+Validation runs against all 12 supported game variants in parallel (8 modern + 4 legacy). For each, it builds the image, creates mock config/mod files, starts the container, then checks that mods and configs synced correctly and the right game data is present.
 
 ```mermaid
 flowchart LR
@@ -301,7 +278,7 @@ flowchart LR
 
 ## Container File System Layout 📂
 
-Inside the container, all HLDS files live under `/opt/steam/hlds/`. The `valve/` directory is always present as the base game. The active game directory (`$GAME/`) contains the server configuration files (`server.cfg`, `autoexec.cfg`, `default.cfg`, `motd.txt`), maps, and any user-installed addons. The `steam_appid.txt` file is patched to contain `70` (Half-Life's app ID) to work around a known Steam client issue. Custom mods synced from `/temp/mods` appear as sibling directories alongside the built-in game folders.
+Inside the container, all HLDS files live under `/opt/steam/hlds/`. The `valve/` directory is always present as the base game. The active game directory (`$GAME/`) holds server config (`server.cfg`, `autoexec.cfg`, `default.cfg`, `motd.txt`), maps, and user-installed addons. `steam_appid.txt` is patched to `70` (Half-Life's app ID) to work around a known Steam client issue. Custom mods synced from `/temp/mods` appear as sibling directories alongside the built-in game folders.
 
 ```mermaid
 flowchart TD
@@ -341,58 +318,4 @@ flowchart LR
     style PLAYER fill:#2d5aa0,color:#fff
     style SERVER fill:#2d8a4e,color:#fff
     style MASTER fill:#6a5acd,color:#fff
-```
-
-## SteamCMD Install Script ⚙️
-
-The `hlds.txt` script drives SteamCMD during the Docker build. It logs in anonymously, configures app ID `90` (Half-Life) with the requested game mod, then runs `app_update` three times with the `validate` flag. The triple-run is intentional: SteamCMD downloads can be unreliable, and running the update multiple times ensures all files are fully downloaded even on flaky connections. `@ShutdownOnFailedCommand 0` prevents SteamCMD from aborting on transient errors.
-
-```mermaid
-sequenceDiagram
-    participant SC as SteamCMD
-    participant Steam as Steam Servers
-
-    SC->>SC: @ShutdownOnFailedCommand 0
-    SC->>SC: @NoPromptForPassword 1
-    SC->>SC: force_install_dir ./hlds
-    SC->>Steam: login anonymous
-    SC->>SC: app_set_config 90 mod $GAME
-    SC->>Steam: app_update 90 $FLAG validate (attempt 1)
-    SC->>Steam: app_update 90 $FLAG validate (attempt 2)
-    SC->>Steam: app_update 90 $FLAG validate (attempt 3)
-    SC->>SC: quit
-
-    Note over SC,Steam: 3 update attempts ensure<br>complete download even<br>on unreliable connections
-```
-
-## User Interaction Paths 🧑‍💻
-
-There are two main ways to use the project. End users pull a pre-built image from a registry and run it directly with `docker run` or `docker compose up`. Developers who want to customize the build clone the repository, set the `GAME` environment variable, and build from the `container/` directory. Both paths converge at runtime, where users can optionally add custom configs and mods via volume mounts before connecting to the server through Steam.
-
-```mermaid
-flowchart TD
-    USER([User]) --> CHOICE{How to run?}
-
-    CHOICE -->|Pre-built Image| PULL["docker pull jives/hlds:cstrike"]
-    CHOICE -->|Custom Build| CLONE["Clone repository"]
-
-    PULL --> RUN_PRE["docker run / docker compose up<br>with volume mounts"]
-    CLONE --> SET_GAME["export GAME=cstrike"]
-    SET_GAME --> BUILD["cd container && docker compose build"]
-    BUILD --> RUN_CUSTOM["docker compose up"]
-
-    RUN_PRE --> CONFIG{Custom config?}
-    RUN_CUSTOM --> CONFIG
-
-    CONFIG -->|Yes| ADD_CFG["Add files to ./config/"]
-    CONFIG -->|No| PLAY
-
-    ADD_CFG --> MODS{Custom mods?}
-    MODS -->|Yes| ADD_MODS["Add mod dirs to ./mods/"]
-    MODS -->|No| PLAY
-
-    ADD_MODS --> PLAY([Connect via Steam])
-
-    style USER fill:#2d5aa0,color:#fff
-    style PLAY fill:#2d8a4e,color:#fff
 ```

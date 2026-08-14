@@ -58,44 +58,6 @@ Once the command finishes, you can connect to your server via the public IP addr
 
 If you'd prefer to configure your server using [Docker Compose](https://docs.docker.com/compose/), you can pull down the project repository to your system and run `docker compose up` from the root. Make any modifications you need, such as changing the game image and server startup commands in [docker-compose.yml](docker-compose.yml) before running `docker compose up`.
 
-### Health Checks
-
-The image ships with a Docker [`HEALTHCHECK`](https://docs.docker.com/reference/dockerfile/#healthcheck) that polls the running server every 30 seconds so Docker (and anything watching container health, like `docker ps`, Compose, Swarm, or Kubernetes) can tell a hung or crashed server apart from one that's just still loading a map. The status shows up next to your container:
-
-```bash
-docker ps
-```
-
-Or you can inspect it directly:
-
-```bash
-docker inspect --format='{{.State.Health.Status}}' hlds
-```
-
-> [!NOTE]  
-> The health check queries port `27015` by default. If you've changed the server's port with `+port`, set a matching `PORT` environment variable (e.g. `-e PORT=27016`) so it checks the right one.
-
-### Keeping Game Files Updated
-
-Game files are only installed at build time, so restarting a container won't pick up a new Valve patch on its own. Set the `AUTO_UPDATE` environment variable to have the container re-check Steam for updates every time it starts:
-
-```bash
-docker run -d -ti \
-  --name hlds \
-  --restart unless-stopped \
-  -e AUTO_UPDATE=true \
-  -v "$(pwd)/config:/temp/config" \
-  -v "$(pwd)/mods:/temp/mods" \
-  -p 27015:27015/udp \
-  -p 27015:27015 \
-  -p 26900:26900/udp \
-  jives/hlds:valve \
-  "+log on +rcon_password changeme +maxplayers 12 +map crossfire"
-```
-
-> [!NOTE]  
-> This adds a network dependent SteamCMD check to every container start, and means the same running container can end up on different game binaries over time. Container registry images are checked on a weekly schedule and refreshed if an update is released by Valve.
-
 ## Advanced Setup ⚙️
 
 To customize the server client further, please check out the following advanced setup guides.
@@ -103,3 +65,4 @@ To customize the server client further, please check out the following advanced 
 - [Server Configs and Plugins](config/README.md)
 - [Custom Mods](mods/README.md)
 - [Building a Custom Image](container/README.md)
+- [Maintenance](MAINTENANCE.md)
