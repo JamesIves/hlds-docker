@@ -58,7 +58,7 @@ Once the command finishes, you can connect to your server via the public IP addr
 
 If you'd prefer to configure your server using [Docker Compose](https://docs.docker.com/compose/), you can pull down the project repository to your system and run `docker compose up` from the root. Make any modifications you need, such as changing the game image and server startup commands in [docker-compose.yml](docker-compose.yml) before running `docker compose up`.
 
-### Health Checks 🩺
+### Health Checks
 
 The image ships with a Docker [`HEALTHCHECK`](https://docs.docker.com/reference/dockerfile/#healthcheck) that polls the running server every 30 seconds so Docker (and anything watching container health, like `docker ps`, Compose, Swarm, or Kubernetes) can tell a hung or crashed server apart from one that's just still loading a map. The status shows up next to your container:
 
@@ -75,7 +75,7 @@ docker inspect --format='{{.State.Health.Status}}' hlds
 > [!NOTE]  
 > The health check queries port `27015` by default. If you've changed the server's port with `+port`, set a matching `PORT` environment variable (e.g. `-e PORT=27016`) so it checks the right one.
 
-### Keeping Game Files Updated 🔄
+### Keeping Game Files Updated
 
 Game files are only installed at build time, so restarting a container won't pick up a new Valve patch on its own. Set the `AUTO_UPDATE` environment variable to have the container re-check Steam for updates every time it starts:
 
