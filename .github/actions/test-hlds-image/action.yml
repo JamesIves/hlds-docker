@@ -87,15 +87,21 @@ runs:
         done
 
     # This action always boots with +rcon_password changeme, so the warning should always fire.
+    # Polled, not a single check: docker logs can lag slightly behind the container's actual
+    # stdout under load, even after the readiness file check above has already passed.
     - name: Validate rcon_password Warning Is Printed 🔑
       shell: bash
       run: |
-        if ! docker logs "${{ inputs.container-name }}" 2>&1 | grep -q "rcon_password is still set to the example default"; then
-          echo "Expected rcon_password warning was not printed for the default 'changeme' password!"
-          docker logs "${{ inputs.container-name }}" || true
-          exit 1
-        fi
-        echo "rcon_password warning correctly printed for the default password."
+        for i in $(seq 1 15); do
+          if docker logs "${{ inputs.container-name }}" 2>&1 | grep -q "rcon_password is still set to the example default"; then
+            echo "rcon_password warning correctly printed for the default password."
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "Expected rcon_password warning was not printed for the default 'changeme' password!"
+        docker logs "${{ inputs.container-name }}" || true
+        exit 1
 
     - name: Validate Directory Mappings 📂
       shell: bash
