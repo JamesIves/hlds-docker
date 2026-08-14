@@ -13,4 +13,4 @@
 ### Checklist ✅
 
 - [ ] I have tested my changes locally (at minimum, built the image and started a server).
-- [ ] I have updated [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`AGENTS.md`](../AGENTS.md), and/or [`ARCHITECTURE.md`](../ARCHITECTURE.md) if my changes affect the build process, entrypoint behavior, CI/CD pipeline, volume mappings, project structure, or other documented areas.
+- [ ] I have updated [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`AGENTS.md`](../AGENTS.md), and/or [`ARCHITECTURE.md`](../ARCHITECTURE.md) if my changes affect the build process, entrypoint behaviour, CI/CD pipeline, volume mappings, project structure, or other documented areas.

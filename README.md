@@ -60,7 +60,7 @@ If you'd prefer to configure your server using [Docker Compose](https://docs.doc
 
 ## Advanced Setup ⚙️
 
-To customize the server client further, please check out the following advanced setup guides.
+To customise the server client further, please check out the following advanced setup guides.
 
 - [Server Configs and Plugins](config/README.md)
 - [Custom Mods](mods/README.md)

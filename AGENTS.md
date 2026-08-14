@@ -7,14 +7,14 @@
 
 ## Repository Overview 📖
 
-This repository provides a Dockerized solution for running the **Half-Life Dedicated Server (HLDS)**, supporting all classic GoldSrc games and mods. The project uses Docker to simplify server setup, with support for custom configurations, plugins, and mods. Pre-built images are published to Docker Hub and GitHub Container Registry via GitHub Actions CI/CD pipelines.
+This repository provides a Dockerised solution for running the **Half-Life Dedicated Server (HLDS)**, supporting all classic GoldSrc games and mods. The project uses Docker to simplify server setup, with support for custom configurations, plugins, and mods. Pre-built images are published to Docker Hub and GitHub Container Registry via GitHub Actions CI/CD pipelines.
 
 ## Technologies 🔧
 
-- **Docker**: Containerizes the HLDS server. The [`Dockerfile`](container/Dockerfile) lives in `container/` and supports build arguments (`GAME`, `FLAG`, `VERSION`, `IMAGE`).
+- **Docker**: Containerises the HLDS server. The [`Dockerfile`](container/Dockerfile) lives in `container/` and supports build arguments (`GAME`, `FLAG`, `VERSION`, `IMAGE`).
 - **Docker Compose**: Two compose files: [`docker-compose.yml`](docker-compose.yml) (root, for end-users pulling pre-built images) and [`container/docker-compose.yml`](container/docker-compose.yml) (for building custom images locally).
 - **GitHub Actions**: CI/CD workflows in `.github/workflows/` for validation, beta publishing, production publishing, sponsor management, and PR labeling.
-- **Shell Scripting**: [`container/entrypoint.sh`](container/entrypoint.sh) handles runtime initialization (mod syncing, config syncing, server startup).
+- **Shell Scripting**: [`container/entrypoint.sh`](container/entrypoint.sh) handles runtime initialisation (mod syncing, config syncing, server startup).
 - **SteamCMD**: Downloads HLDS game files during the Docker build via the [`container/hlds.txt`](container/hlds.txt) script.
 
 ## Project Structure 📂
@@ -43,7 +43,7 @@ This repository provides a Dockerized solution for running the **Half-Life Dedic
 │   ├── config/                      # Default configs baked into the image
 │   │   ├── server.cfg               # Default hostname and contact
 │   │   ├── autoexec.cfg             # Executes default.cfg
-│   │   ├── default.cfg              # Empty placeholder for user customization
+│   │   ├── default.cfg              # Empty placeholder for user customisation
 │   │   └── motd.txt                 # HTML message of the day
 │   └── mods/                        # Empty by default; mods baked into custom builds go here
 ├── config/                          # User-provided configs (volume-mounted at runtime, gitignored)
@@ -98,7 +98,7 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 | `27015` | TCP/UDP  | Game server traffic |
 | `26900` | UDP      | Steam master server |
 
-## Entrypoint Behavior 🚪
+## Entrypoint Behaviour 🚪
 
 1. Warns if no `+map` argument is found in the startup command.
 2. Syncs files from `/temp/mods` → `/opt/steam/hlds/` using `rsync`.
@@ -147,7 +147,7 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 ## Coding Conventions 📏
 
-- Code comments must use British English spelling (e.g., `colour`, `behaviour`, `licence` as a noun, `synchronise`). This doesn't apply to identifiers, fixed spec fields, or external API names that are spelled in American English (e.g., the OCI `org.opencontainers.image.licenses` label, or the `synchronize` pull request event type) - those must stay as-is to remain valid.
+- Code comments and documentation (READMEs, `AGENTS.md`, `ARCHITECTURE.md`, `CODE_OF_CONDUCT.md`, etc.) must use British English spelling (e.g., `colour`, `behaviour`, `licence` as a noun, `synchronise`). This doesn't apply to identifiers, fixed spec fields, or external API names that are spelled in American English (e.g., the OCI `org.opencontainers.image.licenses` label, or the `synchronize` pull request event type) - those must stay as-is to remain valid.
 - The [`Dockerfile`](container/Dockerfile) runs as a non-root `steam` user for security.
 - SteamCMD `app_update` runs 3 times in [`hlds.txt`](container/hlds.txt) for download reliability.
 - Config files use `rsync` for syncing to preserve directory structure and handle overwrites.
@@ -158,9 +158,9 @@ Legacy variants use the `-beta steam_legacy` flag to install the pre-25th Annive
 
 ## Architecture Maintenance 🏛️
 
-[`ARCHITECTURE.md`](ARCHITECTURE.md) should be kept up to date with any major architectural changes. When modifying the build process, entrypoint behavior, CI/CD pipeline, volume mapping strategy, or container file system layout, update the corresponding diagrams and descriptions in [`ARCHITECTURE.md`](ARCHITECTURE.md). During code reviews, reviewers should check that [`ARCHITECTURE.md`](ARCHITECTURE.md) still accurately reflects the current state of the project.
+[`ARCHITECTURE.md`](ARCHITECTURE.md) should be kept up to date with any major architectural changes. When modifying the build process, entrypoint behaviour, CI/CD pipeline, volume mapping strategy, or container file system layout, update the corresponding diagrams and descriptions in [`ARCHITECTURE.md`](ARCHITECTURE.md). During code reviews, reviewers should check that [`ARCHITECTURE.md`](ARCHITECTURE.md) still accurately reflects the current state of the project.
 
-[`AGENTS.md`](AGENTS.md) should also be kept up to date when major changes are made. If workflow triggers, supported games, build arguments, volume mounts, ports, entrypoint behavior, or project structure change, update the corresponding sections in this file.
+[`AGENTS.md`](AGENTS.md) should also be kept up to date when major changes are made. If workflow triggers, supported games, build arguments, volume mounts, ports, entrypoint behaviour, or project structure change, update the corresponding sections in this file.
 
 ## Resources 📚
 
