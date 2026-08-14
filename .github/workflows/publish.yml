@@ -115,7 +115,9 @@ jobs:
     name: Prepare Release Candidate 🔀
     needs: version
     # Scheduled runs never promote new commits from beta, so there's nothing to merge.
-    if: github.event_name == 'workflow_dispatch'
+    if: |
+      always() && needs.version.result == 'success' &&
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -246,7 +248,9 @@ jobs:
     name: Merge Candidate into main 🔀
     needs: test
     # No candidate ref on the scheduled path (prepare didn't run) - nothing to promote.
-    if: github.event_name == 'workflow_dispatch'
+    if: |
+      always() && needs.test.result == 'success' &&
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -454,6 +458,7 @@ jobs:
   publish:
     name: Publish GitHub Release 🚀
     needs: [version, release]
+    if: always() && needs.version.result == 'success' && needs.release.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
